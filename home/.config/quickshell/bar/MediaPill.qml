@@ -14,11 +14,19 @@ Pill {
     opacity: Media.shown ? 1 : 0
     implicitWidth: Media.shown ? row.implicitWidth + padding * 2 : 0
 
+    // gives way beside the centre island: the title gets what the other pills and its buttons leave
+    readonly property bool flexible: true
+    readonly property real titleRoom: bar
+        ? bar.sideRoom - bar.rightRigid - padding * 2 - (prevSeg.shown ? prevSeg.width : 0) - playSeg.width
+          - (nextSeg.shown ? nextSeg.width : 0) - title.padL - title.padR - (artist.visible ? title.spacing + artist.width : 0)
+        : 240
+
     Behavior on opacity {
         NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
     }
 
     Seg {
+        id: prevSeg
         shown: !pill.compact
         bar: pill.bar
         padL: 10
@@ -33,6 +41,7 @@ Pill {
         }
     }
     Seg {
+        id: playSeg
         bar: pill.bar
         padL: pill.compact ? 8 : 2
         padR: 2
@@ -46,6 +55,7 @@ Pill {
         }
     }
     Seg {
+        id: nextSeg
         shown: !pill.compact
         bar: pill.bar
         padL: 2
@@ -89,13 +99,15 @@ Pill {
         Marquee {
             anchors.verticalCenter: parent.verticalCenter
             text: Media.title
-            maxWidth: pill.compact ? 170 : 240
+            // at least a few letters
+            maxWidth: Math.max(60, Math.min(pill.compact ? 150 : 240, pill.titleRoom))
             running: pill.playing
             font.weight: Font.DemiBold
             font.pixelSize: pill.compact ? 13 : 14
             color: pill.playing ? Theme.text : Theme.dim
         }
         Label {
+            id: artist
             visible: !pill.compact && text !== ""
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: 1

@@ -27,6 +27,11 @@ PanelWindow {
     WlrLayershell.namespace: "driftless-bar"
     WlrLayershell.layer: WlrLayer.Top
 
+    // for a pill on the right that can shrink (the media title), so it never runs under the clock:
+    // the width from the centre island to the edge, and what the right side takes of it
+    readonly property real sideRoom: (content.width - centerSection.width) / 2 - 12
+    readonly property real rightRigid: rightSection.rigidWidth
+
     Item {
         id: content
         anchors.fill: parent
@@ -39,10 +44,12 @@ PanelWindow {
             anchors.left: parent.left
         }
         Section {
+            id: centerSection
             name: "modules-center"
             anchors.horizontalCenter: parent.horizontalCenter
         }
         Section {
+            id: rightSection
             name: "modules-right"
             anchors.right: parent.right
         }
@@ -53,6 +60,19 @@ PanelWindow {
         property string name
         height: Theme.barHeight
         spacing: bar.compact ? 6 : 8
+
+        // the width of the pills that do not give way (all but those with `flexible`), with the gaps
+        readonly property real rigidWidth: {
+            let w = 0, n = 0;
+            for (const c of children) {
+                if (c.sourceComponent === undefined || !c.visible)
+                    continue;
+                n++;
+                if (!c.item.flexible)
+                    w += c.width;
+            }
+            return w + Math.max(0, n - 1) * spacing;
+        }
 
         Repeater {
             model: BarLayout.section(section.name, bar.variant)

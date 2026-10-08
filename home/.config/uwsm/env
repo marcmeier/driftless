@@ -10,3 +10,6 @@ fi
 
 # machine specific additions
 [ -r "$HOME/.config/driftless/host/env" ] && . "$HOME/.config/driftless/host/env"
+
+# Flatpak apps (their .desktop files) for walker/elephant; /etc/profile.d only reaches login shells
+export XDG_DATA_DIRS="${XDG_DATA_DIRS:-/usr/local/share:/usr/share}:/var/lib/flatpak/exports/share:$HOME/.local/share/flatpak/exports/share"
