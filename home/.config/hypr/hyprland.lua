@@ -31,7 +31,12 @@ end)
 ---------------------
 
 -- Set programs that you use
-local theme = dofile(os.getenv("HOME") .. "/.config/theme/colors.lua") -- accent colours and the look (dark/light), generated from the wallpaper
+-- accent colours and the look (dark/light), generated from the wallpaper by theme/apply.py. Not rendered yet
+-- (a fresh install whose theme step failed): the classic palette keeps the rest of this file working.
+local themed, theme = pcall(dofile, os.getenv("HOME") .. "/.config/theme/colors.lua")
+if not themed or type(theme) ~= "table" then
+    theme = { scheme = "dark", primary = "33ccff", secondary = "00ff99", inactive_border = "ffffff", shadow = "000000" }
+end
 local terminal = "ghostty"
 local menu = "walker"
 local fileManager = "nautilus"

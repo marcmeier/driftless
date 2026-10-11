@@ -6,7 +6,7 @@ import qs.services
 Seg {
     id: seg
 
-    readonly property var c: Feeds.calendar.data
+    readonly property var c: Feeds.calendar.value
     readonly property var next: c ? c.next : null
     readonly property bool failed: !!(c && c.error)
     readonly property string label: next ? (next.when ? next.when + " " : "") + next.title : ""

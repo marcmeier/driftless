@@ -116,7 +116,7 @@ Singleton {
             if (reload && e.id > 0)
                 continue;
             addToHistory({
-                nid: nextStoredId--, app: e.app || "Notification", summary: e.summary || "", body: e.body || "",
+                nid: nextStoredId--, app: e.app || "Notification", summary: e.summary || "", body: Apps.safeMarkup(e.body || ""),
                 icon: e.icon || "", image: e.image || "", urgency: e.urgency || 0, progress: -1,
                 actions: "[]", clickable: false, timeout: 0, time: e.time
             });
@@ -164,7 +164,7 @@ Singleton {
             if (name.startsWith("/"))
                 return "file://" + name;
             if (name.includes("://"))
-                return name;
+                return Apps.localUrl(name);
             return Quickshell.iconPath(name, true);
         };
         // the app's own icon, else its desktop entry's (by the hint or by its name)
@@ -174,7 +174,7 @@ Singleton {
 
     function image(n) {
         const img = n.image || "";
-        return img.startsWith("/") ? "file://" + img : img;
+        return Apps.localUrl(img.startsWith("/") ? "file://" + img : img);
     }
 
     // value hint 0..100: a progress bar on the card (-1: none)
@@ -197,7 +197,7 @@ Singleton {
             nid: n.id,
             app: n.appName || "Notification",
             summary: n.summary || "",
-            body: n.body || "",
+            body: Apps.safeMarkup(n.body || ""),
             icon: icon(n),
             image: image(n),
             urgency: n.urgency,

@@ -6,7 +6,7 @@ import qs.services
 Seg {
     id: seg
 
-    readonly property var d: Feeds.sync.data
+    readonly property var d: Feeds.sync.value
     readonly property string mode: d?.["class"] ?? "none"
     shown: !!d && mode !== "none"
     padL: compact ? 6 : 7

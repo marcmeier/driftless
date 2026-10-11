@@ -78,9 +78,14 @@ sed -i 's/^#\?ParallelDownloads.*/ParallelDownloads = 10/' /etc/pacman.conf
 grep -q '^\[multilib\]' /etc/pacman.conf || sed -i '/^#\[multilib\]/,/^#Include/ s/^#//' /etc/pacman.conf
 grep -q '^\[multilib\]' /etc/pacman.conf || die "multilib could not be enabled"
 install -Dm644 /dev/stdin /etc/driftless/reflector <<< "REFLECTOR_COUNTRY=${REFLECTOR_COUNTRY:-}"
-pacman -Sy --needed --noconfirm archlinux-keyring reflector || fail "reflector"
+# The keyring on its own first (the upgrade is verified with it), then the whole system, then reflector:
+# "pacman -Sy" with other packages next to it is a partial upgrade, which Arch does not support.
+pacman -Sy --needed --noconfirm archlinux-keyring || fail "archlinux-keyring"
+pacman -Su --noconfirm || die "system upgrade failed"
+pacman -S --needed --noconfirm reflector || fail "reflector"
 reflector --save /etc/pacman.d/mirrorlist --protocol https --latest 20 --sort rate \
   ${REFLECTOR_COUNTRY:+--country "$REFLECTOR_COUNTRY"} || warn "reflector failed, keeping the mirror list"
+# the mirrors changed: sync with them (the database may be older than what they have now)
 pacman -Syu --noconfirm || die "system upgrade failed"
 
 facts > /dev/null

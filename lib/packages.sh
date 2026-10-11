@@ -106,9 +106,9 @@ cmd_packages() {
         return 0
       }
       {
-        grep '^#' "$file"
+        grep '^#' "$file" || true
         {
-          grep -v '^#' "$file"
+          grep -v '^#' "$file" || true
           echo "$entry"
         } | sort -u
       } > "$file.new"

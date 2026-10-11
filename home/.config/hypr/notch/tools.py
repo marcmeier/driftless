@@ -82,7 +82,8 @@ def duration(text):
         return int(m[1]) * 3600 + int(m[2]) * 60
     if text.isdigit():
         return int(text) * 60
-    parts = re.findall(r"(\d+(?:\.\d+)?)\s*(h|std|m|min|s|sek|sec)", text)
+    # the longer unit first: "min" and "sek" would otherwise stop after "m" and "s" and leave "in" or "ek"
+    parts = re.findall(r"(\d+(?:\.\d+)?)\s*(h|std|min|m|sek|sec|s)", text)
     if not parts or "".join(f"{n}{u}" for n, u in parts) != re.sub(r"\s", "", text):
         raise ValueError(f"not a duration: {text}")
     unit = {"h": 3600, "std": 3600, "m": 60, "min": 60, "s": 1, "sek": 1, "sec": 1}
@@ -403,8 +404,28 @@ def cmd_files(args):
     return out or f"nothing in the home matches '{word}'"
 
 
+PROGRAM_SUFFIXES = {".desktop", ".sh", ".bash", ".py", ".pl", ".rb", ".run", ".bin", ".appimage", ".jar", ".exe"}
+
+
+def open_target(text):
+    """What `open` may start: a web address (http/https, no login in it) or a file or folder that
+    exists and is not a program. Raises ValueError otherwise (a `javascript:` or `mailto:` address, a
+    launcher, a script: whatever can be made to run something)."""
+    text = text.strip()
+    if re.match(r"^[a-z][a-z0-9+.-]*:", text, re.I) and not text.lower().startswith("file://"):
+        if not re.match(r"^https?://[^\s/?#@]+([/?#]\S*)?$", text, re.I):
+            raise ValueError("only web addresses (http, https) and files can be opened")
+        return text
+    path = Path(urllib.parse.unquote(text[7:]) if text.lower().startswith("file://") else text).expanduser()
+    if not path.exists():
+        raise ValueError(f"no such file or folder: {text}")
+    if path.is_file() and (path.suffix.lower() in PROGRAM_SUFFIXES or os.access(path, os.X_OK)):
+        raise ValueError("programs and launchers are not opened from here (use: app open ID)")
+    return str(path)
+
+
 def cmd_open(args):
-    target = " ".join(args)
+    target = open_target(" ".join(args))
     subprocess.Popen(["xdg-open", target], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
     return f"opened {target}"
 

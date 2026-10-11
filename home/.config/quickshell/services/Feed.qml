@@ -9,7 +9,9 @@ Item {
 
     property var command: []
     property int interval: 0          // seconds; 0: only at the start and on refresh()
-    property var data: null           // the last answer that parsed
+    // the last answer that parsed (null until there is one). Not called `data`: that is the Item's
+    // default property, where the Process and Timer below go, and a property of that name would take them in
+    property var value: null
     property bool running: proc.running
     property bool again: false
 
@@ -29,7 +31,7 @@ Item {
                 if (!t)
                     return;
                 try {
-                    feed.data = JSON.parse(t.split("\n").pop());
+                    feed.value = JSON.parse(t.split("\n").pop());
                 } catch (e) {
                     console.warn("feed", feed.command[0], e);
                 }

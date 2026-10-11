@@ -36,4 +36,16 @@ Singleton {
     function esc(s) {
         return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
+
+    // A notification body is shown as StyledText, and Qt loads an <img> from any address: a tracking
+    // pixel, or a request to a device in the local network. The tag goes, the text stays.
+    function safeMarkup(s) {
+        return String(s).replace(/<\s*img\b[^>]*(?:>|$)/gi, "");
+    }
+
+    // only pictures from this machine (a file, or one the shell itself provides): a web address given
+    // as a notification's icon or image would make the shell fetch it
+    function localUrl(u) {
+        return !u || !u.includes("://") || /^(file|image):\/\//.test(u) ? u : "";
+    }
 }

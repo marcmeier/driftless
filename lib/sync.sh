@@ -24,6 +24,9 @@ AUTO_PATHS=(home personal hosts packages manifest dconf.ini signers)
 SECRET_RE='(ghp_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{30,}|sk-ant-[A-Za-z0-9_-]{20,}|xox[baprs]-[A-Za-z0-9-]{10,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|(password|passwd|secret|token)[[:space:]]*[=:][[:space:]]*["'"'"']?[^[:space:]"'"'"'$]{8,})'
 
 git_() { git -C "$DRIFTLESS" "$@"; }
+# the calls to GitHub: with a limit (a connection that died while the notebook slept would hang for
+# hours) and without the lock's file descriptor 9 (an ssh left in the background would hold the lock)
+git_net() { timeout 300 git -C "$DRIFTLESS" "$@" 9>&-; }
 
 write_status() {
   local rc=$?
@@ -265,7 +268,7 @@ cmd_sync() {
   git_ config user.email > /dev/null || git_ config user.email "driftless@$HOST.invalid"
 
   if ((adopt)); then
-    git_ fetch -q origin main
+    git_net fetch -q origin main
     verify_incoming
     git_ reset -q --hard origin/main
     rm -f "$STATE/conflict"
@@ -275,7 +278,7 @@ cmd_sync() {
   else
     commit_local
     old=$(git_ rev-parse HEAD)
-    if git_ fetch -q origin main 2> /dev/null; then
+    if git_net fetch -q origin main 2> /dev/null; then
       verify_incoming
       incoming=$(git_ rev-list --count HEAD..origin/main)
       if [[ $MODE == review ]] && ((incoming && ! NOW)); then
@@ -300,7 +303,7 @@ cmd_sync() {
 
   [[ $RESULT == offline ]] || RESULT=ok
   if [[ $RESULT == ok ]] && (($(git_ rev-list --count origin/main..HEAD 2> /dev/null || echo 0))); then
-    git_ push -q origin HEAD:main || RESULT="push failed"
+    git_net push -q origin HEAD:main || RESULT="push failed"
   fi
   refresh_bundle || warn "bundle not written"
   ((APPLIED)) && [[ -n $old ]] && notify normal "Taken over from GitHub: $APPLIED file(s)"

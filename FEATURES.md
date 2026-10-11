@@ -86,6 +86,11 @@ of your wallpaper (it follows a new one at once): listening with level bars, thi
 for the answer. Model, language, voice and notes file:
 `NOTCH_*` in `personal/config`.
 
+It searches the web but does not fetch pages itself: a page or your screen can carry instructions, and
+a fetch would give them a way to send out what the assistant has seen in the address it asks for.
+`NOTCH_WEBFETCH=on` allows it. "Open ..." starts web addresses, files and folders, never programs
+or launchers.
+
 ## The bar
 
 One bar per monitor, drawn by Quickshell together with its popups and the Claude bubble: compact on

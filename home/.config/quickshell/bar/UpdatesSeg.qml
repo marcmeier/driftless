@@ -6,7 +6,7 @@ import qs.services
 Seg {
     id: seg
 
-    readonly property var d: Feeds.updates.data
+    readonly property var d: Feeds.updates.value
     readonly property int count: d ? d.repo + d.aur : 0
     shown: count > 0
     padL: compact ? 6 : 7

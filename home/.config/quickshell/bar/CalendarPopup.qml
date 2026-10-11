@@ -17,7 +17,7 @@ Item {
     property var eventDays: []
     property var picked: null                     // {date, label, sub, events} of a clicked day
     readonly property bool isThisMonth: year === today.getFullYear() && month === today.getMonth()
-    readonly property var agenda: Feeds.calendar.data ? Feeds.calendar.data.agenda : []
+    readonly property var agenda: Feeds.calendar.value ? Feeds.calendar.value.agenda : []
     // what comes up, at most `max` events
     function upcoming(max) {
         const out = [];
@@ -298,10 +298,10 @@ Item {
         }
 
         Label {
-            visible: !!(Feeds.calendar.data && Feeds.calendar.data.error)
+            visible: !!(Feeds.calendar.value && Feeds.calendar.value.error)
             width: parent.width
             wrapMode: Text.Wrap
-            text: "⚠ " + (Feeds.calendar.data ? Feeds.calendar.data.error : "")
+            text: "⚠ " + (Feeds.calendar.value ? Feeds.calendar.value.error : "")
             color: Theme.warn
             small: true
         }

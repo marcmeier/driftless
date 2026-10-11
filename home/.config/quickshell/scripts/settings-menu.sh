@@ -112,13 +112,18 @@ wallpaper() {
   done < <(find -H "$WALLS" -maxdepth 1 -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.webp' \) -printf '%T@ %p\n' | sort -rn | cut -d' ' -f2-)
   items+=("󰉋  Choose another image ..." "󰕌  Back to the previous wallpaper" "󰝰  Open the wallpaper folder")
   choice=$(printf '%s\n' "${items[@]}" | pick "Wallpaper") || return 0
+  # an image first, by its exact line: a file called "previous.jpg" is not the "previous" action
+  local i
+  for i in "${!files[@]}"; do
+    [[ ${items[$i]} == "$choice" ]] && {
+      set_wallpaper "${files[$i]}"
+      return 0
+    }
+  done
   case $choice in
     *"Choose another"*) wallpaper_other ;;
     *previous*) wallpaper_previous ;;
     *folder) xdg-open "$WALLS" ;;
-    *)
-      for i in "${!items[@]}"; do [[ ${items[$i]} == "$choice" ]] && set_wallpaper "${files[$i]}"; done
-      ;;
   esac
 }
 

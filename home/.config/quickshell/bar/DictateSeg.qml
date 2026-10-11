@@ -6,12 +6,12 @@ import qs.services
 Seg {
     id: seg
 
-    readonly property string mode: Feeds.dictate.data?.["class"] ?? "idle"
+    readonly property string mode: Feeds.dictate.value?.["class"] ?? "idle"
     readonly property string script: Actions.home + "/.config/hypr/dictate.py"
 
     padL: compact ? 4 : 5
     padR: compact ? 4 : 5
-    tip: Apps.esc(Feeds.dictate.data?.tooltip ?? "").replace(/\n/g, "<br>")
+    tip: Apps.esc(Feeds.dictate.value?.tooltip ?? "").replace(/\n/g, "<br>")
 
     onClicked: button => {
         const args = button === Qt.RightButton ? ["toggle", "--raw"] : button === Qt.MiddleButton ? ["cancel"] : ["toggle"];

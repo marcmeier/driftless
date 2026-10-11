@@ -219,7 +219,7 @@ and a menu for everything above.
 ```bash
 tests/lint.sh   # shellcheck, shfmt, ruff, and every script with a shebang must be executable
 bats tests/     # links, manifest, packages, hardware facts, the sync between two machines, publish,
-                # and the two root helpers
+                # the two root helpers, the voice tools' parts without a desktop, the calls into the shell
 ```
 
 The sync tests run the real `driftless` on two machines with their own home and a bare repository

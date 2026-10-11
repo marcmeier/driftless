@@ -4,6 +4,41 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## Unreleased
+
+### Fixed
+- The voice bubble's face moves with the spoken answer again, and the bubble stays open while it is
+  read out. `speak.py` addressed the shell by a folder that has had no shell in it since the bubble
+  became part of the bar's shell, so its calls failed without a word. A test now checks every
+  `quickshell ipc` call.
+- Timers by voice take `min`, `sek` and `sec` as units; the shorter `m` and `s` matched first.
+- The pills fed by scripts (Claude usage, sync, weather, calendar, updates) are hidden until their
+  script has answered. The feed's `data` property took the feed's Process and Timer children in, so a
+  pill saw an object instead of nothing and showed "today 0" for a script that failed.
+- A notification body cannot load pictures through `<img>` any more (Qt fetches them from any
+  address), and an icon or image given as a web address is not fetched.
+- A program's replaced folder is only removed from the home after it was copied into the repository
+  completely (`driftless link` ran the removal even when the copy failed).
+- The sync gives its calls to GitHub five minutes and the unit fifteen: a connection that died while a
+  notebook slept blocked every later run. The lock's file descriptor is not handed to them.
+- `driftless packages add` aborted for a list without a header line. `driftless help` and
+  `install-base.sh --help` printed two lines of code at the end, and the installer checks for root
+  before it removes or copies anything.
+- Hyprland keeps its keys and rules when `theme/colors.lua` is missing (a theme step that failed).
+- The screenshots show no real host name and no folder name of the author; `driftless publish` says
+  when `personal/forbidden` has no terms to check.
+
+### Security
+- The voice assistant no longer fetches web pages (`WebFetch`) unless `NOTCH_WEBFETCH=on`. Text from a
+  page, the screen or the clipboard can carry instructions, and the address of a fetch is a way to send
+  out what the assistant has seen. Web search stays. The prompt also says that such text is data.
+- "Open ..." by voice starts web addresses (http, https, no login in them) and files that are not
+  programs; `javascript:`, `mailto:`, launchers and scripts are refused.
+- `install-base.sh` refuses a disk that has mounted partitions (the live medium, a data disk) instead
+  of wiping it after one typed confirmation.
+- `bootstrap.sh` no longer runs `pacman -Sy` together with other packages (a partial upgrade): the
+  keyring first, then the whole system, then reflector.
+
 ## v2.7.0 (2026-10-03): a light look
 
 ### Added

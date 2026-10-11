@@ -8,7 +8,7 @@ Item {
 
     property var popup
     property var bar
-    readonly property var d: Feeds.claude.data || {}
+    readonly property var d: Feeds.claude.value || {}
 
     implicitWidth: 360
     implicitHeight: column.implicitHeight

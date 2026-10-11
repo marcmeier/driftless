@@ -46,16 +46,19 @@ backup_live() { # backup_live TARGET: move ~/TARGET into this run's backup folde
   mv "$HOME/$1" "$LINK_BACKUP/$1"
 }
 
-# heal TARGET SOURCE: take a plain file or folder that replaced a managed link into the repository
+# heal TARGET SOURCE: take a plain file or folder that replaced a managed link into the repository.
+# The live version goes only after it was copied completely: "link_one ... || rc=1" runs with errexit
+# off, so a failed cp would not stop the rm by itself.
 heal() {
-  local live=$HOME/$1 src=$2
+  local live=$HOME/$1 src=$2 copied=1
   if [[ -d $live ]]; then
-    mkdir -p "$src"
-    cp -a "$live/." "$src/"
-    rm -rf "$live"
+    mkdir -p "$src" && cp -a "$live/." "$src/" && rm -rf "$live" || copied=0
   else
-    cp -a "$live" "$src"
-    rm -f "$live"
+    cp -a "$live" "$src" && rm -f "$live" || copied=0
+  fi
+  if ((! copied)); then
+    warn "could not copy $live into the repository: left as it is"
+    return 1
   fi
   ln -s "$src" "$live"
   echo "healed: ~/$1 (a program had replaced the link, its content is in the repository now)"
@@ -85,7 +88,7 @@ link_one() {
     rm -f "$live"
   elif [[ -e $live ]] && { managed "$target" || ((adopt)); }; then
     heal "$target" "$src"
-    return 0
+    return
   elif [[ -e $live ]]; then
     if [[ -f $live && -f $src ]] && cmp -s "$live" "$src"; then
       rm -f "$live" # same content: nothing to keep

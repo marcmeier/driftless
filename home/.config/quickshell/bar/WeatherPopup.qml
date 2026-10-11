@@ -7,7 +7,7 @@ Item {
 
     property var popup
     property var bar
-    readonly property var w: Feeds.weather.data || {}
+    readonly property var w: Feeds.weather.value || {}
 
     implicitWidth: 330
     implicitHeight: column.implicitHeight

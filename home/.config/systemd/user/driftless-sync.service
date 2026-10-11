@@ -5,3 +5,5 @@ Description=driftless sync: commit, fetch, check signatures, update, apply, push
 Type=oneshot
 ExecStart=%h/.local/bin/driftless sync
 Nice=15
+# a oneshot service has no time limit by default: a hung connection would block every later run
+TimeoutStartSec=15min

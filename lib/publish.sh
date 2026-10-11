@@ -19,10 +19,12 @@ cmd_publish() {
   # the published tree is exactly the listed files: remove everything else first (not .git)
   find "$out" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
   (cd "$DRIFTLESS" && printf '%s\0' "${files[@]}" | xargs -0 cp --parents -a -t "$out")
-  if [[ -s $DRIFTLESS/personal/forbidden ]]; then
+  if grep -qv '^\s*\(#\|$\)' "$DRIFTLESS/personal/forbidden" 2> /dev/null; then
     hits=$(grep -rnIE -f <(grep -v '^\s*\(#\|$\)' "$DRIFTLESS/personal/forbidden") "$out" --exclude-dir=.git | head -20 || true)
     [[ -z $hits ]] || die "personal terms in the export, nothing committed:
 $hits"
+  else
+    warn "personal/forbidden has no terms: the export was not checked for personal words"
   fi
   git -C "$out" add -A
   if git -C "$out" diff --cached --quiet; then

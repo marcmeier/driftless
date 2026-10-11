@@ -19,7 +19,7 @@ import sys
 import time
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent
+SHELL = Path.home() / ".config/quickshell"  # the desktop shell draws the bubble (notch.py talks to it too)
 VOICES = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "piper"
 LEAD = 0.15  # seconds of audio handed to pw-play ahead of what is heard
 # a bit livelier than the voices' defaults (some ship a flat 0.333): more varied melody and rhythm,
@@ -29,7 +29,7 @@ LIVELY = {"length_scale": 0.92, "noise_scale": 0.667, "noise_w_scale": 0.8}
 
 def bubble(*args):
     subprocess.Popen(
-        ["quickshell", "ipc", "-p", str(HERE), "call", "notch", *map(str, args)],
+        ["quickshell", "ipc", "-p", str(SHELL), "call", "notch", *map(str, args)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )

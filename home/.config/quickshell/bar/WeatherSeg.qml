@@ -5,10 +5,10 @@ import qs.services
 Seg {
     id: seg
 
-    readonly property var w: Feeds.weather.data
+    readonly property var w: Feeds.weather.value
     shown: !!(w && w.icon)
     spacing: 6
-    tip: w && w.desc ? w.desc + "<font color='" + Theme.dim + "'>  ·  feels " + w.feels + "°</font>" : ""
+    tip: w && w.desc ? Apps.esc(w.desc) + "<font color='" + Theme.dim + "'>  ·  feels " + w.feels + "°</font>" : ""
 
     onClicked: togglePopup()
 

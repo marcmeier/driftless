@@ -7,7 +7,7 @@ import qs.services
 Seg {
     id: seg
 
-    readonly property var d: Feeds.claude.data
+    readonly property var d: Feeds.claude.value
     readonly property color tone: !d ? Theme.text
                                 : d.level === "crit" ? Theme.crit
                                 : d.level === "warn" ? Theme.warn

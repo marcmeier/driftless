@@ -80,6 +80,15 @@ lib() { HOME=$(home A) DRIFTLESS_HOST=A bash -c "DRIFTLESS=$(repo A); source $(r
   grep -qx 'aur:newaur' "$(repo A)/packages/one.list"
 }
 
+@test "packages add also works for a list without a header (the command runs with errexit)" {
+  run dl A packages add extra three
+  [ "$status" -eq 0 ]
+  # (the pacman stub calls every package foreign, hence the optional aur: prefix)
+  grep -qxE '(aur:)?extra' "$(repo A)/packages/three.list"
+  grep -qx three "$(repo A)/packages/three.list"
+  [ ! -e "$(repo A)/packages/three.list.new" ]
+}
+
 @test "packages remove takes a package out of every list" {
   lib "cmd_packages remove foo"
   refute grep -qx foo "$(repo A)/packages/one.list"

@@ -60,6 +60,21 @@ setup() {
   [ "$(cat "$(repo A)/home/.config/mimeapps.list")" = "[Default Applications]" ]
 }
 
+@test "a heal that cannot copy leaves the program's version where it is" {
+  [[ $EUID -ne 0 ]] || skip "root ignores file modes"
+  dl A link
+  rm "$(home A)/.config/emoji"
+  mkdir "$(home A)/.config/emoji"
+  echo precious > "$(home A)/.config/emoji/new-file"
+  # a new file cannot be created in the repository folder: the copy fails halfway
+  chmod 555 "$(repo A)/home/.config/emoji"
+  run dl A link
+  chmod 755 "$(repo A)/home/.config/emoji"
+  [ "$status" -ne 0 ]
+  [[ $output == *"left as it is"* ]]
+  [ "$(cat "$(home A)/.config/emoji/new-file")" = precious ]
+}
+
 @test "--adopt: on the first run the live file wins" {
   echo "live notes" > "$(home A)/.bashrc"
   dl A link --adopt

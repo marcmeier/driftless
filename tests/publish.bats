@@ -31,6 +31,17 @@ setup() {
   [ -z "$(git -C "$T/public" log --oneline 2> /dev/null)" ]
 }
 
+@test "a forbidden list without terms still exports, and says nothing was checked" {
+  mkdir -p "$(repo A)/personal"
+  printf '# no terms yet\n' > "$(repo A)/personal/forbidden"
+  git -C "$(repo A)" add -A
+  git -C "$(repo A)" -c user.name=t -c user.email=t@t commit -qm "no terms"
+  run dl A publish "$T/public"
+  [ "$status" -eq 0 ]
+  [[ $output == *"not checked for personal words"* ]]
+  [ -f "$T/public/driftless" ]
+}
+
 @test "the public template itself contains no personal term" {
   [[ -s $(repo A)/personal/forbidden ]] || skip "no personal layer (public template)"
   dl A publish "$T/public"

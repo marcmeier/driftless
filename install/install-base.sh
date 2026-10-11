@@ -16,6 +16,15 @@
 set -euo pipefail
 SRC=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 
+# help and the root check come first: nothing is removed or copied before them
+for arg in "$@"; do
+  [[ $arg == -h || $arg == --help ]] && {
+    sed -n '2,15p' "$0"
+    exit 0
+  }
+done
+[[ $EUID -eq 0 ]] || { echo "run as root" && exit 1; }
+
 # work from a copy: the repository may live under /mnt (a USB stick), which "umount -R /mnt" below
 # would pull away mid-run
 KIT=/root/.driftless-install
@@ -37,14 +46,12 @@ while (($#)); do
     --keymap) KEYMAP=$2 && shift 2 ;;
     --tz) TZONE=$2 && shift 2 ;;
     --encrypt) ENCRYPT=1 && shift ;;
-    -h | --help) sed -n '2,16p' "$0" && exit 0 ;;
     /dev/*) DISK=$1 && shift ;;
     *) echo "unknown argument: $1" && exit 1 ;;
   esac
 done
 
 # ---------------------------------------------------------------- checks
-[[ $EUID -eq 0 ]] || { echo "run as root" && exit 1; }
 [[ -d /sys/firmware/efi ]] || { echo "not booted in UEFI mode" && exit 1; }
 if [[ -z $DISK ]]; then
   lsblk -d -e7,11 -o NAME,SIZE,TYPE,TRAN,MODEL
@@ -53,6 +60,17 @@ if [[ -z $DISK ]]; then
 fi
 [[ -e $DISK ]] && DISK=$(readlink -f "$DISK") # /dev/disk/by-id/... -> the node the partition names need
 [[ -b $DISK ]] || { echo "block device not found: '$DISK'" && exit 1; }
+# what an earlier attempt left mounted goes first; anything still in use on the disk is not ours to wipe
+# (the live medium itself, a data disk): typing the path below would not show that
+umount -R /mnt 2> /dev/null || true
+cryptsetup close cryptroot 2> /dev/null || true
+in_use=$(lsblk -nrpo NAME,MOUNTPOINTS "$DISK" | awk 'NF > 1 { print "  " $0 }')
+if [[ -n $in_use ]]; then
+  echo "$DISK is in use, not wiping it:"
+  echo "$in_use"
+  echo "Is it the live medium? Pick the disk to install onto. Otherwise umount / swapoff it first."
+  exit 1
+fi
 # DHCP/DNS may still be coming up right after boot
 for _ in 1 2 3 4 5; do
   if ping -c1 -W5 archlinux.org > /dev/null 2>&1; then break; fi
@@ -87,8 +105,6 @@ OPTS="rw,noatime,compress=zstd:1,space_cache=v2"
 [[ $(cat "/sys/block/${DISK#/dev/}/queue/rotational" 2> /dev/null) == 0 ]] && OPTS+=",ssd,discard=async"
 
 timedatectl set-ntp true
-umount -R /mnt 2> /dev/null || true
-cryptsetup close cryptroot 2> /dev/null || true
 sgdisk --zap-all "$DISK"
 sgdisk -n1:0:+1G -t1:ef00 -c1:ESP -n2:0:0 -t2:8309 -c2:archroot "$DISK"
 ((ENCRYPT)) || sgdisk -t2:8304 "$DISK"

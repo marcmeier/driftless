@@ -18,11 +18,13 @@ DICTATE_PROMPT=""
 # asking Claude by voice (SUPER + A): the Claude model, the language for Whisper (empty: DICTATE_LANG),
 # the Piper voice (empty: de_DE-thorsten-high for German, en_US-lessac-high otherwise; "off": not
 # spoken; https://huggingface.co/rhasspy/piper-voices) and the notes file ("Note: ...";
-# empty: ~/Documents/notes.md)
+# empty: ~/Documents/notes.md). Claude may search the web; "on" lets it fetch pages as well, which
+# also gives a prompt injection (text on a page or on your screen) a way to send what it saw out
 NOTCH_MODEL=haiku
 NOTCH_LANG=""
 NOTCH_VOICE=""
 NOTCH_NOTES=""
+NOTCH_WEBFETCH=off
 
 # the wallpaper folder of the settings; point it at a folder your cloud client syncs to have the
 # same wallpapers on every machine (empty: ~/Pictures/Wallpapers)
