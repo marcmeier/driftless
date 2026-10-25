@@ -15,7 +15,6 @@ Usage: tools.py timer DURATION LABEL      ring after 10m, 1h30m, 90s ...
        tools.py bluetooth [list|connect NAME|disconnect NAME]
        tools.py dnd [on|off]              notifications: do not disturb
        tools.py lock | suspend
-       tools.py wallpaper                 a random one from the wallpaper folder
        tools.py screen                    screenshot of the focused monitor; prints the path to Read
        tools.py clipboard [get|set TEXT]
        tools.py paste TEXT                type TEXT into the active window (through the clipboard)
@@ -326,16 +325,6 @@ def cmd_suspend(_):
     return "suspending in a few seconds"
 
 
-def cmd_wallpaper(_):
-    tool = Path.home() / ".local/bin/set-wallpaper"
-    if not tool.exists():
-        return "set-wallpaper is not installed"
-    subprocess.Popen(
-        [str(tool), "--random"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True
-    )
-    return "a new wallpaper is coming in"
-
-
 # ---- screen, clipboard, typing ----
 
 
@@ -502,7 +491,6 @@ COMMANDS = {
     "dnd": cmd_dnd,
     "lock": cmd_lock,
     "suspend": cmd_suspend,
-    "wallpaper": cmd_wallpaper,
     "screen": cmd_screen,
     "clipboard": cmd_clipboard,
     "paste": cmd_paste,

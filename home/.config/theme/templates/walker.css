@@ -1,28 +1,29 @@
 /* rendered by theme/apply.py into ~/.config/walker/themes/driftless/style.css (the path to colors.css is absolute there) */
-/* Matches the shell (bar, notifications, power menu), dark or light. Falls back to the default theme for layouts. */
+/* The plain look like the shell (bar, popups, power menu), dark or light: opaque, square, 1 px lines,
+   the selection in the accent. Falls back to the default theme for layouts. */
 
 @import url("file://@home@/.config/theme/colors.css");
 
-@define-color window_bg_color @glass:0.92@;
+@define-color window_bg_color @glass@;
 @define-color accent_bg_color @primary;
 @define-color theme_fg_color  @fg@;
 @define-color error_bg_color  @red@;
 @define-color error_fg_color  @ink@;
 @define-color dim             @dim@;
-@define-color overlay         @overlay@;
+@define-color line            @line@;
+@define-color ink             @ink@;
 @define-color accent          @secondary;
 
 * {
   all: unset;
   font-family: "JetBrainsMono Nerd Font", monospace;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 popover {
   background: @bg_alt@;
-  border: 1px solid alpha(@overlay, 0.10);
-  border-radius: 14px;
-  padding: 8px;
+  border: 1px solid @line;
+  padding: 4px;
 }
 
 .normal-icons { -gtk-icon-size: 16px; }
@@ -31,92 +32,82 @@ popover {
 scrollbar { opacity: 0; }
 
 .box-wrapper {
-  box-shadow: 0 18px 40px @shadow:@shadow_alpha@@;
   background: @window_bg_color;
-  padding: 14px;
-  border-radius: 18px;
-  border: 1px solid alpha(@overlay, 0.08);
+  padding: 8px;
+  border: 1px solid @line;
 }
 
 .preview-box,
 .elephant-hint,
 .placeholder { color: @dim; }
 
-.search-container { border-radius: 12px; }
-
 .input {
   caret-color: @accent;
-  background: alpha(@overlay, 0.05);
-  border: 1px solid alpha(@overlay, 0.06);
-  border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 15px;
+  background: @field@;
+  border: 1px solid @line;
+  padding: 7px 10px;
   color: @theme_fg_color;
 }
 .input:focus,
-.input:active { border-color: alpha(@accent_bg_color, 0.6); }
-.input placeholder { opacity: 0.6; }
-.input selection { background: alpha(@accent_bg_color, 0.35); }
+.input:active { border-color: @accent_bg_color; }
+.input placeholder { color: @dim; }
+.input selection { background: @selection@; }
 
 .list { color: @theme_fg_color; }
 
 .item-box {
-  border-radius: 12px;
-  padding: 9px 12px;
-  border: 1px solid transparent;
-  transition: all 0.15s ease;
+  padding: 5px 10px;
 }
 
 .item-quick-activation {
-  background: alpha(@overlay, 0.06);
   color: @dim;
-  border-radius: 8px;
-  padding: 4px 8px;
+  padding: 0 6px;
 }
 
 child:selected .item-box,
 row:selected .item-box {
-  background: alpha(@accent_bg_color, 0.12);
-  border-color: alpha(@accent_bg_color, 0.55);
+  background: @accent_bg_color;
+  color: @ink;
 }
+child:selected .item-subtext,
+row:selected .item-subtext,
+child:selected .item-quick-activation,
+row:selected .item-quick-activation { color: @ink; }
 
-.item-subtext { font-size: 12px; opacity: 0.65; }
-.providerlist .item-subtext { font-size: unset; opacity: 0.75; }
-.item-image-text { font-size: 28px; }
+.item-subtext { font-size: 12px; color: @dim; }
+.providerlist .item-subtext { font-size: unset; }
+.item-image-text { font-size: 24px; }
 
 .preview {
-  border: 1px solid alpha(@overlay, 0.08);
-  border-radius: 12px;
+  border: 1px solid @line;
   color: @theme_fg_color;
 }
 
-.calc .item-text { font-size: 24px; color: @accent; }
-.symbols .item-image { font-size: 24px; }
+.calc .item-text { font-size: 20px; }
+.symbols .item-image { font-size: 22px; }
 
-.todo.done .item-text-box { opacity: 0.25; }
-.todo.urgent { font-size: 24px; }
+.todo.done .item-text-box { color: @dim; }
+.todo.urgent { font-weight: bold; }
 .todo.active { font-weight: bold; }
-.bluetooth.disconnected { opacity: 0.5; }
+.bluetooth.disconnected { color: @dim; }
 .preview .large-icons { -gtk-icon-size: 64px; }
 
 .keybinds {
-  padding-top: 10px;
-  border-top: 1px solid alpha(@overlay, 0.06);
+  padding-top: 6px;
+  border-top: 1px solid @line;
   font-size: 12px;
   color: @dim;
 }
-.keybind-button { opacity: 0.5; }
-.keybind-button:hover { opacity: 0.85; }
-.keybind-bind { text-transform: lowercase; opacity: 0.4; }
+.keybind-button { color: @dim; }
+.keybind-button:hover { color: @theme_fg_color; }
+.keybind-bind { text-transform: lowercase; color: @dim; }
 .keybind-label {
-  padding: 2px 6px;
-  border-radius: 6px;
-  border: 1px solid alpha(@overlay, 0.15);
+  padding: 0 5px;
+  border: 1px solid @line;
 }
 
 .error {
-  padding: 10px;
-  border-radius: 10px;
+  padding: 8px;
   background: @error_bg_color;
   color: @error_fg_color;
 }

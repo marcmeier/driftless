@@ -22,17 +22,9 @@ Seg {
         id: label
         anchors.verticalCenter: parent.verticalCenter
         text: seg.d?.text ?? ""
-        font.pixelSize: seg.compact ? 14 : 15
+        font.pixelSize: seg.compact ? 13 : 14
         color: seg.mode === "running" ? Theme.accent : seg.mode === "pending" || seg.mode === "off" ? Theme.warn
              : seg.mode === "error" ? Theme.crit : Theme.dim
 
-        // a sync is running: breathe
-        SequentialAnimation on opacity {
-            running: seg.mode === "running"
-            loops: Animation.Infinite
-            NumberAnimation { to: 0.4; duration: 700; easing.type: Easing.InOutSine }
-            NumberAnimation { to: 1; duration: 700; easing.type: Easing.InOutSine }
-            onRunningChanged: if (!running) label.opacity = 1
-        }
     }
 }

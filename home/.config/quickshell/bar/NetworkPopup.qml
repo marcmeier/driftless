@@ -37,13 +37,13 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: Networking.wifiEnabled ? "\u{F0928}" : "\u{F05AA}"
                     size: 20
-                    color: Networking.wifiEnabled ? Theme.accent2 : Theme.dim
+                    color: Networking.wifiEnabled ? Theme.text : Theme.faint
                 }
                 Label {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Wi-Fi"
                     bold: true
-                    font.pixelSize: 15
+                    font.pixelSize: 13
                 }
             }
             PSwitch {
@@ -73,8 +73,7 @@ Item {
                     readonly property bool busy: modelData.stateChanging
                     width: column.width
                     height: 36
-                    radius: 9
-                    color: modelData.connected ? Qt.alpha(Theme.accent2, 0.15) : mouse.containsMouse ? Theme.hover : "transparent"
+                    color: modelData.connected ? Theme.raised : mouse.containsMouse ? Theme.hover : "transparent"
 
                     Icon {
                         x: 8

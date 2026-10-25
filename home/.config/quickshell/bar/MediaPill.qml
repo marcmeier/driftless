@@ -21,10 +21,6 @@ Pill {
           - (nextSeg.shown ? nextSeg.width : 0) - title.padL - title.padR - (artist.visible ? title.spacing + artist.width : 0)
         : 240
 
-    Behavior on opacity {
-        NumberAnimation { duration: 220; easing.type: Easing.OutCubic }
-    }
-
     Seg {
         id: prevSeg
         shown: !pill.compact
@@ -50,8 +46,8 @@ Pill {
         Icon {
             anchors.verticalCenter: parent.verticalCenter
             text: pill.playing ? "\u{F03E4}" : "\u{F040A}"
-            size: 18
-            color: pill.playing ? Theme.accent2 : Theme.dim
+            size: 14
+            color: pill.playing ? Theme.text : Theme.dim
         }
     }
     Seg {
@@ -103,7 +99,7 @@ Pill {
             maxWidth: Math.max(60, Math.min(pill.compact ? 150 : 240, pill.titleRoom))
             running: pill.playing
             font.weight: Font.DemiBold
-            font.pixelSize: pill.compact ? 13 : 14
+            font.pixelSize: pill.compact ? 12 : 13
             color: pill.playing ? Theme.text : Theme.dim
         }
         Label {
@@ -115,7 +111,7 @@ Pill {
             elide: Text.ElideRight
             text: Media.artist
             small: true
-            color: Qt.alpha(Theme.text, 0.55)
+            color: Theme.dim
         }
     }
 }

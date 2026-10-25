@@ -17,7 +17,7 @@ export EDITOR=nano
 export VISUAL=nano
 export PATH="$HOME/.local/bin:$PATH"
 
-# colours that follow the wallpaper: ghostty palette slots (6 = primary accent, 10 = secondary)
+# colours that follow the theme: ghostty palette slots 6 and 10 are its accent
 export BAT_THEME=ansi
 export FZF_DEFAULT_OPTS="--color=fg:7,hl:6,fg+:15,bg+:-1,hl+:6,info:8,prompt:6,pointer:10,marker:10,spinner:10,header:8,border:8,gutter:-1 --pointer=▌ --marker=▌"
 

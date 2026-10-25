@@ -1,6 +1,6 @@
 import QtQuick
 
-// A quiet button at the bottom of the login screen: an icon and maybe a word, lit on hover.
+// A quiet button at the bottom of the login screen: an icon and maybe a word, on a grey on hover.
 Rectangle {
     id: chip
     required property var theme
@@ -8,13 +8,9 @@ Rectangle {
     property string label
     property bool clickable: true
     signal clicked
-    width: chipRow.implicitWidth + 24
-    height: 32
-    radius: 10
+    width: chipRow.implicitWidth + 16
+    height: 26
     color: clickable && chipMouse.containsMouse ? chip.theme.hover : "transparent"
-    Behavior on color {
-        ColorAnimation { duration: 120 }
-    }
     Row {
         id: chipRow
         anchors.centerIn: parent
@@ -22,7 +18,7 @@ Rectangle {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             font.family: chip.theme.font
-            font.pixelSize: 15
+            font.pixelSize: 14
             color: chip.clickable && chipMouse.containsMouse ? chip.theme.text : chip.theme.dim
             text: chip.icon
             renderType: Text.NativeRendering
@@ -32,7 +28,6 @@ Rectangle {
             visible: chip.label !== ""
             font.family: chip.theme.font
             font.pixelSize: 12
-            font.weight: Font.Medium
             color: chip.clickable && chipMouse.containsMouse ? chip.theme.text : chip.theme.dim
             text: chip.label
             textFormat: Text.PlainText

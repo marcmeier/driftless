@@ -42,7 +42,7 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         text: Qt.formatDateTime(clock.date, "HH:mm")
         bold: true
-        font.pixelSize: seg.compact ? 14 : 15
+        font.pixelSize: seg.compact ? 13 : 14
         font.letterSpacing: seg.compact ? 0.5 : 1
     }
     Label {

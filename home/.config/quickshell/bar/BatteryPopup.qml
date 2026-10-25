@@ -27,15 +27,15 @@ Item {
             Icon {
                 anchors.verticalCenter: parent.verticalCenter
                 text: Glyphs.battery(root.percent, root.charging)
-                size: 30
-                color: root.charging ? Theme.accent2 : Theme.levelColor(100 - root.percent)
+                size: 22
+                color: Theme.dim
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
                 Label {
                     text: root.percent + "%"
                     bold: true
-                    font.pixelSize: 24
+                    font.pixelSize: 18
                 }
                 Label {
                     text: Battery.state(root.dev)
@@ -48,7 +48,7 @@ Item {
         PMeter {
             width: parent.width
             percent: root.percent
-            tone: root.charging ? Theme.accent2 : root.percent <= 12 ? Theme.crit : root.percent <= 25 ? Theme.warn : Theme.accent2
+            tone: root.percent <= 12 ? Theme.crit : root.percent <= 25 ? Theme.warn : Theme.accent
         }
 
         Row {

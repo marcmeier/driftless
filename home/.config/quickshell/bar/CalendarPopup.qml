@@ -87,7 +87,7 @@ Item {
                 x: 4
                 text: Qt.formatDate(new Date(root.year, root.month, 1), "MMMM yyyy")
                 bold: true
-                font.pixelSize: 15
+                font.pixelSize: 13
             }
             Row {
                 anchors.right: parent.right
@@ -137,7 +137,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData
                         small: true
-                        color: index >= 5 ? Qt.alpha(Theme.accent2, 0.7) : Theme.faint
+                        color: Theme.faint
                     }
                 }
             }
@@ -169,12 +169,10 @@ Item {
                             anchors.centerIn: parent
                             width: 32
                             height: 30
-                            radius: 9
                             visible: day.isToday || day.isPicked || mouse.containsMouse
-                            color: day.isToday ? "transparent" : mouse.containsMouse && !day.isPicked ? Theme.hover : Qt.alpha(Theme.accent2, 0.18)
+                            color: day.isToday ? Theme.accent : mouse.containsMouse && !day.isPicked ? Theme.hover : "transparent"
                             border.width: day.isPicked && !day.isToday ? 1 : 0
-                            border.color: Qt.alpha(Theme.accent2, 0.6)
-                            gradient: day.isToday ? todayGradient : null
+                            border.color: Theme.accent
                         }
                         Label {
                             anchors.centerIn: parent
@@ -182,17 +180,16 @@ Item {
                             text: day.date.getDate()
                             font.pixelSize: 13
                             bold: day.isToday
-                            color: day.isToday ? Theme.accentInk : !day.inMonth ? Qt.alpha(Theme.dim, 0.4)
-                                 : day.index % 7 >= 5 ? Qt.lighter(Theme.dim, 1.15) : Theme.text
+                            color: day.isToday ? Theme.accentInk : !day.inMonth ? Theme.faint
+                                 : day.index % 7 >= 5 ? Theme.dim : Theme.text
                         }
                         Rectangle {
                             visible: day.hasEvents
                             anchors.horizontalCenter: parent.horizontalCenter
                             y: parent.height / 2 + 6
-                            width: 4
-                            height: 4
-                            radius: 2
-                            color: day.isToday ? Theme.accentInk : Theme.accent
+                            width: 3
+                            height: 3
+                            color: day.isToday ? Theme.accentInk : Theme.dim
                         }
                         MouseArea {
                             id: mouse
@@ -210,12 +207,6 @@ Item {
                         }
                     }
                 }
-            }
-            Gradient {
-                id: todayGradient
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.accent2 }
-                GradientStop { position: 1; color: Theme.accent }
             }
         }
 
@@ -263,16 +254,7 @@ Item {
                             required property var modelData
                             width: parent.width
                             height: 30
-                            radius: 8
-                            color: Theme.well
-                            Rectangle {
-                                x: 0
-                                width: 3
-                                height: parent.height - 12
-                                anchors.verticalCenter: parent.verticalCenter
-                                radius: 2
-                                color: Theme.accent2
-                            }
+                            color: "transparent"
                             Label {
                                 id: time
                                 x: 12
@@ -280,7 +262,7 @@ Item {
                                 width: 62
                                 text: modelData.allDay ? "all day" : modelData.continued ? "→ " + modelData.end : modelData.start
                                 small: true
-                                color: Theme.accent2
+                                color: Theme.dim
                             }
                             Label {
                                 anchors.left: time.right

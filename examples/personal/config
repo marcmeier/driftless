@@ -26,10 +26,6 @@ NOTCH_VOICE=""
 NOTCH_NOTES=""
 NOTCH_WEBFETCH=off
 
-# the wallpaper folder of the settings; point it at a folder your cloud client syncs to have the
-# same wallpapers on every machine (empty: ~/Pictures/Wallpapers)
-WALLPAPER_DIR=""
-
 # where Claude Code starts (SUPER + SHIFT + C)
 CLAUDE_WORKDIR="$HOME"
 

@@ -27,15 +27,10 @@ Rectangle {
     onTextChanged: if (input.text !== text) input.text = text
 
     implicitWidth: 300
-    implicitHeight: 44
-    radius: 12
-    color: Qt.rgba(11 / 255, 13 / 255, 16 / 255, 0.6)
+    implicitHeight: 32
+    color: field.theme.field
     border.width: 1
-    border.color: failed ? Qt.alpha(field.theme.crit, 0.8)
-                : input.activeFocus ? field.theme.primary : Qt.rgba(215 / 255, 220 / 255, 226 / 255, 0.12)
-    Behavior on border.color {
-        ColorAnimation { duration: 150 }
-    }
+    border.color: failed ? field.theme.crit : input.activeFocus ? field.theme.primary : field.theme.line
 
     TextInput {
         id: input
@@ -64,87 +59,58 @@ Rectangle {
 
     Text {
         anchors.verticalCenter: parent.verticalCenter
-        x: 14
+        x: 12
         visible: field.text === "" && !field.checking
         text: field.placeholder
         color: field.theme.faint
         font.family: field.theme.font
-        font.pixelSize: 14
-        font.weight: Font.Medium
+        font.pixelSize: 13
         renderType: Text.NativeRendering
     }
 
     // what you typed, shown (not a password)
     Text {
         anchors.verticalCenter: parent.verticalCenter
-        x: 14
+        x: 12
         width: parent.width - 50
         elide: Text.ElideLeft
         visible: field.reveal && !field.checking
         text: field.text
         color: field.theme.text
         font.family: field.theme.font
-        font.pixelSize: 14
-        font.weight: Font.Medium
+        font.pixelSize: 13
         textFormat: Text.PlainText
         renderType: Text.NativeRendering
     }
 
     Row {
         id: dots
-        visible: !field.reveal
+        visible: !field.reveal && !field.checking
         anchors.verticalCenter: parent.verticalCenter
-        x: 14
-        spacing: 6
-        opacity: field.checking ? 0 : 1
-        Behavior on opacity {
-            NumberAnimation { duration: 150 }
-        }
-        readonly property int fit: Math.max(0, Math.floor((field.width - 60) / 14))
+        x: 12
+        spacing: 4
+        readonly property int fit: Math.max(0, Math.floor((field.width - 60) / 12))
         Repeater {
             model: Math.min(field.text.length, dots.fit)
             Rectangle {
                 required property int index
-                width: 8
-                height: 8
-                radius: 4
-                color: field.theme.accentAt(dots.fit > 1 ? index / (dots.fit - 1) : 0)
-                scale: 0
-                Component.onCompleted: scale = 1
-                Behavior on scale {
-                    NumberAnimation { duration: 140; easing.type: Easing.OutBack }
-                }
+                width: 6
+                height: 6
+                color: field.theme.text
             }
         }
     }
 
-    // checking: three dots that breathe in the accents
-    Row {
-        anchors.centerIn: parent
-        spacing: 6
-        visible: opacity > 0
-        opacity: field.checking ? 1 : 0
-        Behavior on opacity {
-            NumberAnimation { duration: 150 }
-        }
-        Repeater {
-            model: 3
-            Rectangle {
-                required property int index
-                width: 7
-                height: 7
-                radius: 3.5
-                color: field.theme.accentAt(index / 2)
-                SequentialAnimation on opacity {
-                    running: field.checking
-                    loops: Animation.Infinite
-                    PauseAnimation { duration: index * 140 }
-                    NumberAnimation { from: 0.2; to: 1; duration: 320 }
-                    NumberAnimation { from: 1; to: 0.2; duration: 320 }
-                    PauseAnimation { duration: (2 - index) * 140 }
-                }
-            }
-        }
+    // checking: one quiet word
+    Text {
+        anchors.verticalCenter: parent.verticalCenter
+        x: 12
+        visible: field.checking
+        text: "checking …"
+        font.family: field.theme.font
+        font.pixelSize: 12
+        color: field.theme.dim
+        renderType: Text.NativeRendering
     }
 
     Text {

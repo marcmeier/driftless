@@ -7,7 +7,6 @@ Seg {
 
     padL: compact ? 6 : 7
     padR: compact ? 6 : 7
-    hoverColor: Theme.crit
     tip: "Power menu<br><font color='" + Theme.dim + "'>Click: lock, log out, suspend, reboot, shut down  ·  Right: lock</font>"
 
     onClicked: button => {
@@ -20,6 +19,6 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: "\u{F0425}"
-        color: seg.hovered ? Theme.accentInk : Theme.crit
+        color: seg.hovered ? Theme.crit : Theme.dim
     }
 }

@@ -362,7 +362,7 @@ All-day entries have no time. Name events with time and title.
 - weather [PLACE] (default: home): now and three days
 - media status|play|pause|toggle|next|previous; volume [N|+N|-N|mute|unmute]; brightness [N|+N|-N]
 - system (battery, disk, memory, uptime, network) | updates | bluetooth list|connect NAME|disconnect NAME
-- dnd on|off (do not disturb) | lock | suspend | wallpaper (a new random one)
+- dnd on|off (do not disturb) | lock | suspend
 - screen: a screenshot of the user's monitor; then Read the path it prints to see it ("what is on my \
 screen", "summarise this article", "translate this", "what does this error mean")
 - clipboard get | clipboard set TEXT; paste TEXT (types TEXT into the active window: "write a polite \

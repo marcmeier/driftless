@@ -36,14 +36,9 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        anchors.topMargin: 4
-        anchors.bottomMargin: 4
-        radius: Theme.innerRadius
+        anchors.bottomMargin: 1
         color: seg.hoverColor
-        opacity: seg.interactive && mouse.containsMouse ? 1 : 0
-        Behavior on opacity {
-            NumberAnimation { duration: 150 }
-        }
+        visible: seg.interactive && mouse.containsMouse
     }
 
     Row {

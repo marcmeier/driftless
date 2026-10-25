@@ -134,7 +134,7 @@ Scope {
         implicitHeight: 64
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
-        visible: root.shown || pill.opacity > 0.01
+        visible: root.shown
         mask: Region {}
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "driftless-osd"
@@ -145,64 +145,37 @@ Scope {
 
             readonly property bool bar: root.kind === "volume" || root.kind === "brightness"
             anchors.horizontalCenter: parent.horizontalCenter
-            y: root.shown ? 8 : 20
-            width: bar ? 300 : Math.min(parent.width, row.implicitWidth + 36)
-            height: 48
-            radius: 16
+            y: 8
+            width: bar ? 300 : Math.min(parent.width, row.implicitWidth + 28)
+            height: 36
             color: Theme.card
             border.width: 1
             border.color: Theme.cardBorder
-            opacity: root.shown ? 1 : 0
-            scale: root.shown ? 1 : 0.94
-
-            Behavior on opacity {
-                NumberAnimation { duration: root.shown ? 120 : 260 }
-            }
-            Behavior on y {
-                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
-            }
-            Behavior on scale {
-                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
-            }
-            Behavior on width {
-                enabled: pill.opacity > 0.5
-                NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
-            }
 
             Row {
                 id: row
                 anchors.verticalCenter: parent.verticalCenter
-                x: 16
+                x: 12
                 spacing: 12
 
                 Icon {
                     anchors.verticalCenter: parent.verticalCenter
-                    size: 18
+                    size: 15
                     text: root.glyph
-                    color: root.off ? (root.kind === "mic" ? Theme.crit : Theme.dim) : Theme.accent2
+                    color: root.off && root.kind === "mic" ? Theme.crit : Theme.dim
                 }
 
-                // the level, in the accent gradient like the sliders of the popups
+                // the level as a 2 px line, like the sliders of the popups
                 Rectangle {
                     visible: pill.bar
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 300 - 32 - 24 - 24 - 46
-                    height: 6
-                    radius: 3
-                    color: Qt.alpha(Theme.overlay, 0.10)
+                    width: 300 - 24 - 20 - 24 - 46
+                    height: 2
+                    color: Theme.track
                     Rectangle {
-                        width: Math.max(parent.height, parent.width * root.value)
+                        width: parent.width * root.value
                         height: parent.height
-                        radius: parent.radius
-                        opacity: root.off ? 0.35 : 1
-                        gradient: Gradient {
-                            orientation: Gradient.Horizontal
-                            GradientStop { position: 0; color: Theme.accent2 }
-                            GradientStop { position: 1; color: Theme.accent }
-                        }
-                        Behavior on width {
-                            NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
-                        }
+                        color: root.off ? Theme.dim : Theme.accent
                     }
                 }
 
@@ -219,7 +192,7 @@ Scope {
                     text: root.text
                     elide: Text.ElideRight
                     color: root.off ? Theme.dim : Theme.text
-                    font.pixelSize: 13
+                    font.pixelSize: 12
                 }
             }
         }

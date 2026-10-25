@@ -45,7 +45,7 @@ Seg {
                 anchors.verticalCenter: parent.verticalCenter
                 text: parent.modelData[1]
                 color: seg.tone
-                font.pixelSize: seg.compact ? 13 : 14
+                font.pixelSize: seg.compact ? 12 : 13
             }
             Label {
                 visible: parent.modelData[0] === "today"

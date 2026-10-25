@@ -1,22 +1,23 @@
 import QtQuick
 import qs.services
 
-// You: the round avatar (theme/apply.py renders it from ~/.face) and your name. A click opens the
-// desktop settings (bar/SettingsPopup.qml: wallpaper, bar size and widgets, monitors, sync, keys).
+// You: your name (the plain look leaves the picture to the settings; "custom/avatar" alone shows the
+// name as well). A click opens the desktop settings (bar/SettingsPopup.qml: look, bar size and widgets,
+// monitors, sync, keys).
 Pill {
     id: pill
 
     readonly property var members: bar ? BarLayout.members("group/user", bar.variant) : []
-    readonly property bool showAvatar: members.includes("custom/avatar")
-    readonly property bool showName: members.includes("custom/username")
-    shown: showAvatar || showName
+    readonly property bool showAvatar: false
+    readonly property bool showName: members.includes("custom/username") || members.includes("custom/avatar")
+    shown: showName
 
     Seg {
         bar: pill.bar
         padL: pill.showAvatar ? 2 : 10
         padR: pill.showName ? 10 : 2
         spacing: 8
-        tip: "Desktop settings<br><font color='" + Theme.dim + "'>wallpaper · bar size and widgets · monitors · sync · keys</font>"
+        tip: "Desktop settings<br><font color='" + Theme.dim + "'>look · bar size and widgets · monitors · sync · keys</font>"
         onClicked: togglePopup()
         popupKey: "settings"
         popupComponent: Component {
@@ -53,8 +54,7 @@ Pill {
             visible: pill.showName
             anchors.verticalCenter: parent.verticalCenter
             text: Feeds.userName
-            bold: true
-            font.pixelSize: pill.compact ? 13 : 14
+            font.pixelSize: pill.compact ? 12 : 13
         }
     }
 }

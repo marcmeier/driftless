@@ -22,16 +22,8 @@ Seg {
         id: icon
         anchors.verticalCenter: parent.verticalCenter
         text: seg.mode === "recording" ? "\u{F0EC2}" : seg.mode === "busy" ? "\u{F01D8}" : "\u{F147D}"
-        size: seg.compact ? 16 : 17
+        size: 14
         color: seg.mode === "recording" ? Theme.crit : Theme.accent
 
-        // recording: a slow pulse
-        SequentialAnimation on opacity {
-            running: seg.mode === "recording"
-            loops: Animation.Infinite
-            NumberAnimation { to: 0.35; duration: 600; easing.type: Easing.InOutSine }
-            NumberAnimation { to: 1; duration: 600; easing.type: Easing.InOutSine }
-            onRunningChanged: if (!running) icon.opacity = 1
-        }
     }
 }

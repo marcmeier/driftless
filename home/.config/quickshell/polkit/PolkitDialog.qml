@@ -8,8 +8,8 @@ import "../bar"
 
 // The password dialog when something asks for more rights (hyprpolkitagent before): installing
 // packages from the lists, a mount, an app's settings. The shell is the session's polkit agent; the
-// dialog is the lock screen's card over the dimmed focused screen: your picture, what is asked and by
-// which action, the password. Enter: authenticate · Esc or "Cancel": no.
+// dialog is a plain box over the focused screen, which it covers in the desk colour: what is asked and
+// by which action, the password. Enter: authenticate · Esc or "Cancel": no.
 // Without the shell there is no agent: polkit then says so to the program that asked.
 Scope {
     id: root
@@ -61,7 +61,6 @@ Scope {
             root.checking = false;
             root.password = "";
             root.fails++;
-            shake.restart();
         }
     }
 
@@ -88,7 +87,7 @@ Scope {
         }
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
-        visible: root.open || backdrop.opacity > 0.01
+        visible: root.open
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "driftless-polkit"
         WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -97,10 +96,6 @@ Scope {
             id: backdrop
             anchors.fill: parent
             color: Theme.scrim
-            opacity: root.open ? 1 : 0
-            Behavior on opacity {
-                NumberAnimation { duration: root.open ? 180 : 220; easing.type: Easing.OutCubic }
-            }
             // a click beside the card does nothing: a request is answered, not dismissed by accident
             MouseArea {
                 anchors.fill: parent
@@ -110,50 +105,20 @@ Scope {
         Rectangle {
             id: card
             anchors.centerIn: parent
-            width: 520
-            height: content.implicitHeight + 64
-            radius: 20
+            width: 460
+            height: content.implicitHeight + 40
             color: Theme.card
             border.width: 1
-            border.color: root.fails > 0 && !root.checking ? Qt.alpha(Theme.crit, 0.45) : Qt.alpha(Theme.primary, 0.25)
-            opacity: backdrop.opacity
-            scale: 0.96 + 0.04 * backdrop.opacity
-            Behavior on border.color {
-                ColorAnimation { duration: 200 }
-            }
-
-            property real shakeX: 0
-            transform: Translate {
-                x: card.shakeX
-            }
-            SequentialAnimation {
-                id: shake
-                NumberAnimation { target: card; property: "shakeX"; to: -12; duration: 50 }
-                NumberAnimation { target: card; property: "shakeX"; to: 10; duration: 70 }
-                NumberAnimation { target: card; property: "shakeX"; to: -6; duration: 70 }
-                NumberAnimation { target: card; property: "shakeX"; to: 3; duration: 70 }
-                NumberAnimation { target: card; property: "shakeX"; to: 0; duration: 60 }
-            }
+            border.color: root.fails > 0 && !root.checking ? Theme.crit : Theme.cardBorder
 
             Row {
                 id: content
-                x: 32
-                y: 32
-                spacing: 28
-
-                Image {
-                    id: avatar
-                    width: 72
-                    height: 72
-                    sourceSize: Qt.size(144, 144)
-                    source: "file://" + Theme.avatar
-                    cache: false
-                    smooth: true
-                    mipmap: true
-                }
+                x: 20
+                y: 20
+                spacing: 0
 
                 Column {
-                    width: card.width - 64 - avatar.width - content.spacing
+                    width: card.width - 40
                     spacing: 10
 
                     Row {
@@ -161,14 +126,14 @@ Scope {
                         Icon {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "\u{F099D}"
-                            size: 16
-                            color: Theme.accent2
+                            size: 14
+                            color: Theme.dim
                         }
                         Label {
                             anchors.verticalCenter: parent.verticalCenter
                             text: "Authentication required"
                             bold: true
-                            font.pixelSize: 16
+                            font.pixelSize: 13
                         }
                     }
 

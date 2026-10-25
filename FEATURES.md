@@ -71,7 +71,7 @@ reads it out. Like Siri or Alexa, for the quick things, without opening a window
 | "Note: buy milk", "What did I note?" | a notes file (`NOTCH_NOTES`, default `~/Documents/notes.md`) |
 | "Pause the music", "Next song", "Volume to 30", "Brighter" | media, volume, screen brightness |
 | "How full is the battery?", "Are there updates?", "Connect my headphones" | battery, disk, memory, network, pending updates, Bluetooth |
-| "Do not disturb", "Lock the screen", "New wallpaper", "Suspend" | |
+| "Do not disturb", "Lock the screen", "Suspend" | |
 | "Open Firefox", "Find my tax return", "Open the Arch Wiki on PipeWire" | starts apps, finds files by name, opens files and pages |
 | "What's 18 % of 240?", "How do you say thank you in Japanese?", news, facts | answered directly or from a web search |
 
@@ -81,9 +81,9 @@ a new question stops everything.
 Whisper transcribes locally (the dictation setup), Claude Code answers (`claude -p`, Haiku by default)
 and may use only `notch/tools.py` (the actions above), the screenshot and web search, without asking
 and without your Claude Code settings. Piper speaks the answer sentence by sentence as it arrives,
-locally too (installed into a venv on first use). The bubble is part of the desktop shell, in the colours
-of your wallpaper (it follows a new one at once): listening with level bars, thinking, then it opens up
-for the answer. Model, language, voice and notes file:
+locally too (installed into a venv on first use). The bubble is part of the desktop shell, a plain box
+below the bar: "Listening …" with the microphone's level, your question while Claude thinks, then the
+answer. Model, language, voice and notes file:
 `NOTCH_*` in `personal/config`.
 
 It searches the web but does not fetch pages itself: a page or your screen can carry instructions, and
@@ -94,22 +94,23 @@ or launchers.
 ## The bar
 
 One bar per monitor, drawn by Quickshell together with its popups and the Claude bubble: compact on
-notebook panels, spacious everywhere else. It follows the wallpaper's colours and your widget layout
-live, without a restart. Pills from left to right:
+notebook panels, spacious everywhere else: one flat strip along the top edge with a line below it,
+values as text, icons in one grey. It follows the look (dark or light) and your widget layout live,
+without a restart. Groups from left to right:
 
 <img src="docs/img/desktop.jpg" alt="Desktop with the spacious bar on an ultrawide monitor"><br>
 <sub>The spacious bar on a 3440x1440 ultrawide.</sub>
 
 
-- **You**: avatar and name; a click opens the settings (next sections)
-- **Workspaces** (the active one's gradient slides along) and the **active window**
+- **You**: your name; a click opens the settings (next sections)
+- **Workspaces** (the active one bright, with a line in the accent below it) and the **active window**
 - **Clock, weather and your next calendar event**. Click the clock: the month with a dot on every day
   that has events, click a day for its events, and what comes up; right click or a click on the event:
   ikhal. Click the weather: the next hours and three days
-- **Media**: play/pause, skip, the title slides through when it is long. Click it: cover, progress (click
+- **Media**: play/pause, skip, the title (cut with "…" when it is long). Click it: cover, progress (click
   to jump), shuffle and repeat, and every player that runs
 - **Voice and Claude**: the ✨ button asks Claude by voice (click: talk, click again: send; the bubble
-  grows out of it), dictation next to it, then Claude's session and weekly limits; click them: both
+  opens below it), dictation next to it, then Claude's session and weekly limits; click them: both
   with their resets and the tokens per day
 - **Status**: network (click: Wi-Fi networks, join a known one, on/off), Bluetooth (click: your devices
   with their battery, and the ones nearby to pair with one click; right: on/off), volume (wheel: level;
@@ -128,7 +129,7 @@ binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup cale
 
 ## Notifications, login and lock screen, power menu and password dialog
 
-The same shell draws everything around the bar, in the same cards, colours and motion, so nothing on
+The same shell draws everything around the bar, in the same plain boxes and colours, so nothing on
 the desktop looks borrowed from another program.
 
 - **Notifications** pop up at the top right of the screen you work on, below the bar: the app's icon
@@ -145,20 +146,20 @@ the desktop looks borrowed from another program.
   only critical notifications pop up; afterwards one card says how many came in meanwhile (click: the
   list)
 - **On-screen display**: volume, mute, the microphone, a new output device (headphones plugged in) and
-  the brightness keys show a small pill at the bottom, from the keys, the bar or anywhere else
+  the brightness keys show a small box at the bottom, from the keys, the bar or anywhere else
 - **Lock screen** (`SUPER + L`, after 10 minutes, before sleep): the login screen's look, so locking
-  and logging in feel like one thing: the blurred wallpaper, the clock, your picture and the password.
+  and logging in feel like one thing: one dark colour, the clock, the date, your name and the password.
   It only counts what came in meanwhile, the cards come when you are back. hyprlock stays as the
   fallback when the shell does not answer, and a shell that crashes while locked takes the lock over
   again after its restart: the screen never opens by itself
-- **Login screen**: the lock screen's card in front of the same blurred wallpaper, with the machine,
-  the session (a click picks another one, when there is more than one) and reboot and shut down below.
-  It runs as greetd's own user and shows only what `set-wallpaper` hands it: the wallpaper, the
-  colours, your picture and your name. If it ever fails to start, ReGreet takes over
-- **Power menu** (`SUPER + SHIFT + M`, the power button): lock, log out, suspend, reboot, shut down,
-  with the arrows and Enter or the letter on a card. Suspend locks first
+- **Login screen**: the lock screen's column on the same dark colour, with the machine, the session (a
+  click picks another one, when there is more than one) and reboot and shut down below. It runs as
+  greetd's own user and shows only what `set-wallpaper` hands it: the colours and your name. If it
+  ever fails to start, ReGreet takes over
+- **Power menu** (`SUPER + SHIFT + M`, the power button): lock, log out, suspend, reboot, shut down
+  as a list in the middle of the screen, with the arrows and Enter or the letter of a row. Suspend locks first
 - **Password dialog**: when a program asks for more rights (driftless installing packages, a mount, an
-  app's settings), the lock screen's card asks for your password over the dimmed screen, with what is
+  app's settings), a plain box asks for your password in the middle of the screen, with what is
   asked and the polkit action it is for. The shell is the session's polkit agent. Note: polkit counts a
   cancelled request like a wrong password, and three in a row lock `sudo` and polkit for ten minutes
   (Arch's `pam_faillock`)
@@ -186,20 +187,17 @@ the desktop looks borrowed from another program.
 
 ## Settings menu
 
-A click on the avatar opens them as a popup of the bar, every choice per machine (but your picture):
+A click on your name opens them as a popup of the bar, every choice per machine (but your picture):
 
-<img src="docs/img/settings.jpg" alt="The settings popup: the look as three miniatures (dark, light, auto), wallpaper thumbnails, bar size, widget switches, monitors, sync and keys" width="560"><br>
+<img src="docs/img/settings.jpg" alt="The settings popup: dark, light or auto, bar size, widget switches, monitors, sync and keys" width="560"><br>
 <sub>The settings popup, here in the light look.</sub>
 
 
 - **Your picture**: a click on it (or "Picture …") picks an image, then you place it behind a round
-  mask: drag to move, wheel or slider to zoom. The bar, the lock and the login screen show it at once.
+  mask: drag to move, wheel or slider to zoom. The settings, fastfetch and the notifications use it.
   It is `~/.face`; linked into `personal/` (as `examples/personal/manifest` suggests), the sync takes it
   to your other machines, which render it too
-- **Appearance**: dark, light, or auto (light from sunrise to sunset), each shown as your desktop in
-  miniature with your wallpaper; a click switches everything at once and the shell blends over
-- **Wallpaper and colours**: the newest images of your folder as thumbnails (click: that one), random,
-  the previous one, any other image, the folder; "Browse …" opens the whole folder with a large preview
+- **Appearance**: dark, light, or auto (light from sunrise to sunset); a click switches everything at once
 - **Bar size**: automatic, always full size, always compact
 - **Widgets**: a click shows or hides one, the bar follows at once; "Move widgets" orders them,
   separately for the spacious and the compact bar
@@ -207,34 +205,27 @@ A click on the avatar opens them as a popup of the bar, every choice per machine
 - **Sync**: mode, what is waiting, trust a new machine
 - **Keybindings**: the searchable list
 
-## Theme from the wallpaper
+## The plain look
 
-`set-wallpaper IMAGE` derives two accent colours from the image and renders them into the shell (bar,
-notifications, login and lock screen, power menu), walker, Ghostty, GTK, Qt, btop and VS Code
-(theme "driftless": 2026 Dark or Light with your accents). The calendar, fastfetch, bat and fzf use the terminal's accent slots, so they
-follow too.
+One look for the whole desktop, reduced to what is needed: neutral greys and one accent (blue), a
+desktop of one colour, everything opaque, square and framed by a 1 px line, one font
+(JetBrainsMono Nerd Font) in two sizes. No blur, shadows, gradients, rounded corners or animations,
+in the shell nor in Hyprland (windows: a 1 px border, the one with focus in the accent, small gaps).
+The accent marks only what is active, selected or focused; orange and red only what needs attention.
 
-- **Dark or light**: the light look is paper instead of white and slate instead of black, and every
-  grey carries a trace of the wallpaper's main hue, so it belongs to the image like the dark one does.
-  The accents keep their hue but get deeper, so they read on paper (contrast checked). GTK, libadwaita,
-  Electron apps, Qt, Ghostty, walker, btop, starship, VS Code and Hyprland follow; the lock and the
-  login screen stay dark, as one night screen. Auto takes sunrise and sunset from the weather feed
+`theme/apply.py` renders it into the shell (bar, notifications, login and lock screen, power menu),
+walker, Ghostty, GTK, Qt, btop, starship and VS Code (theme "driftless": 2026 Dark or Light with the
+accent). The calendar, fastfetch, bat and fzf use the terminal's accent slots, so they follow too.
 
-- **Choosing one** in the settings popup (the avatar): the newest images of your folder as thumbnails,
-  a random one, the previous one or any other image; "Browse …" opens the whole folder with a large
-  preview. The folder is `WALLPAPER_DIR` in `personal/config`, e.g. one your cloud client syncs, so
-  every machine has the same choice
-- **The change itself** (awww): the new image grows in as a circle from the mouse pointer while the
-  colours change with it
-- **A new wallpaper every day**, at random from the folder; a day the machine was off catches up after
-  the next login. `set-wallpaper --random` does the same by hand
-- **The login and lock screen** show the same wallpaper, blurred, and follow every change without a
-  password prompt
+- **Dark or light**, or auto (light from sunrise to sunset, the weather feed's times), per machine in
+  the settings. GTK, libadwaita, Electron apps, Qt, Ghostty, walker, btop, starship, VS Code and
+  Hyprland follow; the lock and the login screen stay dark, as one night screen
+- `set-wallpaper --current` renders it all again (it keeps its name from the days of wallpaper images)
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/theme-tiled.jpg" alt="Tiled windows in the dark look: btop, Nautilus and Ghostty"><br><sub>Dark: the terminal palette follows the wallpaper.</sub></td>
-<td width="50%"><img src="docs/img/theme-light.jpg" alt="The same windows in the light look on warm paper, under a mountain wallpaper at sunset"><br><sub>Light: the paper takes the wallpaper's warmth, the accents get deeper.</sub></td>
+<td width="50%"><img src="docs/img/theme-tiled.jpg" alt="Tiled windows in the dark look: btop, Nautilus and Ghostty"><br><sub>Dark.</sub></td>
+<td width="50%"><img src="docs/img/theme-light.jpg" alt="The same windows in the light look"><br><sub>Light.</sub></td>
 </tr>
 </table>
 
@@ -251,7 +242,7 @@ latency) and rules that open stubborn games fullscreen on the right monitor.
 - **SSH** on every machine, with keys only (no password, no root login) and a rate limit in the
   firewall. The keys that may log in stay in each machine's `~/.ssh/authorized_keys`
 - the session runs under uwsm: the shell (bar, notifications, lock screen), idle, clipboard and
-  wallpaper are systemd user units that restart when they crash
+  the desktop colour are systemd user units that restart when they crash
 
 ## Keeping your machines in step
 

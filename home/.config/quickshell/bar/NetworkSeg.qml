@@ -36,13 +36,13 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.offline ? "\u{F05AA}" : Glyphs.wifi(seg.strength)
-        color: seg.offline ? Theme.warn : seg.compact ? Theme.text : Theme.accent
+        color: seg.offline ? Theme.warn : Theme.dim
     }
     Label {
         visible: !seg.compact || seg.offline
         anchors.verticalCenter: parent.verticalCenter
         text: seg.offline ? "offline" : Math.round(seg.strength * 100) + "%"
         color: seg.offline ? Theme.warn : Theme.text
-        font.pixelSize: seg.compact ? 13 : 14
+        font.pixelSize: seg.compact ? 12 : 13
     }
 }

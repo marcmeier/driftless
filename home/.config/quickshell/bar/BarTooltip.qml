@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Wayland
 import qs.services
 
-// The tooltip below a bar: a card that fades in under the item after a moment and follows it from
+// The tooltip below a bar: a box that appears under the item after a moment and follows it from
 // item to item. It never takes clicks (empty input region).
 PanelWindow {
     id: win
@@ -20,11 +20,11 @@ PanelWindow {
         left: true
         right: true
     }
-    margins.top: bar.implicitHeight + 6
+    margins.top: bar.implicitHeight + 2
     implicitHeight: 400
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
-    visible: open || card.opacity > 0.01
+    visible: open && card.text !== ""
     mask: Region {}
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "driftless-tooltip"
@@ -61,38 +61,24 @@ PanelWindow {
     Rectangle {
         id: card
         readonly property string text: win.textFn ? win.textFn() : ""
-        width: Math.min(label.implicitWidth, 520) + 24
-        height: label.implicitHeight + 16
+        width: Math.min(label.implicitWidth, 520) + 20
+        height: label.implicitHeight + 12
         x: Math.round(Math.max(Theme.barSide, Math.min(win.width - width - Theme.barSide, win.anchorX - width / 2)))
-        y: win.open ? 0 : -4
-        opacity: win.open && text !== "" ? 1 : 0
         color: Theme.card
-        radius: 12
         border.width: 1
         border.color: Theme.cardBorder
 
-        Behavior on opacity {
-            NumberAnimation { duration: win.open ? 140 : 100 }
-        }
-        Behavior on y {
-            NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
-        }
-        Behavior on x {
-            enabled: card.opacity > 0.5
-            NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
-        }
-
         Text {
             id: label
-            x: 12
-            y: 8
+            x: 10
+            y: 6
             width: Math.min(implicitWidth, 520)
             text: card.text
             textFormat: Text.StyledText
             wrapMode: Text.Wrap
             color: Theme.text
             font.family: Theme.font
-            font.pixelSize: 13
+            font.pixelSize: 12
             lineHeight: 1.15
             renderType: Text.NativeRendering
         }

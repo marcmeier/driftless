@@ -25,6 +25,20 @@ Versions follow the [releases](../../releases), which have the full notes.
 - `driftless system` also enables the system units the manifest gained since a machine was set up,
   and the sync says when an update brought one.
 
+### Changed
+- **The plain look** replaces the theme from the wallpaper: neutral greys and one accent (blue), dark,
+  light or auto as before, a desktop of one colour, everything opaque, square and framed by a 1 px
+  line, no blur, shadows, gradients, rounded corners or animations, in the shell and in Hyprland
+  (`theme/scheme.py` has the two palettes). The bar is one strip along the top edge with its popups
+  hanging from its line; the lock and login screen are the clock, the date, your name and the
+  password on one dark colour; the power menu is a list; the Claude bubble a plain box without the
+  face. walker, Ghostty, GTK, Qt, btop, starship, VS Code, hyprlock and ReGreet follow.
+- Gone with the wallpaper images: picking, thumbnails and the walker wallpaper menu, the daily
+  `driftless-wallpaper-rotate.timer` (a retired unit now), `palette.py`, `thumbs.py`,
+  `WALLPAPER_DIR` and the assistant's "new wallpaper". `set-wallpaper --current` stays and renders the
+  look again; `wall.png` and `login.png` are files of one colour, so awww, ReGreet and
+  `greeter-update` work as before.
+
 ### Fixed
 - A package list with nothing but comments made `driftless` lose every group after it (`grep`
   without a line is an error under `set -e`): their packages were neither installed nor checked.

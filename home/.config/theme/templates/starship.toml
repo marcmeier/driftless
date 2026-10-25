@@ -1,4 +1,4 @@
-# Matches the bar / ghostty: the accents of the wallpaper, dim details; dark or light look.
+# Matches the bar / ghostty: the plain look, one accent, dim details; dark or light.
 add_newline = false
 command_timeout = 500
 
@@ -20,7 +20,7 @@ read_only_style = "@orange@"
 [git_branch]
 symbol = " "
 format = "[on](@muted@) [$symbol$branch]($style) "
-style = "@secondary@"
+style = "@dim@"
 
 [git_status]
 format = "([$all_status$ahead_behind]($style) )"
@@ -42,7 +42,7 @@ style = "@muted@"
 
 [jobs]
 symbol = "✦"
-style = "@purple@"
+style = "@dim@"
 
 [username]
 format = "[$user]($style)@"

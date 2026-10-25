@@ -35,6 +35,6 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.percent + "%"
         color: seg.tone
-        font.pixelSize: seg.compact ? 13 : 14
+        font.pixelSize: seg.compact ? 12 : 13
     }
 }

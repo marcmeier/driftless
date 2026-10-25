@@ -2,13 +2,12 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Greetd
 import QtQuick
-import QtQuick.Effects
 
 // The login screen: the lock screen's look (home/.config/quickshell/lock/LockSurface.qml), so logging
-// in and unlocking are one thing. Started by /usr/lib/driftless/greeter in cage as the user "greeter",
+// in and unlocking are one thing: the plain look in night colours, the clock, the name, the password. Started by /usr/lib/driftless/greeter in cage as the user "greeter",
 // which cannot read any home: everything it shows comes from /var/lib/driftless/greeter, rendered by
-// greeter-update (login.png, avatar.png, colors.json, user), or from the system (the accounts, the
-// sessions in /usr/share/wayland-sessions, /etc/hostname).
+// greeter-update (colors.json and user; login.png is ReGreet's background), or from the system (the
+// accounts, the sessions in /usr/share/wayland-sessions, /etc/hostname).
 // DRIFTLESS_GREETER_DIR=~/.cache/theme quickshell -p /usr/share/driftless/greeter previews it in a
 // window of the running session (no greetd there: the password is never checked);
 // DRIFTLESS_GREETER_USER=NAME shows that account instead of the real ones (screenshots).
@@ -18,25 +17,21 @@ ShellRoot {
     readonly property string dir: Quickshell.env("DRIFTLESS_GREETER_DIR") || "/var/lib/driftless/greeter"
     readonly property bool preview: !Greetd.available
 
-    // ---- the look: the shell's fixed palette (services/Theme.qml) and this machine's two accents ----
+    // ---- the look: the shell's night palette (services/Theme.qml), as theme/apply.py wrote it ----
     QtObject {
         id: look
-        property color primary: "#33ccff"
-        property color secondary: "#00ff99"
-        readonly property color hover: Qt.rgba(1, 1, 1, 0.08)
-        readonly property color text: "#d7dce2"
-        readonly property color dim: "#8b93a1"
-        readonly property color faint: Qt.rgba(139 / 255, 147 / 255, 161 / 255, 0.55)
-        readonly property color warn: "#ffb454"
-        readonly property color crit: "#ff5f6d"
+        property color primary: "#7aa6d9"
+        property color desk: "#0e0e0e"
+        property color line: "#2b2b2b"
+        property color field: "#111111"
+        property color text: "#d6d6d6"
+        property color strong: "#f2f2f2"
+        property color dim: "#8a8a8a"
+        readonly property color faint: Qt.alpha(dim, 0.6)
+        readonly property color hover: Qt.rgba(1, 1, 1, 0.07)
+        property color warn: "#e0a040"
+        property color crit: "#e06666"
         readonly property string font: "JetBrainsMono Nerd Font"
-
-        function mix(a, b, f) {
-            return Qt.rgba(a.r + (b.r - a.r) * f, a.g + (b.g - a.g) * f, a.b + (b.b - a.b) * f, a.a + (b.a - a.a) * f);
-        }
-        function accentAt(f) {
-            return mix(primary, secondary, f);
-        }
     }
     FileView {
         path: root.dir + "/colors.json"
@@ -44,15 +39,20 @@ ShellRoot {
         onLoaded: {
             try {
                 const c = JSON.parse(text());
-                if (c.primary)
+                const k = c.colors || {};
+                // only colours: whatever else is in the file stays unused
+                const ok = v => typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v);
+                if (ok(c.primary))
                     look.primary = c.primary;
-                if (c.secondary)
-                    look.secondary = c.secondary;
+                for (const [name, key] of [["desk", "desk"], ["line", "line"], ["field", "field"], ["text", "fg"],
+                        ["strong", "fg_strong"], ["dim", "dim"], ["warn", "orange"], ["crit", "red"]])
+                    if (ok(k[key]))
+                        look[name] = k[key];
             } catch (e) {}
         }
     }
 
-    // ---- who: the people with an account; the one who set the wallpaper last comes first ----
+    // ---- who: the people with an account; the one who rendered the look last comes first ----
     property var users: []          // [{login, name}]
     property int userIndex: 0
     readonly property var user: users[userIndex] || {
@@ -147,7 +147,7 @@ ShellRoot {
     property bool answered: false   // the password went to the first secret prompt of this try
     property bool asking: false     // greetd asked something else: the next submit answers it
     property bool reveal: false     // ... and it is not secret
-    property bool leaving: false    // the fade out before the session starts
+    property bool leaving: false    // the session is about to start
 
     function reset() {
         password = "";
@@ -226,7 +226,7 @@ ShellRoot {
     }
     Timer {
         id: launchTimer
-        interval: 300
+        interval: 20
         onTriggered: {
             const env = ["XDG_SESSION_TYPE=wayland", "XDG_SESSION_DESKTOP=" + root.session.file];
             if (root.session.desktops)
@@ -266,61 +266,115 @@ ShellRoot {
     // ---- the screen (cage shows it fullscreen on one output) ----
     FloatingWindow {
         id: win
-        color: "black"
+        color: look.desk
         implicitWidth: 1600
         implicitHeight: 900
         title: "driftless greeter"
 
-        Image {
-            id: login
-            anchors.fill: parent
-            source: "file://" + root.dir + "/login.png"
-            fillMode: Image.PreserveAspectCrop
-            asynchronous: false
-            cache: false
-        }
-
         Item {
             id: content
             anchors.fill: parent
-            opacity: root.leaving ? 0 : 1
-            scale: root.leaving ? 1.03 : 1
-            Behavior on opacity {
-                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
-            }
-            Behavior on scale {
-                NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
-            }
+            visible: !root.leaving
 
-            // ---- the clock, as on the lock screen ----
+            // ---- the clock, the date, the name and the password, in one column, as on the lock screen ----
             Column {
                 anchors.horizontalCenter: parent.horizontalCenter
-                y: Math.round(parent.height * 0.5) - 290
-                spacing: 4
+                y: Math.round(parent.height * 0.5) - 150
+                width: 280
+                spacing: 6
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.family: look.font
-                    font.pixelSize: 96
-                    font.weight: Font.ExtraLight
-                    color: look.text
+                    font.pixelSize: 72
+                    font.weight: Font.Light
+                    color: look.strong
                     text: Qt.formatTime(time.date, "hh:mm")
                     renderType: Text.NativeRendering
-                    layer.enabled: true
-                    layer.effect: MultiEffect {
-                        shadowEnabled: true
-                        shadowColor: Qt.rgba(0, 0, 0, 0.45)
-                        shadowBlur: 0.8
-                        shadowVerticalOffset: 4
-                    }
                 }
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.family: look.font
-                    font.pixelSize: 17
-                    font.weight: Font.Medium
+                    font.pixelSize: 13
                     color: look.dim
                     text: Qt.locale().toString(time.date, "dddd, d. MMMM")
+                    renderType: Text.NativeRendering
+                }
+                Item {
+                    width: 1
+                    height: 30
+                }
+
+                // the name; with more than one account a click goes to the next
+                Item {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: nameRow.implicitWidth
+                    height: nameRow.implicitHeight
+                    Row {
+                        id: nameRow
+                        spacing: 4
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.family: look.font
+                            font.pixelSize: 13
+                            color: nameMouse.containsMouse ? look.strong : look.text
+                            text: root.user.name
+                            textFormat: Text.PlainText
+                            renderType: Text.NativeRendering
+                        }
+                        Text {
+                            anchors.verticalCenter: parent.verticalCenter
+                            visible: root.users.length > 1
+                            font.family: look.font
+                            font.pixelSize: 13
+                            color: look.faint
+                            text: "\u{F0140}"
+                        }
+                    }
+                    MouseArea {
+                        id: nameMouse
+                        anchors.fill: parent
+                        enabled: root.users.length > 1
+                        hoverEnabled: true
+                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: root.nextUser()
+                    }
+                }
+
+                PasswordField {
+                    id: field
+                    theme: look
+                    caps: root.caps
+                    width: parent.width
+                    text: root.password
+                    checking: root.checking
+                    failed: root.failed
+                    reveal: root.reveal
+                    placeholder: root.asking ? "Answer" : "Password"
+                    onEdited: t => {
+                        root.password = t;
+                        if (t !== "")
+                            root.failed = false;
+                    }
+                    onAccepted: root.submit()
+                    onEscaped: {
+                        root.password = "";
+                        if (Greetd.state !== GreetdState.Inactive)
+                            Greetd.cancelSession();
+                        root.reset();
+                    }
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: 16
+                    width: Math.min(implicitWidth, parent.width)
+                    elide: Text.ElideRight
+                    font.family: look.font
+                    font.pixelSize: 12
+                    text: root.message !== "" ? root.message : root.caps ? "Caps Lock is on" : ""
+                    color: root.failed ? look.crit : root.message === "" && root.caps ? look.warn : look.dim
+                    textFormat: Text.PlainText
                     renderType: Text.NativeRendering
                 }
             }
@@ -328,163 +382,17 @@ ShellRoot {
                 id: time
                 precision: SystemClock.Minutes
             }
-
-            // ---- the card: the picture, the name, the password ----
-            Rectangle {
-                id: card
-                anchors.horizontalCenter: parent.horizontalCenter
-                y: Math.round(parent.height * 0.5) - 40
-                width: 480
-                height: 168
-                radius: 20
-                color: Qt.rgba(20 / 255, 22 / 255, 28 / 255, 0.78)
-                border.width: 1
-                border.color: root.failed ? Qt.alpha(look.crit, 0.45) : Qt.alpha(look.primary, 0.25)
-                Behavior on border.color {
-                    ColorAnimation { duration: 200 }
-                }
-
-                property real shake: 0
-                transform: Translate {
-                    x: card.shake
-                }
-                SequentialAnimation {
-                    id: shakeAnim
-                    NumberAnimation { target: card; property: "shake"; to: -12; duration: 50 }
-                    NumberAnimation { target: card; property: "shake"; to: 10; duration: 70 }
-                    NumberAnimation { target: card; property: "shake"; to: -6; duration: 70 }
-                    NumberAnimation { target: card; property: "shake"; to: 3; duration: 70 }
-                    NumberAnimation { target: card; property: "shake"; to: 0; duration: 60 }
-                }
-                Connections {
-                    target: root
-                    function onFailsChanged() {
-                        if (root.fails > 0)
-                            shakeAnim.restart();
-                    }
-                }
-
-                // the picture of the one who set the wallpaper last; a letter for anyone else
-                Image {
-                    id: avatar
-                    x: 32
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 96
-                    height: 96
-                    sourceSize: Qt.size(192, 192)
-                    visible: status === Image.Ready && (root.user.login === root.lastUser || root.lastUser === "")
-                    source: "file://" + root.dir + "/avatar.png"
-                    cache: false
-                    smooth: true
-                    mipmap: true
-                }
-                Rectangle {
-                    anchors.fill: avatar
-                    visible: !avatar.visible
-                    radius: width / 2
-                    color: Qt.alpha(look.primary, 0.18)
-                    Text {
-                        anchors.centerIn: parent
-                        font.family: look.font
-                        font.pixelSize: 44
-                        font.weight: Font.Bold
-                        color: look.primary
-                        text: (root.user.login[0] || "?").toUpperCase()
-                    }
-                }
-
-                Column {
-                    x: avatar.x + avatar.width + 28
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: card.width - x - 32
-                    spacing: 10
-
-                    // the name; with more than one account a click goes to the next
-                    Item {
-                        width: nameRow.implicitWidth
-                        height: nameRow.implicitHeight
-                        Row {
-                            id: nameRow
-                            spacing: 4
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                font.family: look.font
-                                font.pixelSize: 17
-                                font.weight: Font.Bold
-                                color: nameMouse.containsMouse ? look.text : look.dim
-                                text: root.user.name
-                                textFormat: Text.PlainText
-                                renderType: Text.NativeRendering
-                            }
-                            Text {
-                                anchors.verticalCenter: parent.verticalCenter
-                                visible: root.users.length > 1
-                                font.family: look.font
-                                font.pixelSize: 14
-                                color: look.faint
-                                text: "\u{F0140}"
-                            }
-                        }
-                        MouseArea {
-                            id: nameMouse
-                            anchors.fill: parent
-                            enabled: root.users.length > 1
-                            hoverEnabled: true
-                            cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                            onClicked: root.nextUser()
-                        }
-                    }
-
-                    PasswordField {
-                        id: field
-                        theme: look
-                        caps: root.caps
-                        width: parent.width
-                        text: root.password
-                        checking: root.checking
-                        failed: root.failed
-                        reveal: root.reveal
-                        placeholder: root.asking ? "Answer" : "Password"
-                        onEdited: t => {
-                            root.password = t;
-                            if (t !== "")
-                                root.failed = false;
-                        }
-                        onAccepted: root.submit()
-                        onEscaped: {
-                            root.password = "";
-                            if (Greetd.state !== GreetdState.Inactive)
-                                Greetd.cancelSession();
-                            root.reset();
-                        }
-                    }
-
-                    Text {
-                        height: 16
-                        width: parent.width
-                        elide: Text.ElideRight
-                        font.family: look.font
-                        font.pixelSize: 12
-                        font.weight: Font.Medium
-                        text: root.message !== "" ? root.message : root.caps ? "Caps Lock is on" : ""
-                        color: root.failed ? look.crit : root.message === "" && root.caps ? look.warn : look.dim
-                        textFormat: Text.PlainText
-                        renderType: Text.NativeRendering
-                    }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    z: -1
-                    onClicked: field.focusInput()
-                }
+            MouseArea {
+                anchors.fill: parent
+                z: -1
+                onClicked: field.focusInput()
             }
 
             // ---- at the bottom, quietly: the machine, the session, power ----
             Row {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
-                anchors.bottomMargin: 28
+                anchors.bottomMargin: 20
                 spacing: 8
 
                 Chip {

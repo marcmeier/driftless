@@ -30,7 +30,6 @@ Item {
             ClippingRectangle {
                 width: 84
                 height: 84
-                radius: 12
                 color: Theme.well
                 Image {
                     id: art
@@ -59,7 +58,7 @@ Item {
                     elide: Text.ElideRight
                     text: root.p ? (root.p.trackTitle || root.p.identity) : ""
                     bold: true
-                    font.pixelSize: 15
+                    font.pixelSize: 13
                 }
                 Label {
                     width: parent.width
@@ -79,7 +78,7 @@ Item {
                 Label {
                     text: root.p ? root.p.identity : ""
                     small: true
-                    color: Theme.accent2
+                    color: Theme.dim
                 }
             }
         }
@@ -174,8 +173,7 @@ Item {
                     required property var modelData
                     width: parent.width
                     height: 32
-                    radius: 8
-                    color: modelData === root.p ? Qt.alpha(Theme.accent2, 0.15) : pick.containsMouse ? Theme.hover : "transparent"
+                    color: modelData === root.p ? Theme.raised : pick.containsMouse ? Theme.hover : "transparent"
                     Icon {
                         x: 8
                         anchors.verticalCenter: parent.verticalCenter

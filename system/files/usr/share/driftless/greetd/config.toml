@@ -1,5 +1,5 @@
 # driftless: the Quickshell greeter in cage, ReGreet as its fallback (/usr/lib/driftless/greeter). The
-# files they read are rendered per machine in /var/lib/driftless/greeter (hostname, wallpaper, colours,
+# files they read are rendered per machine in /var/lib/driftless/greeter (hostname, background, colours,
 # avatar, the last user) by /usr/lib/driftless/greeter-update.
 [terminal]
 vt = 1

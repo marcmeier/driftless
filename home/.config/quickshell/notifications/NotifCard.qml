@@ -5,8 +5,8 @@ import qs.services
 import "../bar"
 
 // One notification: the app's icon (or the picture it sent), the app and when, the summary, the
-// text, a progress bar if it sends one, its actions. The same card pops up at the top right and sits
-// in the bell's list; `popup` adds the time bar that runs out and the shadow of a floating card.
+// text, a progress bar if it sends one, its actions. The same box pops up at the top right and sits
+// in the bell's list; `popup` adds the time that runs out (it waits while the pointer is on it).
 // Click: the app's default action (or its window) · right click or ×: dismiss · swipe right: dismiss.
 Rectangle {
     id: card
@@ -39,15 +39,11 @@ Rectangle {
 
     implicitWidth: 380
     implicitHeight: content.implicitHeight + 2 * pad
-    readonly property int pad: 14
-    radius: popup ? 18 : 14
-    color: popup ? Theme.card : (mouse.containsMouse ? Qt.alpha(Theme.overlay, 0.06) : Theme.well)
-    border.width: popup || critical ? 1 : 0
-    border.color: critical ? Qt.alpha(Theme.crit, 0.6) : low ? Theme.cardBorder : Qt.alpha(Theme.primary, 0.45)
+    readonly property int pad: 10
+    color: !popup && mouse.containsMouse ? Theme.hover : Theme.card
+    border.width: 1
+    border.color: critical ? Theme.crit : Theme.cardBorder
     clip: true
-    Behavior on color {
-        ColorAnimation { duration: 150 }
-    }
 
     HoverHandler {
         id: hover
@@ -58,7 +54,6 @@ Rectangle {
     transform: Translate {
         x: card.dragX
     }
-    opacity: 1 - Math.min(0.8, Math.max(0, card.dragX) / (card.width * 1.2))
     DragHandler {
         id: swipe
         target: null
@@ -71,16 +66,8 @@ Rectangle {
             if (card.dragX > card.width * 0.3)
                 Notifs.dismiss(card.nid);
             else
-                back.start();
+                card.dragX = 0;
         }
-    }
-    NumberAnimation {
-        id: back
-        target: card
-        property: "dragX"
-        to: 0
-        duration: 200
-        easing.type: Easing.OutCubic
     }
 
     MouseArea {
@@ -102,19 +89,18 @@ Rectangle {
         x: card.pad
         y: card.pad
         width: card.width - 2 * card.pad
-        spacing: 12
+        spacing: 10
 
         // the picture it sent, else the app's icon, else a bell
         Item {
             id: art
-            width: 40
-            height: 40
+            width: 32
+            height: 32
             readonly property string src: card.image || card.icon
 
             ClippingRectangle {
                 anchors.fill: parent
                 visible: art.src !== "" && pic.status === Image.Ready
-                radius: 10
                 color: "transparent"
                 Image {
                     id: pic
@@ -130,15 +116,14 @@ Rectangle {
             Rectangle {
                 anchors.fill: parent
                 visible: !(art.src !== "" && pic.status === Image.Ready)
-                radius: 10
-                color: card.critical ? Qt.alpha(Theme.crit, 0.16) : Qt.alpha(Theme.primary, 0.14)
+                color: "transparent"
                 // the app's glyph from the bar (services/Apps.qml) when it has one
                 readonly property var known: Apps.lookup(card.app)
                 Icon {
                     anchors.centerIn: parent
-                    size: 20
+                    size: 18
                     text: card.critical ? "\u{F0028}" : parent.known.glyph !== "\u{F05B2}" ? parent.known.glyph : "\u{F009A}"
-                    color: card.critical ? Theme.crit : Theme.primary
+                    color: card.critical ? Theme.crit : Theme.dim
                 }
             }
         }
@@ -194,7 +179,7 @@ Rectangle {
                 font.pixelSize: 13
                 color: Theme.dim
                 lineHeight: 1.1
-                linkColor: Theme.accent2
+                linkColor: Theme.accent
             }
 
             Item {
@@ -206,7 +191,7 @@ Rectangle {
                     width: parent.width
                     height: 6
                     percent: Math.max(0, card.progress)
-                    tone: Theme.accent2
+                    tone: Theme.accent
                 }
             }
 
@@ -235,14 +220,10 @@ Rectangle {
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.margins: 8
-        width: 24
-        height: 24
-        radius: 8
+        width: 22
+        height: 22
         color: closeMouse.containsMouse ? Theme.hover : "transparent"
-        opacity: card.hovered ? 1 : 0
-        Behavior on opacity {
-            NumberAnimation { duration: 120 }
-        }
+        visible: card.hovered
         Icon {
             anchors.centerIn: parent
             size: 13
@@ -258,22 +239,7 @@ Rectangle {
         }
     }
 
-    // the popup's time running out, in the accent gradient; stops while the pointer is on the card
-    Rectangle {
-        visible: card.popup && card.timeout > 0
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.leftMargin: card.radius / 2
-        height: 2
-        radius: 1
-        width: (card.width - card.radius) * card.remaining
-        opacity: 0.7
-        gradient: Gradient {
-            orientation: Gradient.Horizontal
-            GradientStop { position: 0; color: Theme.accent2 }
-            GradientStop { position: 1; color: Theme.accent }
-        }
-    }
+    // the popup's time running out (no line drawn for it in the plain look)
     property real remaining: 1
     NumberAnimation on remaining {
         id: countdown

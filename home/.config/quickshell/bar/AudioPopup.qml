@@ -194,8 +194,7 @@ Item {
                 readonly property bool isCurrent: modelData === devices.current
                 width: devices.width
                 height: 30
-                radius: 8
-                color: isCurrent ? Qt.alpha(Theme.accent2, 0.15) : hover.containsMouse ? Theme.hover : "transparent"
+                color: isCurrent ? Theme.raised : hover.containsMouse ? Theme.hover : "transparent"
                 Icon {
                     x: 6
                     anchors.verticalCenter: parent.verticalCenter

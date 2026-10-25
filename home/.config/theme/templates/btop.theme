@@ -1,5 +1,5 @@
 # rendered by theme/apply.py into ~/.config/btop/themes/driftless.theme (btop.conf: color_theme = "driftless")
-# Boxes and graphs in the wallpaper accents, in the dark or the light look; the load gradients end in red.
+# Grey boxes, graphs in the accent, in the dark or the light look; the load gradients end in red.
 theme[main_bg]="@bg@"
 theme[main_fg]="@fg@"
 theme[title]="@fg@"
@@ -10,10 +10,10 @@ theme[inactive_fg]="@faint@"
 theme[graph_text]="@fg@"
 theme[meter_bg]="@line@"
 theme[proc_misc]="@secondary@"
-theme[cpu_box]="@primary_dim@"
-theme[mem_box]="@primary_dim@"
-theme[net_box]="@primary_dim@"
-theme[proc_box]="@primary_dim@"
+theme[cpu_box]="@line_strong@"
+theme[mem_box]="@line_strong@"
+theme[net_box]="@line_strong@"
+theme[proc_box]="@line_strong@"
 theme[div_line]="@line@"
 theme[temp_start]="@primary@"
 theme[temp_mid]="@secondary@"

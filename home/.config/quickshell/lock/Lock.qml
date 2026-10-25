@@ -6,8 +6,7 @@ import QtQuick
 import qs.services
 
 // The lock screen (hyprlock before; it stays as the fallback, scripts/lock). It looks like the login
-// screen: the same blurred wallpaper (theme/apply.py renders it for both), the clock, the card with
-// your picture. SUPER + L, the power menu, the right click on the power button, hypridle after 10
+// screen: the same plain night colour, the clock, your name and the password. SUPER + L, the power menu, the right click on the power button, hypridle after 10
 // minutes and before sleep (lock_cmd = scripts/lock) all end up here.
 //
 // The password is checked by PAM with lock/pam/password (pam_unix only: the "login" stack's faillock
@@ -26,7 +25,7 @@ Scope {
     property bool failed: false
     property bool checking: pam.active
     property int fails: 0
-    property bool unlocking: false      // the fade out before the screens open
+    property bool unlocking: false      // the moment before the screens open
     readonly property bool locked: keep.locked
 
     // the lock outlives a reload of the shell (a sync brings new QML every hour): kept here, and
@@ -72,7 +71,7 @@ Scope {
     }
     Timer {
         id: fadeOut
-        interval: 280
+        interval: 20
         onTriggered: {
             Quickshell.execDetached(["rm", "-f", root.marker]);
             keep.locked = false;

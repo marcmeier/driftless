@@ -35,13 +35,13 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.dnd ? "\u{F009B}" : seg.count > 0 ? "\u{F009E}" : "\u{F009A}"
-        color: seg.dnd ? Theme.warn : seg.fresh ? Theme.accent2 : seg.count > 0 ? Theme.text : Theme.dim
+        color: seg.dnd ? Theme.warn : seg.fresh ? Theme.accent : Theme.dim
     }
     Label {
         visible: seg.count > 0
         anchors.verticalCenter: parent.verticalCenter
         text: seg.count
-        color: seg.dnd ? Theme.warn : seg.fresh ? Theme.accent2 : Theme.dim
-        font.pixelSize: seg.compact ? 13 : 14
+        color: seg.dnd ? Theme.warn : seg.fresh ? Theme.accent : Theme.text
+        font.pixelSize: seg.compact ? 12 : 13
     }
 }

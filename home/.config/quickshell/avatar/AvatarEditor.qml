@@ -105,7 +105,7 @@ Scope {
         }
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
-        visible: root.open || backdrop.opacity > 0.01
+        visible: root.open
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "driftless-avatar"
         WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -114,10 +114,6 @@ Scope {
             id: backdrop
             anchors.fill: parent
             color: Theme.scrim
-            opacity: root.open ? 1 : 0
-            Behavior on opacity {
-                NumberAnimation { duration: root.open ? 180 : 220; easing.type: Easing.OutCubic }
-            }
             MouseArea {
                 anchors.fill: parent
                 onClicked: root.cancel()
@@ -129,12 +125,9 @@ Scope {
             anchors.centerIn: parent
             width: root.view + 64
             height: content.implicitHeight + 56
-            radius: 20
             color: Theme.card
             border.width: 1
-            border.color: Qt.alpha(Theme.primary, 0.25)
-            opacity: backdrop.opacity
-            scale: 0.96 + 0.04 * backdrop.opacity
+            border.color: Theme.cardBorder
             focus: root.open
             Keys.onPressed: e => {
                 if (e.key === Qt.Key_Escape) {
@@ -160,7 +153,7 @@ Scope {
                 Label {
                     text: "Your picture"
                     bold: true
-                    font.pixelSize: 16
+                    font.pixelSize: 13
                 }
 
                 // ---- the square: the image, the round cut darkened around ----
@@ -203,8 +196,8 @@ Scope {
                         anchors.fill: parent
                         radius: width / 2
                         color: "transparent"
-                        border.width: 2
-                        border.color: Qt.alpha(Theme.primary, 0.7)
+                        border.width: 1
+                        border.color: Theme.primary
                     }
 
                     MouseArea {

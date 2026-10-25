@@ -5,8 +5,9 @@ import Quickshell.Io
 import QtQuick
 import qs.services
 
-// The bubble of hypr/notch/notch.py (ask Claude by voice). It grows out of the ask button in the bar
-// (bar/AskSeg.qml) on the focused screen, or from the top centre when the bar has none. notch.py drives
+// The box of hypr/notch/notch.py (ask Claude by voice). It hangs below the ask button in the bar
+// (bar/AskSeg.qml) on the focused screen, or at the top centre when the bar has none: what it does in
+// words, a level line while it listens, the answer at once. notch.py drives
 // it over IPC, e.g.:
 //   quickshell ipc -p ~/.config/quickshell call notch think "Do I have meetings today?"
 // (listening, think, answer, append, error, setLevel, speaking, ringing, hide, state)
@@ -19,7 +20,7 @@ Scope {
     property string fullText: ""
     property int shown: 0
     property real level: -1          // < 0: no real level, the bars move by themselves
-    property bool speaking: false    // the answer is being spoken: stay open, the face talks with it
+    property bool speaking: false    // the answer is being spoken: stay open
     property bool ringing: false     // a timer rings: stay open until it is stopped
 
     readonly property bool open: mode !== "idle"
@@ -92,15 +93,11 @@ Scope {
         function state(): string { return root.mode; }
     }
 
-    // typewriter effect
+    // the whole text at once (no typewriter in the plain look)
     Timer {
-        interval: 16
-        repeat: true
+        interval: 1
         running: root.shown < root.fullText.length
-        onTriggered: {
-            const rest = root.fullText.length - root.shown;
-            root.shown += Math.max(1, Math.ceil(rest / 60));
-        }
+        onTriggered: root.shown = root.fullText.length
     }
 
     // fold away when done (not while the pointer is on it or it still speaks)
@@ -138,18 +135,16 @@ Scope {
         Rectangle {
             id: bubble
 
-            readonly property int pad: 14
-            readonly property int headerH: 50
-            readonly property int faceW: 38
-            // the answer stands right of the face, in line with the question
-            readonly property int indent: pad - 2 + faceW + header.spacing
+            readonly property int pad: 12
+            readonly property int headerH: 34
+            readonly property int indent: pad
             readonly property int answerW: 520
             readonly property int textW: answerW - indent - pad
 
             readonly property real targetW: {
                 switch (root.mode) {
                 case "listening": return 230;
-                case "thinking": return Math.min(440, Math.max(250, header.implicitWidth + 2 * pad + 36));
+                case "thinking": return Math.min(440, Math.max(200, header.implicitWidth + 2 * pad));
                 case "answer":
                 case "error": return answerW;
                 default: return 110;
@@ -158,37 +153,19 @@ Scope {
             readonly property real targetH: {
                 if (root.mode === "answer" || root.mode === "error")
                     return headerH - 4 + Math.min(measure.implicitHeight, 240) + pad + 2;
-                return root.open ? headerH : 26;
+                return headerH;
             }
 
             readonly property real from: root.anchorX >= 0 ? root.anchorX : win.width / 2
             x: Math.round(Math.max(10, Math.min(win.width - width - 10, from - width / 2)))
-            y: root.open ? 6 : -16
+            y: 0
             width: targetW
             height: targetH
-            radius: Math.min(height / 2, 18)
+            visible: root.open
             color: Theme.card
             border.width: 1
-            border.color: root.mode === "error" ? Qt.alpha(Theme.crit, 0.6) : Qt.alpha(Theme.primary, 0.45)
+            border.color: root.mode === "error" ? Theme.crit : Theme.cardBorder
             clip: true
-
-            opacity: root.open ? 1 : 0
-            // grows out of the button: the scale's origin is the button, wherever the bubble sits
-            property real grow: root.open ? 1 : 0.4
-            transform: Scale {
-                origin.x: bubble.from - bubble.x
-                origin.y: 0
-                xScale: bubble.grow
-                yScale: bubble.grow
-            }
-
-            // springy bloom
-            Behavior on width { SpringAnimation { spring: 4.5; damping: 0.28; epsilon: 0.3 } }
-            Behavior on height { SpringAnimation { spring: 4.5; damping: 0.32; epsilon: 0.3 } }
-            Behavior on grow { SpringAnimation { spring: 5; damping: 0.3; epsilon: 0.005 } }
-            Behavior on y { SpringAnimation { spring: 5; damping: 0.35 } }
-            Behavior on opacity { NumberAnimation { duration: root.open ? 140 : 260 } }
-            Behavior on border.color { ColorAnimation { duration: 300 } }
 
             HoverHandler { id: hover }
             // click: close, and stop the recording, Claude or the voice
@@ -200,29 +177,12 @@ Scope {
                 }
             }
 
-            // ---------- header: the face + status ----------
+            // ---------- header: the status ----------
             Row {
                 id: header
-                x: bubble.pad - 2
+                x: bubble.pad
                 height: bubble.headerH
                 spacing: 10
-
-                Face {
-                    id: face
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: bubble.faceW
-                    height: bubble.faceW
-                    mode: root.mode
-                    level: root.level < 0 ? 0 : root.level
-                    speaking: root.speaking
-                    reading: root.mode === "answer" && root.shown < root.fullText.length
-                    pointerIn: hover.hovered
-                    pointer: hover.hovered ? face.mapFromItem(bubble, hover.point.position) : Qt.point(0, 0)
-                    // its screen is dark in both looks: the vivid accents glow on it
-                    primary: Theme.night.primary
-                    secondary: Theme.night.secondary
-                    error: Theme.crit
-                }
 
                 Text {
                     id: status
@@ -231,81 +191,32 @@ Scope {
                     elide: Text.ElideRight
                     color: root.mode === "answer" ? Theme.dim : Theme.text
                     font.family: Theme.font
-                    font.pixelSize: 13
-                    font.weight: Font.Medium
+                    font.pixelSize: 12
                     text: {
                         switch (root.mode) {
                         case "listening": return "Listening …";
-                        case "thinking": return root.prompt !== "" ? root.prompt : "Thinking …";
+                        case "thinking": return root.prompt !== "" ? root.prompt + "  …" : "Thinking …";
                         case "answer": return root.prompt !== "" ? root.prompt : "Claude";
-                        case "error": return "Oops";
+                        case "error": return "Error";
                         default: return "";
                         }
                     }
-                    Behavior on color { ColorAnimation { duration: 250 } }
                 }
             }
 
-            // pulsing dots while thinking
-            Row {
+            // the microphone's level while listening: a 2 px line (none without a real level)
+            Rectangle {
                 anchors.right: parent.right
-                anchors.rightMargin: bubble.pad + 2
+                anchors.rightMargin: bubble.pad
                 y: (bubble.headerH - height) / 2
-                spacing: 4
-                visible: opacity > 0
-                opacity: root.mode === "thinking" && root.prompt !== "" ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-                Repeater {
-                    model: 3
-                    Rectangle {
-                        required property int index
-                        width: 5; height: 5; radius: 2.5
-                        color: Theme.accentAt(index / 2)
-                        SequentialAnimation on opacity {
-                            loops: Animation.Infinite
-                            PauseAnimation { duration: index * 160 }
-                            NumberAnimation { from: 0.2; to: 1; duration: 380 }
-                            NumberAnimation { from: 1; to: 0.2; duration: 380 }
-                            PauseAnimation { duration: (2 - index) * 160 }
-                        }
-                    }
-                }
-            }
-
-            // level bars while listening
-            Row {
-                id: bars
-                anchors.right: parent.right
-                anchors.rightMargin: bubble.pad + 2
-                height: 24
-                y: (bubble.headerH - height) / 2
-                spacing: 3
-                visible: opacity > 0
-                opacity: root.mode === "listening" ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 200 } }
-
-                property real t: 0
-                FrameAnimation {
-                    running: bars.visible
-                    onTriggered: bars.t += frameTime
-                }
-
-                Repeater {
-                    model: 6
-                    Rectangle {
-                        required property int index
-                        readonly property real fake: 0.35 + 0.3 * Math.sin(bars.t * (5 + index * 1.3) + index)
-                                                         + 0.2 * Math.sin(bars.t * 2.1 + index * 2)
-                        readonly property real lvl: root.level < 0
-                            ? fake
-                            : root.level * (0.55 + 0.45 * Math.abs(Math.sin(bars.t * 7 + index * 1.7)))
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 3
-                        height: 4 + 20 * Math.max(0, Math.min(1, lvl))
-                        radius: 1.5
-                        color: Theme.accentAt(index / 5)
-                        Behavior on height { NumberAnimation { duration: 70 } }
-                    }
+                width: 60
+                height: 2
+                visible: root.mode === "listening" && root.level >= 0
+                color: Theme.track
+                Rectangle {
+                    width: parent.width * Math.max(0, Math.min(1, root.level))
+                    height: parent.height
+                    color: Theme.accent
                 }
             }
 
@@ -324,19 +235,18 @@ Scope {
             Text {
                 id: answerText
                 x: bubble.indent
-                y: bubble.headerH - 6
+                y: bubble.headerH - 4
                 width: bubble.textW
                 height: Math.min(measure.implicitHeight, 240)
                 wrapMode: Text.Wrap
                 elide: Text.ElideRight
                 textFormat: Text.PlainText
-                color: root.mode === "error" ? (Theme.light ? Theme.crit : Qt.lighter(Theme.crit, 1.35)) : Theme.text
+                color: root.mode === "error" ? Theme.crit : Theme.text
                 font.family: Theme.font
-                font.pixelSize: 14
+                font.pixelSize: 13
                 lineHeight: 1.15
                 text: root.fullText.substring(0, root.shown)
-                opacity: (root.mode === "answer" || root.mode === "error") ? 1 : 0
-                Behavior on opacity { NumberAnimation { duration: 220 } }
+                visible: root.mode === "answer" || root.mode === "error"
             }
         }
     }

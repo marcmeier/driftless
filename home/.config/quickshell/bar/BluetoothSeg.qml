@@ -37,12 +37,12 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: !seg.powered ? "\u{F00B2}" : seg.connected.length > 0 ? "\u{F00B1}" : "\u{F00AF}"
-        color: !seg.powered ? Theme.dim : seg.connected.length > 0 ? Theme.accent : Theme.text
+        color: !seg.powered ? Theme.faint : seg.connected.length > 0 ? Theme.text : Theme.dim
     }
     Label {
         visible: !seg.compact && !!seg.withBattery
         anchors.verticalCenter: parent.verticalCenter
         text: seg.withBattery ? Math.round(seg.withBattery.battery * 100) + "%" : ""
-        font.pixelSize: 14
+        font.pixelSize: 13
     }
 }

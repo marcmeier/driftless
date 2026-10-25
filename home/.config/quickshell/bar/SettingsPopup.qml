@@ -4,9 +4,8 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import qs.services
 
-// The desktop settings (a click on the avatar; walker menus before): the look (dark, light, with the
-// sun), the wallpaper with the folder's thumbnails, the bar's size and which widgets it shows, the
-// monitors, and the way to the sync and the keys. Every choice is this machine's own (scripts/settings-menu.sh, scripts/bar_layout.py).
+// The desktop settings (a click on your name; walker menus before): the look (dark, light, with the
+// sun), the bar's size and which widgets it shows, the monitors, and the way to the sync and the keys. Every choice is this machine's own (scripts/settings-menu.sh, scripts/bar_layout.py).
 Item {
     id: root
 
@@ -17,7 +16,6 @@ Item {
     readonly property string menu: scripts + "/settings-menu.sh"
     readonly property string stateDir: Quickshell.env("XDG_STATE_HOME") || Quickshell.env("HOME") + "/.local/state"
 
-    property var walls: []          // [{image, thumb}], newest first
     property string pendingLook: ""  // clicked, apply.py is still rendering
     readonly property string look: pendingLook || Theme.appearance
     property var widgets: []        // bar_layout.py --widgets
@@ -38,23 +36,6 @@ Item {
 
     // ---- what there is ----
 
-    Process {
-        running: true
-        command: [root.menu, "wallpapers"]
-        stdout: StdioCollector {
-            onStreamFinished: root.walls = text.split("\n").filter(l => l.includes("\t")).map(l => {
-                const [image, thumb] = l.split("\t");
-                return { image: image, thumb: thumb };
-            })
-        }
-    }
-    FileView {
-        id: current
-        path: Quickshell.env("HOME") + "/.cache/theme/wall.source"
-        watchChanges: true
-        onFileChanged: reload()
-        printErrors: false
-    }
     // today's sunrise and sunset (weather.py), for the line under the looks
     FileView {
         id: sun
@@ -133,10 +114,7 @@ Item {
                         anchors.fill: parent
                         radius: width / 2
                         color: Qt.rgba(0, 0, 0, 0.5)
-                        opacity: faceMouse.containsMouse ? 1 : 0
-                        Behavior on opacity {
-                            NumberAnimation { duration: 120 }
-                        }
+                        visible: faceMouse.containsMouse
                         Icon {
                             anchors.centerIn: parent
                             text: "\u{F03EB}"
@@ -157,7 +135,7 @@ Item {
                     Label {
                         text: Feeds.userName
                         bold: true
-                        font.pixelSize: 15
+                        font.pixelSize: 13
                     }
                     Label {
                         small: true
@@ -182,29 +160,26 @@ Item {
         Row {
             spacing: 24
 
-            // left: the wallpaper, the monitors, the rest
+            // left: the look, the monitors, the rest
             Column {
                 id: left
                 width: 360
                 spacing: 12
 
-                // ---- the look: the desktop in miniature, dark, light or with the sun ----
+                // ---- the look: dark, light or with the sun ----
                 Caption {
                     text: "Appearance"
                 }
                 Row {
-                    id: looks
-                    width: parent.width
-                    spacing: 12
+                    spacing: 6
                     Repeater {
                         model: [["dark", "Dark", "\u{F0594}"], ["light", "Light", "\u{F0599}"], ["auto", "Auto", "\u{F050E}"]]
-                        LookTile {
+                        PButton {
                             required property var modelData
-                            width: (looks.width - 2 * looks.spacing) / 3
-                            look: modelData[0]
-                            label: modelData[1]
+                            readonly property string look: modelData[0]
+                            text: modelData[1]
                             icon: modelData[2]
-                            selected: root.look === modelData[0]
+                            checked: root.look === look
                             onClicked: {
                                 if (root.look === look)
                                     return;
@@ -221,88 +196,8 @@ Item {
                     wrapMode: Text.WordWrap
                     text: root.look === "auto"
                           ? "Light from sunrise (" + root.sunTimes.sunrise + ") to sunset (" + root.sunTimes.sunset + "), dark at night"
-                          : root.look === "light" ? "Paper and slate, tinted by your wallpaper"
-                          : "Night colours, the accents glow"
-                }
-
-                Separator {}
-
-                // ---- wallpaper ----
-                Caption {
-                    text: "Wallpaper and colours"
-                }
-                Flickable {
-                    width: parent.width
-                    height: Math.min(grid.implicitHeight, 3 * Math.round((grid.width - 2 * grid.spacing) / 3 * 9 / 16) + 2 * grid.spacing)
-                    contentHeight: grid.implicitHeight
-                    clip: true
-                    boundsBehavior: Flickable.StopAtBounds
-
-                    Grid {
-                        id: grid
-                        width: parent.width
-                        columns: 3
-                        spacing: 8
-                        Repeater {
-                            model: root.walls
-                            Rectangle {
-                                id: tile
-                                required property var modelData
-                                readonly property bool active: current.text().trim() === modelData.image
-                                width: (grid.width - 2 * grid.spacing) / 3
-                                height: Math.round(width * 9 / 16)
-                                radius: 9
-                                color: Theme.well
-                                border.width: active ? 2 : mouse.containsMouse ? 1 : 0
-                                border.color: active ? Theme.accent2 : Theme.cardBorder
-                                Image {
-                                    anchors.fill: parent
-                                    anchors.margins: tile.active ? 3 : 1
-                                    source: "file://" + tile.modelData.thumb
-                                    fillMode: Image.PreserveAspectCrop
-                                    asynchronous: true
-                                    smooth: true
-                                    opacity: mouse.containsMouse || tile.active ? 1 : 0.85
-                                }
-                                MouseArea {
-                                    id: mouse
-                                    anchors.fill: parent
-                                    hoverEnabled: true
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: root.run(["wallpaper-pick", tile.modelData.image])
-                                }
-                            }
-                        }
-                    }
-                }
-                Flow {
-                    width: parent.width
-                    spacing: 6
-                    PButton {
-                        icon: "\u{F02E9}"
-                        text: "Browse …"
-                        onClicked: root.open(["wallpaper"])
-                    }
-                    PButton {
-                        icon: "\u{F049D}"
-                        text: "Random"
-                        onClicked: root.run(["wallpaper-pick", "random"])
-                    }
-                    PButton {
-                        icon: "\u{F054C}"
-                        text: "Previous"
-                        onClicked: root.run(["wallpaper-pick", "previous"])
-                    }
-                    PButton {
-                        icon: "\u{F024F}"
-                        text: "Other image …"
-                        onClicked: root.open(["wallpaper-pick", "other"])
-                    }
-                    PButton {
-                        icon: "\u{F0770}"
-                        text: "Folder"
-                        onClicked: root.open(["wallpaper-pick", "folder"])
-                    }
+                          : root.look === "light" ? "Light greys, dark text"
+                          : "Dark greys, light text"
                 }
 
                 Separator {}
@@ -392,14 +287,10 @@ Item {
                             required property var modelData
                             readonly property bool shownNow: !modelData.hidden
                             width: chipText.implicitWidth + 22
-                            height: 28
-                            radius: 8
-                            color: shownNow ? Qt.alpha(Theme.accent2, 0.14) : chipMouse.containsMouse ? Theme.hover : "transparent"
+                            height: 26
+                            color: chipMouse.containsMouse ? Theme.hover : "transparent"
                             border.width: 1
-                            border.color: shownNow ? Qt.alpha(Theme.accent2, 0.45) : Theme.cardBorder
-                            Behavior on color {
-                                ColorAnimation { duration: 120 }
-                            }
+                            border.color: shownNow ? Theme.accent : Theme.cardBorder
                             Label {
                                 id: chipText
                                 anchors.centerIn: parent

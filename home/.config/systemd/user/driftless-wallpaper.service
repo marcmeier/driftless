@@ -1,12 +1,12 @@
 [Unit]
-Description=Wallpaper (awww, ~/.config/wall.png)
+Description=Desktop background (awww, ~/.config/wall.png: one colour, the plain look)
 PartOf=graphical-session.target
 After=graphical-session.target
 Requisite=graphical-session.target
 
 [Service]
 ExecStart=/usr/bin/awww-daemon
-# show the wallpaper as soon as the daemon answers (set-wallpaper.sh changes it with a transition)
+# show the background as soon as the daemon answers (apply.py and set-wallpaper.sh change it on a new look)
 ExecStartPost=/bin/sh -c 'for i in $(seq 50); do awww query >/dev/null 2>&1 && exec awww img --transition-type none %h/.config/wall.png; sleep 0.1; done; exit 1'
 Restart=on-failure
 

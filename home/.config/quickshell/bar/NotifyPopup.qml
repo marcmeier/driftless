@@ -132,21 +132,6 @@ Item {
                 showApp: false
             }
 
-            add: Transition {
-                NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 180 }
-            }
-            remove: Transition {
-                ParallelAnimation {
-                    NumberAnimation { property: "opacity"; to: 0; duration: 160 }
-                    NumberAnimation { property: "x"; to: 60; duration: 200; easing.type: Easing.InCubic }
-                }
-            }
-            // a card that is still coming in when it moves finishes coming in
-            displaced: Transition {
-                NumberAnimation { properties: "y"; duration: 220; easing.type: Easing.OutCubic }
-                NumberAnimation { property: "opacity"; to: 1; duration: 200 }
-                NumberAnimation { property: "x"; to: 0; duration: 220; easing.type: Easing.OutCubic }
-            }
         }
     }
 }

@@ -1,8 +1,7 @@
 import QtQuick
 import qs.services
 
-// The floating rounded box every widget sits in. Its children are laid out in a row; it grows and
-// shrinks smoothly with them.
+// A group of widgets on the bar: no box of its own in the plain look, only its children in a row.
 Rectangle {
     id: pill
 
@@ -18,15 +17,8 @@ Rectangle {
     implicitWidth: row.implicitWidth + padding * 2
     width: implicitWidth
     visible: shown
-    color: Theme.surface
-    radius: Theme.radius
-    border.width: 1
-    border.color: Theme.border
+    color: "transparent"
     clip: true
-
-    Behavior on width {
-        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
-    }
 
     Row {
         id: row

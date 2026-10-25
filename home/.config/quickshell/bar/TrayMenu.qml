@@ -34,7 +34,6 @@ Item {
             visible: root.stack.length > 0
             width: parent.width
             height: 30
-            radius: 8
             color: back.containsMouse ? Theme.hover : "transparent"
             Icon {
                 x: 4
@@ -78,7 +77,6 @@ Item {
                 Rectangle {
                     visible: !entry.modelData.isSeparator
                     anchors.fill: parent
-                    radius: 8
                     color: mouse.containsMouse && entry.modelData.enabled ? Theme.hover : "transparent"
                     opacity: entry.modelData.enabled ? 1 : 0.45
 

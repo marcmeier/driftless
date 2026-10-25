@@ -7,8 +7,8 @@ import qs.services
 import "../bar"
 
 // The power menu (SUPER + SHIFT + M, the power button in the bar; wlogout before): lock, log out,
-// suspend, reboot, shut down as five cards over the dimmed, blurred focused screen. Keys: the letter
-// on a card, arrows and Enter, Esc or a click beside the cards to go back.
+// suspend, reboot, shut down as a plain list in the middle of the focused screen, which it covers in
+// the desk colour. Keys: the letter of a row, arrows and Enter, Esc or a click beside the list to go back.
 //   quickshell ipc -p ~/.config/quickshell call power toggle      (open, close)
 Scope {
     id: root
@@ -92,7 +92,7 @@ Scope {
         }
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
-        visible: root.open || backdrop.opacity > 0.01
+        visible: root.open
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "driftless-power"
         WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
@@ -101,10 +101,6 @@ Scope {
             id: backdrop
             anchors.fill: parent
             color: Theme.scrim
-            opacity: root.open ? 1 : 0
-            Behavior on opacity {
-                NumberAnimation { duration: root.open ? 180 : 220; easing.type: Easing.OutCubic }
-            }
 
             MouseArea {
                 anchors.fill: parent
@@ -139,135 +135,73 @@ Scope {
 
         Column {
             anchors.centerIn: parent
-            spacing: 26
-            opacity: backdrop.opacity
-            scale: 0.96 + 0.04 * backdrop.opacity
+            width: 260
+            spacing: 8
 
-            // who and since when
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 12
-                Image {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 40
-                    height: 40
-                    sourceSize: Qt.size(80, 80)
-                    source: Theme.avatarVersion >= 0 ? "file://" + Theme.avatar : ""
-                    cache: false
-                    smooth: true
-                    mipmap: true
-                }
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-                    Label {
-                        text: Feeds.userName
-                        bold: true
-                        font.pixelSize: 15
-                    }
-                    Label {
-                        small: true
-                        dim: true
-                        text: hostname.text().trim() + "  ·  " + root.since(uptime.seconds)
-                    }
-                }
+            // who, where and since when
+            Label {
+                small: true
+                dim: true
+                text: Feeds.userName + "  ·  " + hostname.text().trim() + "  ·  " + root.since(uptime.seconds)
             }
 
-            Row {
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 14
+            Rectangle {
+                width: parent.width
+                height: list.implicitHeight + 8
+                color: Theme.card
+                border.width: 1
+                border.color: Theme.cardBorder
 
-                Repeater {
-                    model: root.items
+                Column {
+                    id: list
+                    y: 4
+                    width: parent.width
 
-                    Rectangle {
-                        id: tile
-                        required property var modelData
-                        required property int index
-                        readonly property bool active: root.current === index
-                        readonly property color tone: modelData.danger ? Theme.crit : Theme.accent2
+                    Repeater {
+                        model: root.items
 
-                        width: 148
-                        height: 156
-                        radius: 18
-                        color: active ? Theme.raised : Theme.card
-                        border.width: 1
-                        border.color: active ? tone : Theme.cardBorder
-                        Behavior on color {
-                            ColorAnimation { duration: 150 }
-                        }
-                        Behavior on border.color {
-                            ColorAnimation { duration: 150 }
-                        }
+                        Rectangle {
+                            id: row
+                            required property var modelData
+                            required property int index
+                            readonly property bool active: root.current === index
+                            readonly property color fill: modelData.danger ? Theme.crit : Theme.accent
 
-                        // each card comes in a moment after the one before
-                        opacity: root.open ? 1 : 0
-                        transform: Translate {
-                            y: root.open ? 0 : 14
-                            Behavior on y {
-                                SequentialAnimation {
-                                    PauseAnimation { duration: root.open ? tile.index * 28 : 0 }
-                                    NumberAnimation { duration: 260; easing.type: Easing.OutCubic }
-                                }
-                            }
-                        }
-                        Behavior on opacity {
-                            SequentialAnimation {
-                                PauseAnimation { duration: root.open ? tile.index * 28 : 0 }
-                                NumberAnimation { duration: 200 }
-                            }
-                        }
+                            x: 1
+                            width: list.width - 2
+                            height: 28
+                            color: active ? fill : "transparent"
 
-                        Column {
-                            anchors.centerIn: parent
-                            spacing: 12
-                            Icon {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                size: 34
-                                text: tile.modelData.glyph
-                                color: tile.active ? tile.tone : Theme.dim
+                            Label {
+                                x: 12
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: row.modelData.text
+                                color: row.active ? Theme.accentInk : Theme.text
                             }
                             Label {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: tile.modelData.text
-                                bold: true
-                                font.pixelSize: 13
-                                color: tile.active ? Theme.text : Theme.dim
+                                anchors.right: parent.right
+                                anchors.rightMargin: 12
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: row.modelData.key.toLowerCase()
+                                color: row.active ? Theme.accentInk : Theme.dim
                             }
-                            Rectangle {
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: 22
-                                height: 20
-                                radius: 6
-                                color: "transparent"
-                                border.width: 1
-                                border.color: tile.active ? Qt.alpha(tile.tone, 0.6) : Qt.alpha(Theme.overlay, 0.12)
-                                Label {
-                                    anchors.centerIn: parent
-                                    text: tile.modelData.key
-                                    small: true
-                                    font.pixelSize: 11
-                                    color: tile.active ? tile.tone : Theme.faint
-                                }
-                            }
-                        }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onEntered: root.current = tile.index
-                            onClicked: root.pick(tile.index)
+                            MouseArea {
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onEntered: root.current = row.index
+                                onClicked: root.pick(row.index)
+                            }
                         }
                     }
                 }
             }
 
             Label {
-                anchors.horizontalCenter: parent.horizontalCenter
                 small: true
                 color: Theme.faint
-                text: "←  →  choose   ·   Enter   ·   Esc  back"
+                text: "↑ ↓  choose  ·  Enter  ·  Esc  back"
             }
         }
     }

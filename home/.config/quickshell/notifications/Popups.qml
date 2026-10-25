@@ -66,10 +66,10 @@ Scope {
         WlrLayershell.namespace: "driftless-notifications"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 
-        // the last card's way out still shows
+        // a moment before the window goes (the list may refill at once)
         Timer {
             id: hideDelay
-            interval: 400
+            interval: 50
             running: Notifs.popups.count === 0
         }
 
@@ -77,7 +77,7 @@ Scope {
             id: list
             anchors.fill: parent
             interactive: false
-            spacing: 8
+            spacing: 4
             model: Notifs.popups
 
             delegate: NotifCard {
@@ -86,24 +86,6 @@ Scope {
                 onExpired: Notifs.hidePopup(nid)
             }
 
-            add: Transition {
-                ParallelAnimation {
-                    NumberAnimation { property: "opacity"; from: 0; to: 1; duration: 200 }
-                    NumberAnimation { property: "x"; from: 60; to: 0; duration: 380; easing.type: Easing.OutBack; easing.overshoot: 0.9 }
-                }
-            }
-            remove: Transition {
-                ParallelAnimation {
-                    NumberAnimation { property: "opacity"; to: 0; duration: 200 }
-                    NumberAnimation { property: "x"; to: 80; duration: 240; easing.type: Easing.InCubic }
-                }
-            }
-            // a card that is still coming in when it moves finishes coming in
-            displaced: Transition {
-                NumberAnimation { properties: "y"; duration: 260; easing.type: Easing.OutCubic }
-                NumberAnimation { property: "opacity"; to: 1; duration: 200 }
-                NumberAnimation { property: "x"; to: 0; duration: 260; easing.type: Easing.OutCubic }
-            }
         }
     }
 }

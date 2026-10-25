@@ -26,7 +26,7 @@ Seg {
             lines.push(`<b>${day.label}</b> <font color='${Theme.dim}'>${day.sub}</font>`);
             for (const e of day.events) {
                 const time = e.allDay ? "all day" : e.continued ? "until " + e.end : e.start;
-                lines.push(`&nbsp;&nbsp;<font color='${Theme.accent2}'>${time}</font>&nbsp;&nbsp;${Apps.esc(e.title)}`);
+                lines.push(`&nbsp;&nbsp;<font color='${Theme.dim}'>${time}</font>&nbsp;&nbsp;${Apps.esc(e.title)}`);
             }
         }
         lines.push("", `<font color='${Theme.dim}'>Click: calendar  ·  Right: sync now</font>`);
@@ -44,8 +44,8 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.failed ? "\u{F0026}" : "\u{F00ED}"
-        size: 16
-        color: seg.failed ? Theme.warn : seg.next ? Theme.accent2 : Theme.dim
+        size: 14
+        color: seg.failed ? Theme.warn : Theme.dim
     }
     Label {
         visible: !seg.compact && seg.label !== ""
@@ -53,8 +53,8 @@ Seg {
         width: Math.min(implicitWidth, 260)
         elide: Text.ElideRight
         text: seg.label
-        font.pixelSize: 13
+        font.pixelSize: 12
         font.weight: Font.Normal
-        color: Qt.alpha(Theme.text, 0.75)
+        color: Theme.text
     }
 }

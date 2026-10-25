@@ -1,18 +1,20 @@
-/* ReGreet theme, matches the desktop (dark translucent card, cyan/green accents). */
+/* ReGreet theme (the fallback login screen), the plain look in night colours like the shell's
+   greeter: no picture, no card, square, 1 px lines, the accent on focus. */
 * {
   font-family: "JetBrainsMono Nerd Font", monospace;
+  font-size: 13px;
 }
 
 window {
-  color: #d7dce2;
+  color: @fg@;
+  background-color: @desk@;
 }
 
 frame.background,
 .background {
-  background: transparent;
+  background: @desk@;
 }
 
-/* Login card */
 frame {
   background: transparent;
   border: none;
@@ -21,90 +23,75 @@ frame {
 }
 
 label {
-  color: #d7dce2;
+  color: @fg@;
 }
 
 label.dim-label,
 .dim-label {
-  color: #8b93a1;
+  color: @dim@;
 }
 
 entry,
 combobox button,
 dropdown,
 dropdown > button {
-  background-color: rgba(11, 13, 16, 0.6);
-  color: #d7dce2;
-  border: 1px solid rgba(215, 220, 226, 0.12);
-  border-radius: 12px;
-  padding: 8px 12px;
+  background-color: @field@;
+  color: @fg@;
+  border: 1px solid @line@;
+  border-radius: 0;
+  padding: 6px 10px;
   box-shadow: none;
 }
 
 entry:focus {
   border-color: @primary@;
-  box-shadow: 0 0 0 1px @primary@;
+  box-shadow: none;
 }
 
 button {
   background-image: none;
-  background-color: rgba(11, 13, 16, 0.6);
-  color: #d7dce2;
-  border: 1px solid rgba(215, 220, 226, 0.12);
-  border-radius: 12px;
+  background-color: transparent;
+  color: @fg@;
+  border: 1px solid @line@;
+  border-radius: 0;
   box-shadow: none;
 }
 
 button:hover {
-  background-color: @primary:0.15@;
-  border-color: @primary@;
+  background-color: @bg_alt@;
 }
 
 button.suggested-action {
   background-color: @primary@;
-  color: #0b0d10;
+  color: @ink@;
   border-color: @primary@;
-  font-weight: 600;
 }
-
-button.suggested-action:hover {
-  background-color: @secondary@;
-  border-color: @secondary@;
-}
+button.suggested-action label { color: @ink@; }
 
 label.error,
 .error {
-  color: #ff5f6d;
+  color: @red@;
 }
 
-/* Clock: big, light, floating without a card (it is the only label directly inside a frame) */
+/* Clock: the only label directly inside a frame */
 frame > label {
-  font-size: 88px;
-  font-weight: 200;
-  color: #d7dce2;
+  font-size: 72px;
+  font-weight: 300;
+  color: @fg_strong@;
   margin-top: 90px;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
 }
 
-/* Login card: the grid inside the login frame carries card look and profile picture */
+/* the login form */
 frame > grid {
-  background-color: rgba(20, 22, 28, 0.78);
-  background-image: url("file:///var/lib/driftless/greeter/avatar.png");
-  background-repeat: no-repeat;
-  background-size: 96px 96px;
-  background-position: 36px 96px;
-  border: 1px solid @primary:0.25@;
-  border-radius: 20px;
-  padding: 32px 40px 32px 152px;
-  min-width: 460px;
-  min-height: 300px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  background: transparent;
+  border: none;
+  padding: 24px;
+  min-width: 300px;
 }
-frame grid > label:first-child { font-size: 17px; font-weight: 600; margin-bottom: 10px; color: #8b93a1; }
+frame grid > label:first-child { margin-bottom: 6px; color: @fg@; }
 
 /* Reboot / Power Off */
 box > button, frame ~ * button {
-  border-radius: 14px;
-  padding: 6px 14px;
-  color: #8b93a1;
+  padding: 4px 10px;
+  color: @dim@;
 }

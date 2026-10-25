@@ -31,15 +31,15 @@ Pill {
         Icon {
             anchors.verticalCenter: parent.verticalCenter
             text: pill.app.glyph
-            size: 15
-            color: Theme.accent2
+            size: 14
+            color: Theme.dim
         }
         Label {
             anchors.verticalCenter: parent.verticalCenter
             width: Math.min(implicitWidth, pill.compact ? 160 : 340)
             elide: Text.ElideRight
-            font.weight: Font.DemiBold
-            font.pixelSize: pill.compact ? 13 : 14
+            color: Theme.dim
+            font.pixelSize: pill.compact ? 12 : 13
             text: pill.compact || !pill.shortTitle || pill.shortTitle.toLowerCase() === pill.app.name.toLowerCase()
                   ? pill.app.name : pill.shortTitle
         }

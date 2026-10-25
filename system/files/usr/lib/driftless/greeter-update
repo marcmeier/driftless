@@ -1,6 +1,6 @@
 #!/bin/bash
 # Renders the login screen's files in /var/lib/driftless/greeter: regreet.toml with this machine's
-# hostname (for the ReGreet fallback), and (given the user's theme folder) the blurred wallpaper, the
+# hostname (for the ReGreet fallback), and (given the user's theme folder) the background colour, the
 # colours, the avatar and who the caller is, so the greeter offers that account first.
 #   greeter-update                 only regreet.toml (package install, hostname change)
 #   greeter-update THEME_CACHE     also login.png, colors.json, regreet.css, avatar.png from
@@ -36,7 +36,7 @@ for f in login.png colors.json regreet.css avatar.png; do
   chmod 644 "$out/$f.new"
   mv "$out/$f.new" "$out/$f"
 done
-# the account that set the wallpaper comes first on the login screen (the avatar is its picture)
+# the account that rendered the look last comes first on the login screen (the avatar is its picture)
 if ((caller != 0)); then
   id -nu "$caller" > "$out/user.new" && chmod 644 "$out/user.new" && mv "$out/user.new" "$out/user"
 fi

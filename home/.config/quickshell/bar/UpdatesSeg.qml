@@ -28,12 +28,12 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: "\u{F03D4}"
-        color: seg.count >= 30 ? Theme.warn : Theme.accent2
+        color: seg.count >= 30 ? Theme.warn : Theme.dim
     }
     Label {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.count
-        color: seg.count >= 30 ? Theme.warn : Theme.accent2
-        font.pixelSize: seg.compact ? 13 : 14
+        color: seg.count >= 30 ? Theme.warn : Theme.text
+        font.pixelSize: seg.compact ? 12 : 13
     }
 }

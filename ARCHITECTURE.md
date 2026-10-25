@@ -74,7 +74,7 @@ by the package's install script. Lists of units live in the manifest, read by bo
 
 Root is reached through two polkit actions, each a single helper in `/usr/lib/driftless`. Installing
 packages asks for the password every time: it changes the system. Updating the login screen
-(`greeter-update`) does not, so a new wallpaper, by hand or by the daily timer, reaches it at once.
+(`greeter-update`) does not, so a new look (dark, light, a new picture) reaches it at once.
 That is safe because the helper reads the theme files with the caller's rights (`setpriv` to
 `PKEXEC_UID`), not root's: a program in the session can only show on the login screen what it could
 read anyway, and no symlink swapped in between a check and the copy makes root read `/etc/shadow`.
@@ -140,7 +140,7 @@ none of them knew the others or the bar.
 **Now:** the shell is the notification server (`services/Notifs.qml`, Quickshell's
 `NotificationServer`), and draws the lock screen (`lock/`, `WlSessionLock` and PAM), the power menu
 (`power/`), an on-screen display for volume and brightness (`osd/`) and, as the session's polkit agent,
-the password dialog (`polkit/`, hyprpolkitagent before), with the same cards, colours and motion as the
+the password dialog (`polkit/`, hyprpolkitagent before), in the same plain boxes and colours as the
 bar; the lock screen and the password dialog share one password field (`bar/PasswordField.qml`). They
 share state instead of polling: the bell reads the list itself, the lock screen and a fullscreen
 window hold the popups, suspend waits until the lock is drawn. One file
@@ -160,7 +160,7 @@ Three things keep it safe:
 
 The settings are a popup of the bar too (`bar/SettingsPopup.qml`, walker menus before); the scripts
 behind them stay (`settings-menu.sh`, `bar_layout.py`), so the walker menus remain for what needs more
-room (moving widgets, the wallpaper folder with a preview) and as the way in without the shell. The
+room (moving widgets) and as the way in without the shell. The
 notification list outlives a restart in `~/.local/state/driftless-shell/notifications.json`: per
 machine, in a folder only the user can read, seven days at most. A token per run of the shell tells a
 restart (everything comes back from the file) from a reload (the live ones come back from the server
@@ -173,9 +173,9 @@ stays for its pairing agent and settings; the bar hides its tray icon, it shows 
 
 **The login screen** is Quickshell too, but not the shell: greetd starts it as its own user, which
 cannot read any home. So it is a small second config in driftless-system
-(`/usr/share/driftless/greeter`) with a copy of the lock screen's card and password field, and it
-shows only what `greeter-update` rendered into `/var/lib/driftless/greeter` (the blurred wallpaper,
-the colours, the avatar, who set them). It talks to greetd with Quickshell's `Greetd` service and
+(`/usr/share/driftless/greeter`) with a copy of the lock screen's column and password field, and it
+shows only what `greeter-update` rendered into `/var/lib/driftless/greeter` (the colours and who
+rendered them last). It talks to greetd with Quickshell's `Greetd` service and
 starts the uwsm session first. `/usr/lib/driftless/greeter` runs it in cage and falls back to ReGreet,
 the login screen before, when Quickshell does not start: a broken greeter cannot keep you out.
 
@@ -184,9 +184,27 @@ restarts the shell when the agent's files change, after the retired hyprpolkitag
 screen checks the password with `pam_unix` alone; the password dialog cannot choose, polkit runs its
 own PAM stack (`polkit-1`, with faillock, which also counts a cancelled request).
 
+## 10. One plain look instead of the colours of the wallpaper
+
+**Before:** `set-wallpaper IMAGE` took two accents from the image (`palette.py`), tinted every grey of
+the light look with its hue, and rendered them into the shell, the templates and a blurred copy for
+the login screen; glass surfaces with blur behind them, gradients from one accent to the other, round
+cards with shadows, springy popups, a face in the Claude bubble, a new wallpaper every day.
+
+**Now:** the plain look. Two fixed palettes in `theme/scheme.py`, neutral greys and one accent (blue),
+dark and light; the accent marks only what is active, selected or focused, red and orange only what
+needs attention. Every surface is opaque, square and framed by a 1 px line; the bar is one strip along
+the top edge, its popups hang from its line; there is no blur, shadow, gradient or animation, in the
+shell nor in Hyprland. The desktop, the lock and the login screen are one colour (`wall.png` and
+`login.png` stay as files of one colour, so awww, ReGreet and `greeter-update` work as before).
+`set-wallpaper` keeps its name for `--current`: setup, sync and verify call it.
+
+*Considered:* keeping the wallpaper as an option next to the plain look. Two looks in every QML file
+double what has to be kept in step; the point was less.
+
 ## What stayed
 
 Hardware detection from sysfs. Review mode as the default for incoming changes. Signed commits with
 per machine SSH keys and a local list of trusted machines. Package installs only after a password
-dialog, AUR builds only in a terminal. The theme generated from the wallpaper. Per machine settings
+dialog, AUR builds only in a terminal. One theme rendered into every program. Per machine settings
 in `~/.local/state`. Real tests of the sync between two machines.

@@ -38,14 +38,9 @@ Item {
 
                 Rectangle {
                     anchors.fill: parent
-                    anchors.topMargin: 4
-                    anchors.bottomMargin: 4
-                    radius: Theme.innerRadius
+                    anchors.bottomMargin: 1
                     color: Theme.hover
-                    opacity: mouse.containsMouse ? 1 : 0
-                    Behavior on opacity {
-                        NumberAnimation { duration: 150 }
-                    }
+                    visible: mouse.containsMouse
                 }
 
                 IconImage {
@@ -55,12 +50,11 @@ Item {
                     opacity: slot.modelData.status === Status.Passive ? 0.5 : 1
                 }
 
-                // asks for attention: a dot in the second accent
+                // asks for attention: a small square in the accent
                 Rectangle {
                     visible: slot.modelData.status === Status.NeedsAttention
-                    width: 6
-                    height: 6
-                    radius: 3
+                    width: 5
+                    height: 5
                     color: Theme.accent
                     x: parent.width / 2 + slot.iconSize / 2 - 4
                     y: parent.height / 2 - slot.iconSize / 2 - 2

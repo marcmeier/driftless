@@ -50,13 +50,13 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     text: root.powered ? "\u{F00AF}" : "\u{F00B2}"
                     size: 20
-                    color: root.powered ? Theme.accent2 : Theme.dim
+                    color: root.powered ? Theme.text : Theme.faint
                 }
                 Label {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Bluetooth"
                     bold: true
-                    font.pixelSize: 15
+                    font.pixelSize: 13
                 }
             }
             PSwitch {
@@ -105,17 +105,9 @@ Item {
                     model: 3
                     Rectangle {
                         required property int index
-                        width: 5
-                        height: 5
-                        radius: 2.5
-                        color: Theme.accentAt(index / 2)
-                        SequentialAnimation on opacity {
-                            loops: Animation.Infinite
-                            PauseAnimation { duration: index * 160 }
-                            NumberAnimation { from: 0.2; to: 1; duration: 380 }
-                            NumberAnimation { from: 1; to: 0.2; duration: 380 }
-                            PauseAnimation { duration: (2 - index) * 160 }
-                        }
+                        width: 4
+                        height: 4
+                        color: Theme.dim
                     }
                 }
             }
@@ -161,8 +153,7 @@ Item {
 
         width: column.width
         height: 36
-        radius: 9
-        color: dev.connected ? Qt.alpha(Theme.accent2, 0.15) : mouse.containsMouse ? Theme.hover : "transparent"
+        color: dev.connected ? Theme.raised : mouse.containsMouse ? Theme.hover : "transparent"
 
         Connections {
             target: row.dev

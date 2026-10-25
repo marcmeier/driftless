@@ -136,7 +136,7 @@ apply_changes() {
     setup_units
   }
   if grep -q '^dconf.ini$' <<< "$files"; then dconf load / < "$DRIFTLESS/dconf.ini" 2> /dev/null || warn "dconf not loaded"; fi
-  grep -qE '^home/\.config/theme/(templates/|apply\.py|palette\.py|scheme\.py)' <<< "$files" && reload+=(theme hypr)
+  grep -qE '^home/\.config/theme/(templates/|apply\.py|scheme\.py|set-wallpaper\.sh)' <<< "$files" && reload+=(theme hypr)
   # a new picture of you (~/.face linked into the repository, e.g. personal/face.png): the bar, the lock
   # and the login screen show it rendered round
   local face root
@@ -175,10 +175,9 @@ reload() {
   local r
   for r in $(printf '%s\n' "$@" | sort -u); do
     case $r in
-      theme)
-        python3 "$HOME/.config/theme/apply.py" --current > /dev/null || warn "theme not rendered"
-        pkill -USR2 -x ghostty 2> /dev/null || true
-        ;;
+      # the configs, the desktop's colour, ghostty and the login screen's copy (pkexec, no password for
+      # the active session)
+      theme) "$HOME/.config/theme/set-wallpaper.sh" --current > /dev/null 2>&1 || warn "theme not rendered" ;;
       # also the login screen's copy (pkexec, no password for the active session)
       avatar) "$HOME/.config/theme/set-wallpaper.sh" --current > /dev/null 2>&1 || warn "picture not rendered" ;;
     esac
@@ -192,7 +191,8 @@ reload() {
       shell) systemctl --user try-restart driftless-shell.service 2> /dev/null || true ;;
       elephant)
         # a menu that does not parse takes all of elephant (and walker's launcher) down: keep the old one
-        if ! command -v luac > /dev/null || luac -p "$HOME"/.config/elephant/menus/*.lua 2> /dev/null; then
+        if ! command -v luac > /dev/null || ! compgen -G "$HOME/.config/elephant/menus/*.lua" > /dev/null ||
+          luac -p "$HOME"/.config/elephant/menus/*.lua 2> /dev/null; then
           systemctl --user try-restart elephant.service 2> /dev/null || true
         else
           warn "an elephant menu does not parse, elephant not restarted"

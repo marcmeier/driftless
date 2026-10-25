@@ -44,7 +44,7 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: Glyphs.volume(seg.level, seg.muted, seg.headphones)
-        color: seg.muted ? Theme.dim : Theme.text
+        color: Theme.dim
     }
     Label {
         visible: !seg.compact

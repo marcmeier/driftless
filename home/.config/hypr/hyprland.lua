@@ -31,11 +31,11 @@ end)
 ---------------------
 
 -- Set programs that you use
--- accent colours and the look (dark/light), generated from the wallpaper by theme/apply.py. Not rendered yet
--- (a fresh install whose theme step failed): the classic palette keeps the rest of this file working.
+-- the accent and the look (dark/light) of the plain theme, rendered by theme/apply.py. Not rendered yet
+-- (a fresh install whose theme step failed): the dark values keep the rest of this file working.
 local themed, theme = pcall(dofile, os.getenv("HOME") .. "/.config/theme/colors.lua")
 if not themed or type(theme) ~= "table" then
-    theme = { scheme = "dark", primary = "33ccff", secondary = "00ff99", inactive_border = "ffffff", shadow = "000000" }
+    theme = { scheme = "dark", primary = "7aa6d9", secondary = "7aa6d9", line = "3a3a3a", desk = "0e0e0e" }
 end
 local terminal = "ghostty"
 local menu = "walker"
@@ -51,7 +51,7 @@ local browser = "brave-origin --hide-crash-restore-bubble"
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
 
 -- The desktop shell (bar, notifications, lock screen, power menu, password dialog, Claude bubble), hypridle,
--- the clipboard history, the wallpaper and elephant are systemd user units that start with graphical-session.target (driftless setup
+-- the clipboard history, the desktop colour (awww) and elephant are systemd user units that start with graphical-session.target (driftless setup
 -- enables them), so they restart on a crash and "systemctl --user restart driftless-shell" works. That needs the session from
 -- uwsm ("Hyprland (uwsm-managed)" at the login screen). Started any other way, start them here.
 if not os.getenv("UWSM_FINALIZE_VARNAMES") then
@@ -101,14 +101,15 @@ end
 -- Refer to https://wiki.hypr.land/Configuring/Basics/Variables/
 hl.config({
     general = {
-        gaps_in  = 5,
-        gaps_out = 12,
+        gaps_in  = 3,
+        gaps_out = 6,
 
-        border_size = 2,
+        border_size = 1,
 
+        -- plain: the window with focus has the accent, the others a grey line
         col = {
-            active_border   = { colors = {"rgba(" .. theme.primary .. "ee)", "rgba(" .. theme.secondary .. "ee)"}, angle = 45 },
-            inactive_border = "rgba(" .. (theme.inactive_border or "ffffff") .. (theme.scheme == "light" and "24" or "33") .. ")",
+            active_border   = "rgb(" .. theme.primary .. ")",
+            inactive_border = "rgb(" .. (theme.line or "3a3a3a") .. ")",
         },
 
         -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
@@ -121,59 +122,22 @@ hl.config({
     },
 
     decoration = {
-        rounding       = 12,
-        rounding_power = 2,
-        dim_inactive   = true,
-        dim_strength   = 0.08,
+        rounding       = 0,
+        dim_inactive   = false,
 
         -- Change transparency of focused and unfocused windows
         active_opacity   = 1.0,
         inactive_opacity = 1.0,
 
-        shadow = {
-            enabled      = true,
-            range        = 18,
-            render_power = 3,
-            color        = tonumber("0x" .. (theme.scheme == "light" and "30" or "66") .. (theme.shadow or "000000")),
-        },
-
-        blur = {
-            enabled   = true,
-            size      = 6,
-            passes    = 2,
-            vibrancy  = 0.1696,
-        },
+        -- plain: no shadow, no blur
+        shadow = { enabled = false },
+        blur   = { enabled = false },
     },
 
+    -- plain: no animations, windows and workspaces are there at once
+    animations = { enabled = false },
 })
 
--- Default curves and animations, see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Animations/
-hl.curve("easeOutQuint",   { type = "bezier", points = { {0.23, 1},    {0.32, 1}    } })
-hl.curve("easeInOutCubic", { type = "bezier", points = { {0.65, 0.05}, {0.36, 1}    } })
-hl.curve("linear",         { type = "bezier", points = { {0, 0},       {1, 1}       } })
-hl.curve("almostLinear",   { type = "bezier", points = { {0.5, 0.5},   {0.75, 1}    } })
-hl.curve("quick",          { type = "bezier", points = { {0.15, 0},    {0.1, 1}     } })
-
--- Default springs
-hl.curve("easy",           { type = "spring", mass = 1, stiffness = 238.1191, dampening = 24.21279333 })
-
-hl.animation({ leaf = "global",        enabled = true,  speed = 10,   bezier = "default" })
-hl.animation({ leaf = "border",        enabled = true,  speed = 5.39, bezier = "easeOutQuint" })
-hl.animation({ leaf = "windows",       enabled = true,  speed = 4.79, spring = "easy" })
-hl.animation({ leaf = "windowsIn",     enabled = true,  speed = 4.1,  spring = "easy",         style = "popin 87%" })
-hl.animation({ leaf = "windowsOut",    enabled = true,  speed = 1.49, bezier = "linear",       style = "popin 87%" })
-hl.animation({ leaf = "fadeIn",        enabled = true,  speed = 1.73, bezier = "almostLinear" })
-hl.animation({ leaf = "fadeOut",       enabled = true,  speed = 1.46, bezier = "almostLinear" })
-hl.animation({ leaf = "fade",          enabled = true,  speed = 3.03, bezier = "quick" })
-hl.animation({ leaf = "layers",        enabled = true,  speed = 3.81, bezier = "easeOutQuint" })
-hl.animation({ leaf = "layersIn",      enabled = true,  speed = 4,    bezier = "easeOutQuint", style = "fade" })
-hl.animation({ leaf = "layersOut",     enabled = true,  speed = 1.5,  bezier = "linear",       style = "fade" })
-hl.animation({ leaf = "fadeLayersIn",  enabled = true,  speed = 1.79, bezier = "almostLinear" })
-hl.animation({ leaf = "fadeLayersOut", enabled = true,  speed = 1.39, bezier = "almostLinear" })
-hl.animation({ leaf = "workspaces",    enabled = true,  speed = 1.94, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesIn",  enabled = true,  speed = 1.21, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "workspacesOut", enabled = true,  speed = 1.94, bezier = "almostLinear", style = "fade" })
-hl.animation({ leaf = "zoomFactor",    enabled = true,  speed = 7,    bezier = "quick" })
 
 -- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 -- "Smart gaps" / "No gaps when only"
@@ -220,8 +184,11 @@ hl.config({
 
 hl.config({
     misc = {
-        force_default_wallpaper = -1,    -- Set to 0 or 1 to disable the anime mascot wallpapers
-        disable_hyprland_logo   = false, -- If true disables the random hyprland logo / anime girl background. :(
+        force_default_wallpaper = 0,
+        disable_hyprland_logo   = true,
+        disable_splash_rendering = true,
+        -- the desktop's colour before awww shows wall.png (the same colour)
+        background_color        = "rgb(" .. (theme.desk or "0e0e0e") .. ")",
         -- the lock screen is part of the shell: when the shell restarts while locked (a crash), the new one
         -- (or hyprlock from a TTY) takes the lock over; the screen stays locked in between
         allow_session_lock_restore = true,
@@ -395,19 +362,8 @@ hl.window_rule({
 -- })
 -- overlayLayerRule:set_enabled(false)
 
--- Theme: blur behind the translucent shell surfaces (the bar with its popups and tooltips, the notifications,
--- the on-screen display, the power menu, the password dialog, the Claude bubble) and walker; only where they draw, not in their
--- transparent parts
-hl.layer_rule({
-    name  = "theme-blur",
-    match = { namespace = "^(driftless-bar|driftless-popup|driftless-tooltip|driftless-notifications|driftless-osd|driftless-power|driftless-polkit|walker|claude-notch)$" },
-
-    blur        = true,
-    ignore_alpha = 0.2,
-})
-
--- The shell's popups, tooltips, notifications, on-screen display, power menu and password dialog animate
--- themselves
+-- The shell's popups, tooltips, notifications, on-screen display, power menu and password dialog appear at
+-- once, like everything in the plain look (no compositor fade either)
 hl.layer_rule({
     name  = "shell-popups-no-anim",
     match = { namespace = "^(driftless-popup|driftless-tooltip|driftless-notifications|driftless-osd|driftless-power|driftless-polkit)$" },

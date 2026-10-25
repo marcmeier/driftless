@@ -1,8 +1,8 @@
 import QtQuick
 import qs.services
 
-// A button in a popup: a glyph and/or a word. `accent`: filled with the accent gradient (the main
-// action); `checked`: marked as the current choice.
+// A button in a popup: a glyph and/or a word in a 1 px frame. `accent`: filled with the accent (the
+// main action); `checked`: framed in the accent (the current choice); `flat`: no frame.
 Rectangle {
     id: btn
 
@@ -11,33 +11,16 @@ Rectangle {
     property bool accent: false
     property bool checked: false
     property bool flat: false
-    property int iconSize: 15
-    property int padX: text ? 12 : 8
+    property int iconSize: 14
+    property int padX: text ? 10 : 7
     signal clicked
 
     implicitWidth: row.implicitWidth + padX * 2
-    implicitHeight: 32
+    implicitHeight: 28
     opacity: enabled ? 1 : 0.4
-    radius: Theme.innerRadius
-    color: accent ? "transparent" : checked ? Qt.alpha(Theme.accent2, 0.18)
-         : mouse.containsMouse ? Theme.hover : flat ? "transparent" : Theme.well
-    border.width: checked ? 1 : 0
-    border.color: Qt.alpha(Theme.accent2, 0.6)
-    Behavior on color {
-        ColorAnimation { duration: 150 }
-    }
-
-    Rectangle {
-        visible: btn.accent
-        anchors.fill: parent
-        radius: parent.radius
-        opacity: mouse.containsMouse ? 1 : 0.88
-        gradient: Gradient {
-            orientation: Gradient.Horizontal
-            GradientStop { position: 0; color: Theme.accent2 }
-            GradientStop { position: 1; color: Theme.accent }
-        }
-    }
+    color: accent ? Theme.accent : mouse.containsMouse ? Theme.hover : "transparent"
+    border.width: accent || flat && !checked ? 0 : 1
+    border.color: checked ? Theme.accent : Theme.border
 
     Row {
         id: row
@@ -48,15 +31,14 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             text: btn.icon
             size: btn.iconSize
-            color: btn.accent ? Theme.accentInk : btn.checked ? Theme.accent2 : Theme.text
+            color: btn.accent ? Theme.accentInk : btn.checked ? Theme.accent : Theme.text
         }
         Label {
             visible: btn.text !== ""
             anchors.verticalCenter: parent.verticalCenter
             text: btn.text
-            font.pixelSize: 13
-            bold: btn.accent
-            color: btn.accent ? Theme.accentInk : Theme.text
+            font.pixelSize: 12
+            color: btn.accent ? Theme.accentInk : btn.checked ? Theme.accent : Theme.text
         }
     }
 

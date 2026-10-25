@@ -52,10 +52,10 @@ A new machine gets everything from two scripts.
 
 ## What you get
 
-- **A complete Hyprland desktop** in the colours of your wallpaper: the bar, notifications, login and
-  lock screen, power menu and password dialog (all drawn by Quickshell), walker, Ghostty, GTK, Qt,
-  btop and VS Code, all themed by `set-wallpaper IMAGE`. A new wallpaper grows in
-  from the mouse pointer, and every day another one from your folder takes over
+- **A complete Hyprland desktop in one plain look**: greys and one accent, a desktop of one colour,
+  everything opaque, square and framed by a 1 px line, no blur, shadows, gradients or animations.
+  The bar, notifications, login and lock screen, power menu and password dialog (all drawn by
+  Quickshell), walker, Ghostty, GTK, Qt, btop and VS Code share it, dark, light or with the sun
 - **Dictation** (`SUPER + D`): speak into any window. whisper.cpp and a small LLM tidy the text up,
   both locally on the GPU
 - **Ask Claude by voice** (`SUPER + A`): the answer appears in a bubble at the top and is read out;
@@ -64,8 +64,8 @@ A new machine gets everything from two scripts.
   sync, ...), compact on notebook panels; a click opens the details: the month with your events, the
   forecast, cover and controls, outputs and levels per app, Wi-Fi networks, Bluetooth devices, power
   profiles
-- **Settings** on the avatar, a popup of the bar: your picture (placed and zoomed in a round mask),
-  wallpaper (with thumbnails), bar size, widgets, monitors, sync, and every keybinding in a list you
+- **Settings** on your name, a popup of the bar: your picture (placed and zoomed in a round mask),
+  dark, light or auto, bar size, widgets, monitors, sync, and every keybinding in a list you
   search as you type (`SUPER + SHIFT + K`)
 - **Gaming stack**: Steam, Proton-GE, Lutris, gamescope, gamemode, tearing for games
 - **Base system**: btrfs with snapper, optional LUKS2, unified kernel images, zram, firewall
@@ -75,7 +75,7 @@ A new machine gets everything from two scripts.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/theme-tiled.jpg" alt="Tiled windows: btop, Nautilus and Ghostty"><br><sub>Tiling; the terminal palette follows the wallpaper.</sub></td>
+<td width="50%"><img src="docs/img/theme-tiled.jpg" alt="Tiled windows: btop, Nautilus and Ghostty"><br><sub>Tiling.</sub></td>
 <td width="50%"><img src="docs/img/theme-walker.jpg" alt="walker app launcher"><br><sub>walker (<code>SUPER + SPACE</code>): apps, calculator, web search.</sub></td>
 </tr>
 <tr>
@@ -87,7 +87,7 @@ A new machine gets everything from two scripts.
 <td><img src="docs/img/theme-greeter.jpg" alt="The login screen: the lock screen's card, with the machine and the session below"><br><sub>The login screen: the same card, the machine and the session below.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/img/theme-light.jpg" alt="The light look: btop, Ghostty and Nautilus on warm paper under a mountain wallpaper at sunset"><br><sub>The light look: paper tinted by the wallpaper, deeper accents.</sub></td>
+<td><img src="docs/img/theme-light.jpg" alt="The light look: btop, Ghostty and Nautilus"><br><sub>The light look.</sub></td>
 <td><img src="docs/img/settings.jpg" alt="The settings popup in the light look, with dark, light and auto as miniatures of the desktop"><br><sub>Dark, light or with the sun, chosen in the settings.</sub></td>
 </tr>
 </table>
@@ -122,8 +122,8 @@ Facts come from the hardware (`driftless facts`): `cpu-amd`, `cpu-intel`, `gpu-a
 `gpu-nvidia`, `hybrid`, `laptop`, `surface`, `marvell`, `vm`, plus `host:NAME`. The manifest picks
 package groups with them, e.g. `group hw-gpu-nvidia if=gpu-nvidia`.
 
-What stays on each machine and is never in the repository: the wallpaper and everything rendered
-from it, the bar's widget layout (`~/.local/state/driftless-shell`), the monitor layout
+What stays on each machine and is never in the repository: the look (dark, light or auto) and
+everything rendered from it, the bar's widget layout (`~/.local/state/driftless-shell`), the monitor layout
 (`~/.local/state/hypr`), the sync mode and the list of trusted machines (`~/.local/state/driftless`).
 
 ## Make it yours
@@ -191,8 +191,7 @@ driftless packages                 # missing packages, and installed ones in no 
 driftless packages add NAME GROUP  # keep a package on every machine
 driftless packages add ID flatpak  # the same for a Flathub app (org.gimp.GIMP)
 driftless mode review|auto|off     # review (default): changes from GitHub wait for you
-set-wallpaper ~/Pictures/x.jpg     # wallpaper and colours, on this machine only
-set-wallpaper --random             # another one from your wallpaper folder (the daily timer does this)
+set-wallpaper --current           # render the look again (configs, login screen), on this machine only
 ```
 
 The sync icon in the bar shows the same: incoming (`↓n`) and outgoing (`↑n`) changes, who changed what,

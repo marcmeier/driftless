@@ -33,13 +33,13 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "\u{F06A9}"
                 size: 22
-                color: Theme.accent2
+                color: Theme.dim
             }
             Label {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Claude Code usage"
                 bold: true
-                font.pixelSize: 15
+                font.pixelSize: 13
             }
         }
 

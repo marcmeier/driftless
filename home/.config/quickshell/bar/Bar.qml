@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Hyprland
 import qs.services
 
-// One bar per screen: floating pills in three sections. Which widgets, in which order, and whether
+// One bar per screen: a flat strip along the top edge with a line below it, its groups in three sections. Which widgets, in which order, and whether
 // the screen gets the compact bar comes from BarLayout (bar.jsonc and this machine's layout.json).
 // Each bar has its own tooltip and popup window right below it.
 PanelWindow {
@@ -23,7 +23,7 @@ PanelWindow {
     }
     implicitHeight: Theme.barGap + Theme.barHeight
     exclusiveZone: implicitHeight
-    color: "transparent"
+    color: Theme.surface
     WlrLayershell.namespace: "driftless-bar"
     WlrLayershell.layer: WlrLayer.Top
 
@@ -31,6 +31,14 @@ PanelWindow {
     // the width from the centre island to the edge, and what the right side takes of it
     readonly property real sideRoom: (content.width - centerSection.width) / 2 - 12
     readonly property real rightRigid: rightSection.rigidWidth
+
+    Rectangle {
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: 1
+        color: Theme.border
+    }
 
     Item {
         id: content
@@ -59,7 +67,7 @@ PanelWindow {
         id: section
         property string name
         height: Theme.barHeight
-        spacing: bar.compact ? 6 : 8
+        spacing: bar.compact ? 8 : 14
 
         // the width of the pills that do not give way (all but those with `flexible`), with the gaps
         readonly property real rigidWidth: {

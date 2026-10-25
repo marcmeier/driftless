@@ -22,40 +22,28 @@ Item {
         moved(v);
     }
 
+    // a 2 px line, the level in the accent (grey while muted), a small upright knob
     Rectangle {
         id: track
         anchors.verticalCenter: parent.verticalCenter
         width: parent.width
-        height: 6
-        radius: 3
-        color: Qt.alpha(Theme.overlay, 0.10)
+        height: 2
+        color: Theme.track
 
         Rectangle {
-            width: Math.max(height, track.width * slider.shown)
+            width: track.width * slider.shown
             height: parent.height
-            radius: parent.radius
-            opacity: slider.dim ? 0.4 : 1
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.accent2 }
-                GradientStop { position: 1; color: Theme.accent }
-            }
+            color: slider.dim ? Theme.dim : Theme.accent
         }
     }
 
     Rectangle {
         id: knob
-        width: drag.pressed || drag.containsMouse ? 16 : 12
-        height: width
-        radius: width / 2
+        width: drag.pressed || drag.containsMouse ? 4 : 2
+        height: 12
         anchors.verticalCenter: parent.verticalCenter
         x: Math.max(0, Math.min(slider.width - width, slider.width * slider.shown - width / 2))
         color: Theme.knob
-        border.width: 2
-        border.color: slider.dim ? Theme.dim : Theme.accent2
-        Behavior on width {
-            NumberAnimation { duration: 120 }
-        }
     }
 
     MouseArea {

@@ -1,5 +1,5 @@
 {
- "//": "rendered by theme/apply.py into the driftless VS Code theme (installed as a .vsix). Built-in 2026 Dark or Light with its blue replaced by the wallpaper accents; dark text on accent backgrounds, since the accent can be light.",
+ "//": "rendered by theme/apply.py into the driftless VS Code theme (installed as a .vsix). Built-in 2026 Dark or Light with its blue replaced by the plain look's accent; the ink colour on accent backgrounds.",
  "name": "driftless",
  "include": "./2026-@scheme@.json",
  "type": "@scheme@",

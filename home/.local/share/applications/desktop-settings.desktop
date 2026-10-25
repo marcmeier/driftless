@@ -1,9 +1,9 @@
 [Desktop Entry]
 Type=Application
 Name=Desktop Settings
-Comment=Bar widgets, wallpaper and colours, monitors, kit sync
+Comment=Bar widgets, appearance, monitors, kit sync
 Exec=bash -c "~/.config/quickshell/scripts/settings-menu.sh"
 Icon=preferences-desktop
-Keywords=settings;widgets;bar;panel;wallpaper;background;colours;monitor;display;screen;sync;
+Keywords=settings;widgets;bar;panel;appearance;dark;light;colours;monitor;display;screen;sync;
 Categories=Settings;
 Terminal=false

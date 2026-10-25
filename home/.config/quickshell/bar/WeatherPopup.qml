@@ -24,7 +24,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.w.icon || ""
                 size: 40
-                color: Theme.accent2
+                color: Theme.dim
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
@@ -34,7 +34,7 @@ Item {
                     Label {
                         text: (root.w.temp ?? "") + "°"
                         bold: true
-                        font.pixelSize: 28
+                        font.pixelSize: 20
                     }
                     Label {
                         anchors.baseline: parent.children[0].baseline
@@ -90,7 +90,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: modelData.icon
                         size: 18
-                        color: Theme.accent2
+                        color: Theme.dim
                     }
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -135,7 +135,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData.icon
                         size: 16
-                        color: Theme.accent2
+                        color: Theme.dim
                     }
                     Label {
                         x: 140

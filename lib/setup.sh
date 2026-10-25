@@ -80,7 +80,6 @@ cmd_setup() {
   fi
   # after dconf: the theme sets the colour scheme of GTK (dark or light, per machine)
   say "theme"
-  [[ -f $HOME/.config/wall.png ]] || cp "$HOME/.config/theme/default-wallpaper.jpg" "$HOME/.config/wall.png" 2> /dev/null || true
   python3 "$HOME/.config/theme/apply.py" --current > /dev/null || warn "theme not rendered (later: set-wallpaper --current)"
   say "folders"
   mkdir -p "$HOME"/{Desktop,Downloads,Documents,Music,Pictures,Videos,Templates,Public,Projects,Games}

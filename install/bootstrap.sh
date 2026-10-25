@@ -180,7 +180,7 @@ fi
 chown -R "$USERNAME:$UGRP" "$HOME_DIR"/.config "$HOME_DIR"/.local "$HOME_DIR"/.cache 2> /dev/null
 step "driftless setup (as $USERNAME)"
 as_user "$DRIFTLESS/driftless" setup || fail "driftless setup"
-# the login screen shows this user's wallpaper, colours and avatar (set-wallpaper does it later on)
+# the login screen shows this user's colours and name (set-wallpaper does it later on)
 /usr/lib/driftless/greeter-update "$HOME_DIR/.cache/theme" || fail "login screen theme"
 # the greeter puts the uwsm session first; ReGreet, its fallback, remembers the last choice: seeded once
 session=$(sed -n 's/^Name=//p' /usr/share/wayland-sessions/hyprland-uwsm.desktop 2> /dev/null | head -1)

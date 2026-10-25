@@ -23,15 +23,8 @@ Seg {
         id: icon
         anchors.verticalCenter: parent.verticalCenter
         text: "\u{F0674}"
-        size: 16
-        color: seg.listening ? Theme.crit : Voice.mode !== "idle" ? Theme.accent : Theme.accent2
+        size: 14
+        color: seg.listening ? Theme.crit : Voice.mode !== "idle" ? Theme.accent : Theme.dim
 
-        SequentialAnimation on opacity {
-            running: seg.listening || seg.busy
-            loops: Animation.Infinite
-            NumberAnimation { to: 0.35; duration: seg.listening ? 550 : 800; easing.type: Easing.InOutSine }
-            NumberAnimation { to: 1; duration: seg.listening ? 550 : 800; easing.type: Easing.InOutSine }
-            onRunningChanged: if (!running) icon.opacity = 1
-        }
     }
 }

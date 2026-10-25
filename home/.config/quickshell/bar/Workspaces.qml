@@ -2,9 +2,9 @@ import QtQuick
 import Quickshell.Hyprland
 import qs.services
 
-// Workspaces 1 to 5 and a "…" button for the rest, straight from Hyprland's IPC. The active one
-// carries the accent gradient, which slides over when you switch; workspaces with windows get a
-// thin accent ring, empty ones stay dim, urgent ones turn red. Click: go there · wheel: next/previous.
+// Workspaces 1 to 5 and a "…" button for the rest, straight from Hyprland's IPC. The active one is
+// bright with an accent line below it (a grey one on a screen without focus), workspaces with windows
+// are text, empty ones faint, urgent ones red. Click: go there · wheel: next/previous.
 Pill {
     id: pill
 
@@ -52,38 +52,10 @@ Pill {
             }
         }
 
-        // the active workspace's gradient, behind the buttons
-        Rectangle {
-            id: indicator
-            readonly property Item target: {
-                if (pill.active > 0 && pill.active <= pill.last)
-                    return rep.count >= pill.active ? rep.itemAt(pill.active - 1) : null;
-                return pill.active > pill.last && more.visible ? more : null;
-            }
-            visible: target !== null
-            x: target ? target.x : 0
-            width: target ? target.width : 0
-            y: 4
-            height: parent.height - 8
-            radius: Theme.innerRadius
-            opacity: pill.focusedHere ? 1 : 0.45
-            gradient: Gradient {
-                orientation: Gradient.Horizontal
-                GradientStop { position: 0; color: Theme.accent2 }
-                GradientStop { position: 1; color: Theme.accent }
-            }
-            Behavior on x {
-                NumberAnimation { duration: 260; easing.type: Easing.OutBack; easing.overshoot: 0.9 }
-            }
-            Behavior on width {
-                NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-            }
-        }
-
         Row {
             id: buttons
             height: parent.height
-            spacing: pill.compact ? 2 : 3
+            spacing: 0
 
             Repeater {
                 id: rep
@@ -126,31 +98,32 @@ Pill {
         property bool occupied
         property bool isUrgent
         property bool compact
+        readonly property bool focusedHere: pill.focusedHere
         property string tipText: ""
         property var bar: null
         signal activated
         signal secondary
 
-        readonly property int pad: isActive ? (compact ? 10 : 14) : (compact ? 7 : 9)
-        implicitWidth: text.implicitWidth + pad * 2
+        readonly property int pad: compact ? 6 : 8
+        implicitWidth: Math.max(text.implicitWidth + pad * 2, compact ? 20 : 24)
         width: implicitWidth
         height: parent.height
-        Behavior on width {
-            NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
-        }
 
         Rectangle {
             anchors.fill: parent
-            anchors.topMargin: 4
-            anchors.bottomMargin: 4
-            radius: Theme.innerRadius
-            color: btn.isUrgent ? Theme.crit : mouse.containsMouse && !btn.isActive ? Theme.hover : "transparent"
-            border.width: 1
-            border.color: btn.isActive || btn.isUrgent || !btn.occupied ? "transparent"
-                        : Qt.alpha(Theme.accent2, mouse.containsMouse ? 1 : 0.45)
-            Behavior on color {
-                ColorAnimation { duration: 150 }
-            }
+            anchors.bottomMargin: 1
+            color: Theme.hover
+            visible: mouse.containsMouse && !btn.isActive
+        }
+        // the line under the active (or urgent) one
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 1
+            height: 2
+            visible: btn.isActive || btn.isUrgent
+            color: btn.isUrgent ? Theme.crit : btn.focusedHere ? Theme.accent : Theme.dim
         }
 
         Label {
@@ -158,8 +131,8 @@ Pill {
             anchors.centerIn: parent
             text: btn.label
             bold: btn.isActive
-            font.pixelSize: btn.compact ? 13 : 14
-            color: btn.isActive || btn.isUrgent ? Theme.accentInk
+            font.pixelSize: btn.compact ? 12 : 13
+            color: btn.isUrgent ? Theme.crit : btn.isActive ? Theme.strong
                  : btn.occupied || mouse.containsMouse ? Theme.text : Theme.faint
         }
 

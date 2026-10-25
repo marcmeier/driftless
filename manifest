@@ -11,7 +11,6 @@ link .config/theme
 link .config/ghostty
 link .config/uwsm
 link .config/walker
-link .config/elephant/menus
 link .config/emoji
 link .config/fastfetch
 link .config/systemd
@@ -74,7 +73,6 @@ user-unit gnome-keyring-daemon.socket
 user-unit hypridle.service
 user-unit cliphist.service
 user-unit driftless-wallpaper.service
-user-unit driftless-wallpaper-rotate.timer
 user-unit driftless-shell.service
 user-unit elephant.service
 user-unit driftless-sync.timer
@@ -82,5 +80,7 @@ user-unit driftless-sync.timer
 # ---- user units the kit no longer uses: switched off where they still run
 # the shell is the notification server now (quickshell/services/Notifs.qml)
 user-unit-retired mako.service
+# the plain look has no wallpaper images to rotate
+user-unit-retired driftless-wallpaper-rotate.timer
 # and the polkit agent (quickshell/polkit/PolkitDialog.qml); polkit allows one per session
 user-unit-retired hyprpolkitagent.service
