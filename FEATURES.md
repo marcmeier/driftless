@@ -52,11 +52,11 @@ reads it out. Like Siri or Alexa, for the quick things, without opening a window
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/notch-listening.png" alt="The bubble listening, with level bars"><br><sub>Listening: the little bot and the bars follow your voice.</sub></td>
+<td width="50%"><img src="docs/img/notch-listening.png" alt="The bubble listening, with a level line"><br><sub>Listening: the line follows your voice.</sub></td>
 <td width="50%"><img src="docs/img/notch-thinking.png" alt="The bubble showing the question while Claude thinks"><br><sub>Your question while Claude works on it.</sub></td>
 </tr>
 <tr>
-<td width="50%"><img src="docs/img/notch-answer.png" alt="The bubble opened up with the answer"><br><sub>The answer, typed in as it arrives and read out at the same time.</sub></td>
+<td width="50%"><img src="docs/img/notch-answer.png" alt="The bubble opened up with the answer"><br><sub>The answer, read out at the same time.</sub></td>
 <td width="50%"><img src="docs/img/notch-timer.png" alt="A timer ringing in the bubble"><br><sub>A timer rings until you stop it.</sub></td>
 </tr>
 </table>
@@ -124,8 +124,8 @@ Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Popups 
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,
 `media`, `claude`, `audio`, `network`, `bluetooth`, `battery`, `notifications`, `settings`).
 
-<img src="docs/img/bar-popups.jpg" alt="Four popups of the bar: media, sound, Claude usage, battery" width="700"><br>
-<sub>Popups: what plays, sound with a level per app, Claude usage, battery and power profile.</sub>
+<img src="docs/img/bar-popups.jpg" alt="Four popups of the bar: media, sound, Claude usage, weather" width="700"><br>
+<sub>Popups: what plays, sound with a level per app, Claude usage, the weather.</sub>
 
 ## Notifications, login and lock screen, power menu and password dialog
 
@@ -170,18 +170,18 @@ the desktop looks borrowed from another program.
 <td width="50%"><img src="docs/img/notifications-list.jpg" alt="The list of notifications grouped by app, with do not disturb and clear" width="300"><br><sub>The bell's list, grouped by app.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/img/theme-lock.jpg" alt="The lock screen: clock, picture, password"><br><sub>The lock screen.</sub></td>
-<td><img src="docs/img/theme-greeter.jpg" alt="The login screen: the lock screen's card, with the machine and the session below"><br><sub>The login screen.</sub></td>
+<td><img src="docs/img/theme-lock.jpg" alt="The lock screen: clock, date, password"><br><sub>The lock screen.</sub></td>
+<td><img src="docs/img/theme-greeter.jpg" alt="The login screen: like the lock screen, with the machine and the session below"><br><sub>The login screen.</sub></td>
 </tr>
 </table>
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/theme-power.jpg" alt="The power menu: five cards over the blurred desktop"><br><sub>The power menu.</sub></td>
-<td width="50%"><img src="docs/img/theme-polkit.jpg" alt="The password dialog: picture, what is asked, the action, the password"><br><sub>The password dialog.</sub></td>
+<td width="50%"><img src="docs/img/theme-power.jpg" alt="The power menu: lock, log out, suspend, reboot, shut down as a list"><br><sub>The power menu.</sub></td>
+<td width="50%"><img src="docs/img/theme-polkit.jpg" alt="The password dialog: what is asked, the action, the password"><br><sub>The password dialog.</sub></td>
 </tr>
 <tr>
-<td colspan="2" align="center"><img src="docs/img/osd.jpg" alt="The on-screen display for brightness and for a muted microphone" width="400"><br><sub>The on-screen display.</sub></td>
+<td colspan="2" align="center"><img src="docs/img/osd.jpg" alt="The on-screen display for brightness and for muted sound" width="400"><br><sub>The on-screen display.</sub></td>
 </tr>
 </table>
 
@@ -190,7 +190,7 @@ the desktop looks borrowed from another program.
 A click on your name opens them as a popup of the bar, every choice per machine (but your picture):
 
 <img src="docs/img/settings.jpg" alt="The settings popup: dark, light or auto, bar size, widget switches, monitors, sync and keys" width="560"><br>
-<sub>The settings popup, here in the light look.</sub>
+<sub>The settings popup.</sub>
 
 
 - **Your picture**: a click on it (or "Picture …") picks an image, then you place it behind a round

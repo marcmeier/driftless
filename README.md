@@ -79,16 +79,16 @@ A new machine gets everything from two scripts.
 <td width="50%"><img src="docs/img/theme-walker.jpg" alt="walker app launcher"><br><sub>walker (<code>SUPER + SPACE</code>): apps, calculator, web search.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/img/theme-power.jpg" alt="The power menu over the blurred desktop"><br><sub>The power menu (<code>SUPER + SHIFT + M</code>).</sub></td>
+<td><img src="docs/img/theme-power.jpg" alt="The power menu: a short list in the middle of the screen"><br><sub>The power menu (<code>SUPER + SHIFT + M</code>).</sub></td>
 <td><img src="docs/img/theme-notifications.jpg" alt="Notifications below the bar"><br><sub>Notifications; the bell keeps the list and do not disturb.</sub></td>
 </tr>
 <tr>
-<td><img src="docs/img/theme-lock.jpg" alt="The lock screen: clock, picture, password"><br><sub>The lock screen (<code>SUPER + L</code>).</sub></td>
-<td><img src="docs/img/theme-greeter.jpg" alt="The login screen: the lock screen's card, with the machine and the session below"><br><sub>The login screen: the same card, the machine and the session below.</sub></td>
+<td><img src="docs/img/theme-lock.jpg" alt="The lock screen: clock, date, password"><br><sub>The lock screen (<code>SUPER + L</code>).</sub></td>
+<td><img src="docs/img/theme-greeter.jpg" alt="The login screen: like the lock screen, with the machine and the session below"><br><sub>The login screen: like the lock screen, the machine and the session below.</sub></td>
 </tr>
 <tr>
 <td><img src="docs/img/theme-light.jpg" alt="The light look: btop, Ghostty and Nautilus"><br><sub>The light look.</sub></td>
-<td><img src="docs/img/settings.jpg" alt="The settings popup in the light look, with dark, light and auto as miniatures of the desktop"><br><sub>Dark, light or with the sun, chosen in the settings.</sub></td>
+<td><img src="docs/img/settings.jpg" alt="The settings popup: dark, light or auto, the bar's size and widgets"><br><sub>Dark, light or with the sun, chosen in the settings.</sub></td>
 </tr>
 </table>
 

@@ -29,10 +29,19 @@ Pill {
 
     padding: compact ? 3 : 4
 
-    // after a reload of the shell Hyprland's state comes back with the next event: ask right away
-    Component.onCompleted: {
-        Hyprland.refreshMonitors();
-        Hyprland.refreshWorkspaces();
+    // after a start or reload of the shell Hyprland's state only comes with the next event, and a
+    // request right at the start can get lost: ask again until the active workspace is known
+    Timer {
+        property int tries: 0
+        running: pill.active === 0 && tries < 20
+        interval: tries === 0 ? 0 : 500
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            tries++;
+            Hyprland.refreshMonitors();
+            Hyprland.refreshWorkspaces();
+        }
     }
 
     Item {

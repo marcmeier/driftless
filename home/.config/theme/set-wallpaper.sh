@@ -25,6 +25,7 @@ else
 fi
 hyprctl reload > /dev/null 2>&1 || true
 pkill -USR2 -x ghostty 2> /dev/null || true
+pkill -USR2 -x btop 2> /dev/null || true
 
 # login screen: its colour, colours and avatar go to /var/lib/driftless/greeter (root, from the
 # driftless-system package; polkit lets the active session run it without a password)

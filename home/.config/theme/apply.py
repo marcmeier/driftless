@@ -291,11 +291,13 @@ def gtk_look(name):
 
 
 def reload_programs():
-    """What does not follow the files by itself: the desktop's colour, Hyprland's borders, the terminals."""
+    """What does not follow the files by itself: the desktop's colour, Hyprland's borders, the terminals
+    and btop (USR2: both read their colours again)."""
     for command in (
         ["awww", "img", "--transition-type", "none", str(CONFIG / "wall.png")],
         ["hyprctl", "reload"],
         ["pkill", "-USR2", "-x", "ghostty"],
+        ["pkill", "-USR2", "-x", "btop"],
     ):
         subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
 
