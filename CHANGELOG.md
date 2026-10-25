@@ -4,7 +4,7 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
-## Unreleased
+## v2.8.0 (2026-10-25): the plain look
 
 ### Added
 - **Flatpaks in the package lists**: `flatpak:APP_ID` in any list, and an empty group
@@ -38,6 +38,9 @@ Versions follow the [releases](../../releases), which have the full notes.
   `WALLPAPER_DIR` and the assistant's "new wallpaper". `set-wallpaper --current` stays and renders the
   look again; `wall.png` and `login.png` are files of one colour, so awww, ReGreet and
   `greeter-update` work as before.
+- Calendar sync: after a changed vdirsyncer config it runs `vdirsyncer discover` by itself, and the
+  warning in the calendar pill tells a missing password by vdirsyncer's own error (its
+  `password.fetch` command failed), whatever the config reads the password from.
 
 ### Fixed
 - A package list with nothing but comments made `driftless` lose every group after it (`grep`
