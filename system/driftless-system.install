@@ -14,6 +14,13 @@ _driftless_apply() {
   if [ "$sum" != "$(cat /var/lib/driftless/mkinitcpio.sum 2> /dev/null)" ]; then
     mkinitcpio -P && echo "$sum" > /var/lib/driftless/mkinitcpio.sum
   fi
+  # SSH through the firewall, at most 6 new connections per 30 s from one address. Added once: a
+  # rule you delete stays deleted. ufw takes rules while it is off too (as during bootstrap).
+  if command -v ufw > /dev/null && [ ! -e /var/lib/driftless/ssh-firewall ]; then
+    ufw limit 22/tcp comment 'driftless: ssh' > /dev/null && touch /var/lib/driftless/ssh-firewall
+  fi
+  # a running sshd reads a changed 40-driftless.conf only on a reload
+  systemctl try-reload-or-restart sshd.service 2> /dev/null || true
 }
 
 post_install() {
@@ -22,4 +29,14 @@ post_install() {
 
 post_upgrade() {
   _driftless_apply
+}
+
+post_remove() {
+  # without 40-driftless.conf sshd takes passwords again: the port closes with it
+  if command -v ufw > /dev/null && [ -e /var/lib/driftless/ssh-firewall ]; then
+    ufw delete limit 22/tcp > /dev/null || true
+  fi
+  rm -f /var/lib/driftless/ssh-firewall
+  systemctl daemon-reload
+  systemctl try-reload-or-restart sshd.service 2> /dev/null || true
 }

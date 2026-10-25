@@ -155,7 +155,14 @@ apply_changes() {
   grep -qE '^home/\.config/systemd/' <<< "$files" && reload+=(systemd)
   # elephant keeps its menus from its start: a changed menu (e.g. a moved script) needs a restart
   grep -qE '^home/\.config/elephant/' <<< "$files" && reload+=(elephant)
-  grep -qE '^system/' <<< "$files" && notify_once system normal "driftless-system changed: run  driftless system  to update this machine's system files"
+  # both need root, one command does both: new system files, and system units new in the manifest
+  local unit off=() sysmsg=""
+  grep -qE '^system/' <<< "$files" && sysmsg="driftless-system changed"
+  if grep -qE '^((personal/|hosts/[^/]+/)?manifest)$' <<< "$files"; then
+    while read -r unit; do systemctl is-enabled -q "$unit" 2> /dev/null || off+=("$unit"); done < <(manifest unit)
+  fi
+  ((${#off[@]} == 0)) || sysmsg+="${sysmsg:+, }not enabled here yet: ${off[*]}"
+  [[ -z $sysmsg ]] || notify_once system normal "$sysmsg: run  driftless system  in a terminal"
   ((${#reload[@]} == 0)) || reload "${reload[@]}"
   if grep -qE '^((personal/)?packages/|(personal/|hosts/[^/]+/)?manifest$)' <<< "$files"; then
     install_missing
@@ -196,10 +203,19 @@ reload() {
   return 0
 }
 
+# metered: NetworkManager thinks this connection is paid by the byte (a phone's hotspot)
+metered() {
+  local m
+  m=$(busctl get-property org.freedesktop.NetworkManager /org/freedesktop/NetworkManager \
+    org.freedesktop.NetworkManager Metered 2> /dev/null) || return 1
+  [[ $m == "u 1" || $m == "u 3" ]] # NM_METERED_YES, NM_METERED_GUESS_YES
+}
+
 # install_missing: repo packages through a password dialog (once per new set, or on "sync now"),
-# AUR packages wait in the pill for "Install missing packages" in a terminal
+# flatpaks without one (as often, not on a metered connection), AUR packages wait in the pill for
+# "Install missing packages" in a terminal
 install_missing() {
-  local repo aur msg="" urgency=normal rc x
+  local repo aur fp msg="" urgency=normal rc x
   if [[ $(cat "$STATE/installs" 2> /dev/null) == off ]]; then
     rm -f "$STATE/install-pending"
     return 0
@@ -222,12 +238,30 @@ install_missing() {
       mapfile -t repo < <(missing repo)
     fi
   fi
+  mapfile -t fp < <(missing flatpak)
+  # without flatpak (a repo package that still waits) they wait too. A runtime can be a gigabyte:
+  # longer than the sync unit may run, so the download gets a unit of its own, and when it is done
+  # one more sync sets the pill right. What did not install waits in the pill, tried again by the
+  # next new set or "sync now".
+  if systemctl --user is-active -q driftless-flatpak-install.service 2> /dev/null; then
+    fp=() # still downloading
+  elif ((${#fp[@]})) && command -v flatpak > /dev/null && ! metered &&
+    { ((NOW)) || [[ "${fp[*]}" != "$(cat "$STATE/flatpak-asked" 2> /dev/null)" ]]; }; then
+    echo "${fp[*]}" > "$STATE/flatpak-asked"
+    # shellcheck disable=SC2016 # expanded by the inner bash
+    if systemd-run --user --quiet --collect --unit=driftless-flatpak-install -- bash -c \
+      '"$1" packages install flatpak; systemctl --user start --no-block driftless-sync.service' _ "$DRIFTLESS/driftless" 2> /dev/null; then
+      notify_once flatpak normal "Installing from Flathub: ${fp[*]}"
+      fp=()
+    fi
+  fi
   {
     for x in "${repo[@]}"; do echo "repo $x"; done
+    for x in "${fp[@]}"; do echo "flatpak $x"; done
     for x in "${aur[@]}"; do echo "aur $x"; done
   } > "$STATE/install-pending"
-  if [[ -z $msg ]] && ((${#repo[@]} + ${#aur[@]})); then
-    msg="$((${#repo[@]} + ${#aur[@]})) listed package(s) wait for install: ${repo[*]} ${aur[*]} (sync menu)"
+  if [[ -z $msg ]] && ((${#repo[@]} + ${#fp[@]} + ${#aur[@]})); then
+    msg="$((${#repo[@]} + ${#fp[@]} + ${#aur[@]})) listed package(s) wait for install: ${repo[*]} ${fp[*]} ${aur[*]} (sync menu)"
   fi
   [[ -n $msg ]] && notify_once install "$urgency" "$msg"
   return 0

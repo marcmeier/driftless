@@ -40,6 +40,7 @@ group apps
 group gaming
 group dev
 group dictation
+group flatpak
 group hw-cpu-amd if=cpu-amd
 group hw-cpu-intel if=cpu-intel
 group hw-gpu-amd if=gpu-amd
@@ -60,6 +61,7 @@ unit reflector.timer
 unit fstrim.timer
 unit ollama.service
 unit ufw.service
+unit sshd.service
 unit smartd.service if=!vm
 unit fwupd-refresh.timer if=!vm
 unit power-profiles-daemon.service if=laptop

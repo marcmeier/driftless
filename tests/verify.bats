@@ -13,3 +13,18 @@ setup() {
   [[ $output == *" FAIL, "* ]]
   [[ $output == *"no user manager"* ]]
 }
+
+@test "verify runs on when find cannot read a folder in the home" {
+  mkdir -p "$(home A)/locked/inner" && chmod 000 "$(home A)/locked"
+  run dl A verify
+  chmod 755 "$(home A)/locked"
+  [[ $output == *"== Sync"* ]]
+}
+
+@test "verify says when no key can log in with SSH" {
+  run dl A verify
+  [[ $output == *"no ~/.ssh/authorized_keys"* ]]
+  mkdir -p "$(home A)/.ssh" && echo "ssh-ed25519 AAAA test" > "$(home A)/.ssh/authorized_keys"
+  run dl A verify
+  [[ $output != *"no ~/.ssh/authorized_keys"* ]]
+}

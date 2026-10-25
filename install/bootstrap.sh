@@ -218,6 +218,13 @@ if ((DO_AUR)); then
   fi
 fi
 
+mapfile -t FLATPAKS < <(wanted | awk '$1 == "flatpak" { print $2 }')
+if ((${#FLATPAKS[@]})); then
+  step "Flathub: ${#FLATPAKS[@]} apps"
+  # as root: no polkit needed; a subshell, so a missing flatpak is one failed step, not the end
+  (install_flatpak "${FLATPAKS[@]}") || fail "flatpak"
+fi
+
 [[ -f /etc/snapper/configs/root ]] && snapper -c root create -d "driftless bootstrap" 2> /dev/null
 
 step "driftless verify (as $USERNAME)"
@@ -234,5 +241,6 @@ cat << EOF
 Next: reboot and log in (the login screen starts "Hyprland (uwsm-managed)"). Then, once:
   * trust this machine on your others: their sync pill offers it ("Trust new machine")
   * personal data (SSH keys, browser and mail profiles, games) from your own backup
+  * SSH logs in with keys only: put the public keys that may log in here into ~/.ssh/authorized_keys
   * encrypted disk: let the TPM unlock it, see docs/encryption.md
 EOF

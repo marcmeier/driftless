@@ -6,7 +6,28 @@ Versions follow the [releases](../../releases), which have the full notes.
 
 ## Unreleased
 
+### Added
+- **Flatpaks in the package lists**: `flatpak:APP_ID` in any list, and an empty group
+  `packages/flatpak.list` for them (`driftless packages add ID flatpak`). They go into the system
+  installation, next to the flathub remote Arch's flatpak package brings: one copy of each runtime,
+  none of it in the home's snapshots and backups. Flatpak's polkit rule lets a wheel user of the
+  active session install without a password, so the sync does it on its own, in a unit of its own (a
+  runtime can take longer than a sync may run), with a notification, and not on a metered
+  connection. `driftless packages` and `verify` show missing flatpaks and those in no list.
+  `flatpak` itself is in `apps.list` now.
+- The update pill counts flatpak updates (apps and runtimes) and its click runs `flatpak update`
+  after `yay -Syu`, then removes runtimes nothing uses any more.
+- **SSH on every machine**: `openssh` in `base.list`, `sshd.service` in the manifest, and a firewall
+  rule with a rate limit (`ufw limit 22/tcp`, added once by driftless-system, removed with it). Keys
+  only: no password login and no root login (`/etc/ssh/sshd_config.d/40-driftless.conf`). The keys
+  that may log in stay in each machine's `~/.ssh/authorized_keys`, written by hand; `verify` says
+  when there are none.
+- `driftless system` also enables the system units the manifest gained since a machine was set up,
+  and the sync says when an update brought one.
+
 ### Fixed
+- A package list with nothing but comments made `driftless` lose every group after it (`grep`
+  without a line is an error under `set -e`): their packages were neither installed nor checked.
 - The voice bubble's face moves with the spoken answer again, and the bubble stays open while it is
   read out. `speak.py` addressed the shell by a folder that has had no shell in it since the bubble
   became part of the bar's shell, so its calls failed without a word. A test now checks every

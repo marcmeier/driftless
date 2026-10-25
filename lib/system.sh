@@ -32,4 +32,10 @@ cmd_system() {
   [[ -t 0 ]] || die "run it in a terminal: it installs with sudo"
   sudo pacman -U --needed "$pkg"
   rm -rf "$out"
+  # system units the manifest gained after this machine was set up (bootstrap enabled the others)
+  local unit
+  while read -r unit; do
+    systemctl is-enabled -q "$unit" 2> /dev/null && continue
+    sudo systemctl enable --now "$unit" || warn "could not enable $unit"
+  done < <(manifest unit)
 }

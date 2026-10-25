@@ -83,8 +83,9 @@ case $action in
     ghostty -e bash -c '
             p=$1; repo=($(awk "\$1 == \"repo\" { print \$2 }" "$p")); aur=($(awk "\$1 == \"aur\" { print \$2 }" "$p"))
             ((${#repo[@]})) && sudo pacman -S --needed -- "${repo[@]}"
+            grep -q "^flatpak " "$p" && ~/.local/bin/driftless packages install flatpak
             ((${#aur[@]})) && yay -S --needed -- "${aur[@]}"
-            while read -r k x; do pacman -Q "$x" >/dev/null 2>&1 || echo "$k $x"; done < "$p" > "$p.new"; mv "$p.new" "$p"
+            while read -r k x; do case $k in flatpak) flatpak info "$x" ;; *) pacman -Q "$x" ;; esac >/dev/null 2>&1 || echo "$k $x"; done < "$p" > "$p.new"; mv "$p.new" "$p"
             ~/.config/quickshell/scripts/poke sync; read -rp "Done. Enter closes this window. "' _ "$STATE/install-pending"
     ;;
   # compare the fingerprint in a terminal, then one sync takes over what the machine sent

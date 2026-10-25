@@ -161,6 +161,45 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
   grep -qx "repo newpkg" "$T/B/state/driftless/install-pending"
 }
 
+@test "a new flatpak in a list is installed on B in a unit of its own, without a password" {
+  echo "flatpak:org.example.App" >> "$(repo A)/packages/flatpak.list"
+  dl A sync
+  # A started the download for itself (one sandbox, one systemd): B starts from scratch
+  rm -rf "$T/systemd-run.log" "$T/active"
+  FLATPAK_APPS=org.example.Tryout dl B sync
+  grep -q -- "--unit=driftless-flatpak-install .*packages install flatpak" "$T/systemd-run.log"
+  refute grep -qs org.example.App "$T/pkexec.log"
+  # while it downloads: not waiting in the pill, not started a second time
+  refute grep -q "flatpak org.example.App" "$T/B/state/driftless/install-pending"
+  rm -f "$T/systemd-run.log"
+  FLATPAK_APPS=org.example.Tryout dl B sync
+  refute grep -qs driftless-flatpak-install "$T/systemd-run.log"
+  # the unit ended without installing it: it waits in the pill, tried again only by "sync now"
+  rm -f "$T/active/driftless-flatpak-install.service"
+  FLATPAK_APPS=org.example.Tryout dl B sync
+  refute grep -qs driftless-flatpak-install "$T/systemd-run.log"
+  grep -qx "flatpak org.example.App" "$T/B/state/driftless/install-pending"
+}
+
+@test "new system files and a new system unit: one notice, driftless system does both" {
+  echo "unit new.service" >> "$(repo A)/manifest"
+  echo "# changed" >> "$(repo A)/system/PKGBUILD"
+  git -C "$(repo A)" commit -qam "a unit and a system file"
+  dl A sync
+  SYSTEMCTL_DISABLED=new.service run dl B sync
+  [[ $output == *"driftless-system changed, not enabled here yet: new.service: run  driftless system  in a terminal"* ]]
+}
+
+@test "on a metered connection a new flatpak waits in the pill" {
+  echo "flatpak:org.example.App" >> "$(repo A)/packages/flatpak.list"
+  dl A sync
+  # A started the download for itself (one sandbox, one systemd): B starts from scratch
+  rm -rf "$T/systemd-run.log" "$T/active"
+  NM_METERED=1 dl B sync
+  refute grep -qs driftless-flatpak-install "$T/systemd-run.log"
+  grep -qx "flatpak org.example.App" "$T/B/state/driftless/install-pending"
+}
+
 @test "a new picture from A is rendered round on B" {
   # ~/.face linked into the repository, as personal/manifest does it
   mkdir -p "$(repo A)/personal"

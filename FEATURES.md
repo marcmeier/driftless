@@ -248,6 +248,8 @@ latency) and rules that open stubborn games fullscreen on the right monitor.
 - **btrfs with snapper** snapshots, optional **LUKS2** encryption (TPM unlock: [docs/encryption.md](docs/encryption.md))
 - **unified kernel images**, with an LTS kernel as fallback ([docs/boot.md](docs/boot.md))
 - zram, a firewall (ufw), SMART warnings as desktop notifications, locked screen after 10 minutes
+- **SSH** on every machine, with keys only (no password, no root login) and a rate limit in the
+  firewall. The keys that may log in stay in each machine's `~/.ssh/authorized_keys`
 - the session runs under uwsm: the shell (bar, notifications, lock screen), idle, clipboard and
   wallpaper are systemd user units that restart when they crash
 
@@ -257,7 +259,9 @@ latency) and rules that open stubborn games fullscreen on the right monitor.
   repository
 - an **hourly sync** commits what you changed and takes over what your other machines changed, but only
   commits one of your machines signed; it refuses anything that looks like a password
-- **package lists** you write (`driftless packages add NAME GROUP`), picked per machine by its hardware
+- **package lists** you write (`driftless packages add NAME GROUP`), picked per machine by its hardware:
+  repo, AUR and Flathub apps (`flatpak:APP_ID`, no password needed); the update pill counts and
+  installs flatpak updates too
 - what differs per machine goes into `hosts/<host>/`, what is yours into `personal/`
 - `driftless verify` shows where a machine differs from the repository; a new machine is two scripts
   away ([README](README.md#install-a-new-machine))

@@ -1,0 +1,4 @@
+# apps from Flathub, one app id per line with "flatpak:" in front, e.g.  flatpak:org.gimp.GIMP
+# (driftless packages add org.gimp.GIMP flatpak). They go into the system installation without a
+# password. An app you only try out on one machine stays out of here: driftless packages lists it as
+# installed, in no list.

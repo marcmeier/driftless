@@ -1,6 +1,7 @@
 # shellcheck shell=bash
 # Package groups: packages/NAME.list (or personal/packages/NAME.list), one package per line,
-# "aur:" in front of AUR packages. The manifest's "group" lines pick the groups for this machine.
+# "aur:" in front of AUR packages, "flatpak:" in front of a Flathub app id. The manifest's "group"
+# lines pick the groups for this machine.
 #
 # The lists are written by hand (or with "driftless packages add"), never recorded from what a
 # machine happens to have: a package you try out on one machine stays there. What is installed
@@ -17,7 +18,12 @@ group_file() {
   return 1
 }
 
-# wanted: "repo NAME" / "aur NAME" for every package this machine should have, sorted
+# Flathub apps go into the system installation, where Arch's flatpak package puts the flathub remote:
+# one copy of each runtime for every user, and none of it in the home (its snapshots, its backups).
+# Flatpak's polkit rule lets a wheel user of the active local session install without a password.
+FLATHUB_URL=https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# wanted: "repo NAME" / "aur NAME" / "flatpak ID" for every package this machine should have, sorted
 wanted() {
   local group file
   while read -r group; do
@@ -25,15 +31,23 @@ wanted() {
       warn "manifest names group $group, but there is no packages/$group.list"
       continue
     }
-    grep -v '^\s*\(#\|$\)' "$file" | sed -E 's/\s+#.*//; s/^aur:(.*)/aur \1/; t; s/^/repo /'
+    # a list of comments only (an empty group) has no lines for grep: not an error under set -e
+    { grep -v '^\s*\(#\|$\)' "$file" || true; } | sed -E 's/\s+#.*//; s/^aur:(.*)/aur \1/; t; s/^flatpak:(.*)/flatpak \1/; t; s/^/repo /'
   done < <(manifest group) | sort -u
 }
 
 wanted_names() { wanted | awk '{ print $2 }' | sort -u; }
 
-# missing KIND: wanted packages of KIND (repo|aur) that are not installed
+# flatpak_apps: the installed flatpak apps (system and user installation), nothing without flatpak
+flatpak_apps() {
+  command -v flatpak > /dev/null || return 0
+  flatpak list --app --columns=application 2> /dev/null | sort -u
+}
+
+# missing KIND: wanted packages of KIND (repo|aur|flatpak) that are not installed
 missing() {
-  comm -23 <(wanted | awk -v k="$1" '$1 == k { print $2 }' | sort -u) <(pacman -Qq | sort -u)
+  comm -23 <(wanted | awk -v k="$1" '$1 == k { print $2 }' | sort -u) \
+    <(if [[ $1 == flatpak ]]; then flatpak_apps; else pacman -Qq | sort -u; fi)
 }
 
 # unlisted: explicitly installed packages that no group of this machine lists
@@ -43,6 +57,14 @@ unlisted() {
     # the AUR helper and this kit's own package are never in a list
     printf '%s\n' yay yay-debug yay-bin yay-bin-debug driftless-system
   } | sort -u)
+}
+
+# flatpak_id ID: a Flathub app id (reverse DNS), never something flatpak would read as an option
+flatpak_id() { [[ $1 =~ ^[A-Za-z_][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+)+$ ]]; }
+
+# unlisted_flatpak: installed flatpak apps that no group of this machine lists
+unlisted_flatpak() {
+  comm -23 <(flatpak_apps) <(wanted | awk '$1 == "flatpak" { print $2 }' | sort -u)
 }
 
 # install_repo PKG...: through the root helper and a password dialog (pkexec), or plain sudo in a
@@ -67,29 +89,52 @@ install_aur() {
   yay -S --needed --answerdiff All --answerclean None --answeredit None -- "$@"
 }
 
+# install_flatpak ID...: from Flathub into the system installation. Like a repo package, an app only
+# comes from a list, and the lists only change through commits your machines signed. A terminal sees
+# the progress, the sync (through its own unit, lib/sync.sh) gets the short form.
+install_flatpak() {
+  local id ids=() how=--noninteractive
+  for id in "$@"; do
+    if flatpak_id "$id"; then ids+=("$id"); else warn "not a Flathub app id, skipped: $id"; fi
+  done
+  ((${#ids[@]})) || return 0
+  command -v flatpak > /dev/null || die "flatpak is missing (packages/apps.list has it: driftless packages install repo)"
+  [[ -t 1 ]] && how=--assumeyes
+  flatpak remote-add --system --if-not-exists flathub "$FLATHUB_URL"
+  flatpak install --system "$how" -- flathub "${ids[@]}"
+}
+
 cmd_packages() {
   local sub=${1:-status}
   shift || true
   case $sub in
     status)
-      local repo aur extra
+      local repo aur fp extra fpextra
       repo=$(missing repo | paste -sd' ')
       aur=$(missing aur | paste -sd' ')
+      fp=$(missing flatpak | paste -sd' ')
       extra=$(unlisted | paste -sd' ')
+      fpextra=$(unlisted_flatpak | paste -sd' ')
       echo "groups here: $(manifest group | paste -sd' ')"
       [[ -z $repo ]] && echo "repo packages: all installed" || echo "missing (repo): $repo"
       [[ -z $aur ]] && echo "AUR packages: all installed" || echo "missing (AUR): $aur"
+      [[ -z $fp ]] && echo "flatpaks: all installed" || echo "missing (flatpak): $fp"
       [[ -z $extra ]] || echo "installed, but in no list: $extra
   keep one everywhere:  driftless packages add NAME [GROUP]
   or remove it here:    sudo pacman -Rns NAME"
+      [[ -z $fpextra ]] || echo "flatpaks installed, but in no list: $fpextra
+  keep one everywhere:  driftless packages add ID flatpak
+  or remove it here:    flatpak uninstall ID"
       ;;
     install)
-      # "repo" or "aur" alone: e.g. the repo part over SSH, the AUR part later in a terminal
+      # "repo", "flatpak" or "aur" alone: e.g. the repo part over SSH, the AUR part later in a terminal
       local only=${1:-}
       mapfile -t r < <(missing repo)
+      mapfile -t f < <(missing flatpak)
       mapfile -t a < <(missing aur)
-      [[ $only == aur ]] || install_repo "${r[@]}"
-      [[ $only == repo ]] || install_aur "${a[@]}"
+      if [[ -z $only || $only == repo ]]; then install_repo "${r[@]}"; fi
+      if [[ -z $only || $only == flatpak ]]; then install_flatpak "${f[@]}"; fi
+      if [[ -z $only || $only == aur ]]; then install_aur "${a[@]}"; fi
       ;;
     add)
       local name=${1:?usage: driftless packages add NAME [GROUP]} group=${2:-} file entry
@@ -101,6 +146,11 @@ cmd_packages() {
       file=$(group_file "$group") || die "no group $group"
       entry=$name
       pacman -Qqm "$name" > /dev/null 2>&1 && entry="aur:$name"
+      # an installed flatpak, or any app id for the flatpak group (one you have not installed yet)
+      if [[ $group == flatpak ]] || grep -qxF "$name" < <(flatpak_apps); then
+        flatpak_id "$name" || die "not a Flathub app id: $name"
+        entry="flatpak:$name"
+      fi
       grep -qxF "$entry" "$file" && {
         echo "$name is already in $group"
         return 0
@@ -118,10 +168,10 @@ cmd_packages() {
     remove)
       local name=${1:?usage: driftless packages remove NAME} file
       for file in "$DRIFTLESS"/packages/*.list "$DRIFTLESS"/personal/packages/*.list; do
-        [[ -r $file ]] && sed -i -E "/^(aur:)?$(printf '%s' "$name" | sed 's/[.+]/\\&/g')\$/d" "$file"
+        [[ -r $file ]] && sed -i -E "/^(aur:|flatpak:)?$(printf '%s' "$name" | sed 's/[.+]/\\&/g')\$/d" "$file"
       done
       echo "removed $name from the lists. The other machines keep it until you remove it there."
       ;;
-    *) die "usage: driftless packages [status|install [repo|aur]|add NAME [GROUP]|remove NAME]" ;;
+    *) die "usage: driftless packages [status|install [repo|flatpak|aur]|add NAME [GROUP]|remove NAME]" ;;
   esac
 }

@@ -9,11 +9,20 @@ setup_sandbox() {
   T=$BATS_TEST_TMPDIR
   mkdir -p "$T/bin" "$T/hw/proc" "$T/hw/sys"
   local c
-  for c in notify-send hyprctl pkill systemd-run walker dbus-run-session; do
+  for c in notify-send hyprctl pkill walker dbus-run-session; do
     printf '#!/bin/sh\nexit 0\n' > "$T/bin/$c"
   done
-  # no user manager in the sandbox (as during bootstrap): every --user call fails, system calls succeed
-  printf '#!/bin/sh\ncase "$*" in *--user*) exit 1 ;; esac\nexit 0\n' > "$T/bin/systemctl"
+  # systemd-run: records what it was asked to start, a --unit=NAME is active from then on
+  # shellcheck disable=SC2016 # expanded by the stub
+  printf '#!/bin/sh\necho "$*" >> "%s/systemd-run.log"\nfor a; do case $a in --unit=*) mkdir -p "%s/active"; touch "%s/active/${a#--unit=}.service" ;; esac; done\nexit 0\n' "$T" "$T" "$T" > "$T/bin/systemd-run"
+  # busctl: NetworkManager's "Metered" is $NM_METERED (1 = yes), else no NetworkManager
+  # shellcheck disable=SC2016 # expanded by the stub
+  printf '#!/bin/sh\n[ -n "$NM_METERED" ] || exit 1\necho "u $NM_METERED"\n' > "$T/bin/busctl"
+  # no user manager in the sandbox (as during bootstrap): every --user call fails, system calls succeed;
+  # a unit that systemd-run started counts as active until the test removes $T/active/UNIT; system
+  # units named in $SYSTEMCTL_DISABLED are not enabled
+  # shellcheck disable=SC2016 # expanded by the stub
+  printf '#!/bin/sh\ncase "$*" in *--user*is-active*) for u; do :; done; test -e "%s/active/$u"; exit ;;\n  *--user*) exit 1 ;;\n  *is-enabled*) for u; do :; done; case " $SYSTEMCTL_DISABLED " in *" $u "*) exit 1 ;; esac ;;\nesac\nexit 0\n' "$T" > "$T/bin/systemctl"
   # pkexec: records what it was asked to run
   printf '#!/bin/sh\necho "$*" >> "%s/pkexec.log"\nexit 0\n' "$T" > "$T/bin/pkexec"
   # pacman: installed = $PACMAN_PKGS (repo) and $PACMAN_AUR, all explicitly installed
@@ -22,6 +31,15 @@ setup_sandbox() {
 case "$1" in
   -Qq | -Qqe) printf '%s\n' ${PACMAN_PKGS-base git} ${PACMAN_AUR-} ;;
   -Qqm) printf '%s\n' ${PACMAN_AUR-} ;;
+esac
+exit 0
+STUB
+  # flatpak: installed apps = $FLATPAK_APPS; install records what it was asked for
+  cat > "$T/bin/flatpak" << STUB
+#!/bin/sh
+case "\$1" in
+  list) printf '%s\\n' \${FLATPAK_APPS-} ;;
+  install) echo "\$*" >> "$T/flatpak.log" ;;
 esac
 exit 0
 STUB

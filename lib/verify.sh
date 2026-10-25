@@ -27,7 +27,8 @@ cmd_verify() {
 
   sec "Home"
   [[ $(stat -c %U "$HOME") == "$USER" ]] && ok "$HOME belongs to $USER" || fail "$HOME is owned by $(stat -c %U "$HOME")  ->  sudo chown $USER: $HOME"
-  p=$(find "$HOME" -xdev -maxdepth 3 ! -user "$USER" 2> /dev/null | head -3)
+  # a folder find cannot read (a dead FUSE mount like ~/.gvfs) is no reason to end the check here
+  p=$({ find "$HOME" -xdev -maxdepth 3 -path "$HOME/.gvfs" -prune -o ! -user "$USER" -print 2> /dev/null || true; } | head -3)
   [[ -z $p ]] && ok "nothing near the top of \$HOME belongs to someone else" || fail "not yours: $(paste -sd' ' <<< "$p")"
 
   sec "Links"
@@ -42,8 +43,12 @@ cmd_verify() {
   [[ -z $miss ]] && ok "all repo packages of the groups $(manifest group | paste -sd' ')" || fail "missing: $miss  ->  driftless packages install"
   miss=$(missing aur | paste -sd' ')
   [[ -z $miss ]] && ok "all AUR packages" || fail "missing AUR: $miss  ->  driftless packages install"
+  miss=$(missing flatpak | paste -sd' ')
+  [[ -z $miss ]] && ok "all flatpaks" || fail "missing flatpak: $miss  ->  driftless packages install flatpak"
   miss=$(unlisted | paste -sd' ')
   [[ -z $miss ]] && ok "every installed package is in a list" || info "installed, in no list: $miss  (driftless packages add NAME)"
+  miss=$(unlisted_flatpak | paste -sd' ')
+  [[ -z $miss ]] || info "flatpaks in no list: $miss  (driftless packages add ID flatpak)"
 
   sec "System"
   if pacman -Qq driftless-system > /dev/null 2>&1; then
@@ -55,7 +60,7 @@ cmd_verify() {
     fail "driftless-system not installed  ->  driftless system"
   fi
   while read -r unit; do
-    systemctl is-enabled -q "$unit" 2> /dev/null && ok "enabled: $unit" || fail "not enabled: $unit"
+    systemctl is-enabled -q "$unit" 2> /dev/null && ok "enabled: $unit" || fail "not enabled: $unit  ->  driftless system"
   done < <(manifest unit)
   if systemctl --user show-environment > /dev/null 2>&1; then
     while read -r unit; do
@@ -63,6 +68,10 @@ cmd_verify() {
     done < <(manifest user-unit)
   else
     info "no user manager (not logged in graphically): user units not checked"
+  fi
+  # sshd takes keys only (40-driftless.conf): without authorized_keys nobody can log in from outside
+  if grep -qx sshd.service < <(manifest unit) && [[ ! -s $HOME/.ssh/authorized_keys ]]; then
+    info "SSH: no ~/.ssh/authorized_keys, so no key can log in here (add the public keys of your other machines)"
   fi
   failed=$(systemctl --failed --no-legend --plain 2> /dev/null | awk '{ print $1 }' | paste -sd' ' || true)
   [[ -z $failed ]] && ok "no failed system units" || warn_ "failed system units: $failed"

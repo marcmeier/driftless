@@ -110,7 +110,7 @@ files are declared in lists and a package, and `driftless verify` shows where a 
 |---|---|
 | `manifest` | What a machine gets: `link`, `group` (packages), `unit`, `user-unit`, each optionally `if=FACT` |
 | `home/` | The dotfiles. Whole folders are linked (`~/.config/hypr` → `home/.config/hypr`) |
-| `packages/*.list` | Package groups you write by hand. `aur:` marks AUR packages |
+| `packages/*.list` | Package groups you write by hand. `aur:` marks AUR packages, `flatpak:` Flathub apps |
 | `hosts/<hostname>/` | Per machine: `hyprland.lua`, `bar.json`, `env`, a `manifest` with extra lines |
 | `personal/` | Your layer: manifest, config (weather, mirrors, ...), private dotfiles. Never published |
 | `system/` | The `driftless-system` package: every system file as a drop-in (sysctl.d, service.d, conf.d ...) |
@@ -158,6 +158,9 @@ from it, the bar's widget layout (`~/.local/state/driftless-shell`), the monitor
 3. Reboot and log in. The login screen starts **Hyprland (uwsm-managed)**, the session that starts
    the bar and the helpers.
 4. On one of your other machines, the sync pill offers *Trust new machine*. Compare the fingerprint.
+5. SSH logs in with keys only (no passwords, no root). Put the public keys that may log in into the
+   new machine's `~/.ssh/authorized_keys`; they are not part of the repository. The firewall lets
+   SSH in from every network (with a rate limit), so a notebook answers in other networks too.
 
 `driftless verify` checks at any time whether a machine is what the repository describes
 (read-only, the exit code is the number of problems).
@@ -186,6 +189,7 @@ driftless status                   # links, packages, sync in short
 driftless sync --now               # sync right away (the timer runs hourly)
 driftless packages                 # missing packages, and installed ones in no list
 driftless packages add NAME GROUP  # keep a package on every machine
+driftless packages add ID flatpak  # the same for a Flathub app (org.gimp.GIMP)
 driftless mode review|auto|off     # review (default): changes from GitHub wait for you
 set-wallpaper ~/Pictures/x.jpg     # wallpaper and colours, on this machine only
 set-wallpaper --random             # another one from your wallpaper folder (the daily timer does this)
@@ -204,7 +208,10 @@ and a menu for everything above.
   Your commits go on top of GitHub's, so the history stays linear.
 - Packages from the lists are installed after a **password dialog**, never silently. AUR packages
   are only built in a terminal you open (`driftless packages install`), with the PKGBUILD diff shown.
-- It never uninstalls anything, and it never upgrades the system.
+  Flathub apps need no password (Flatpak lets the active local user install them, and they run
+  sandboxed): they are installed with a notification, but not on a metered connection.
+- It never uninstalls anything, and it never upgrades the system. Updates, flatpaks included, are
+  the update pill's click.
 - Programs that save by replacing a file (instead of writing into it) break a link. The sync notices,
   takes the new content into the repository and restores the link.
 
