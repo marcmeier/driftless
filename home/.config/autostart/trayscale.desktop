@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Trayscale
+Comment=Tailscale in the tray
+Exec=trayscale --hide-window
+Icon=dev.deedles.Trayscale
+TryExec=trayscale

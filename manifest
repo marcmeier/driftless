@@ -18,6 +18,8 @@ link .config/mimeapps.list
 link .config/user-dirs.dirs
 link .config/user-dirs.locale
 link .config/Code/User/settings.json
+# Trayscale starts hidden, as its tray icon (XDG autostart, uwsm runs it as a user unit)
+link .config/autostart/trayscale.desktop
 link .local/share/applications/desktop-settings.desktop
 link .local/share/applications/discord.desktop
 link .local/share/applications/avahi-discover.desktop
@@ -40,6 +42,7 @@ group gaming
 group dev
 group dictation
 group flatpak
+group tailscale
 group hw-cpu-amd if=cpu-amd
 group hw-cpu-intel if=cpu-intel
 group hw-gpu-amd if=gpu-amd
@@ -61,6 +64,7 @@ unit fstrim.timer
 unit ollama.service
 unit ufw.service
 unit sshd.service
+unit tailscaled.service
 unit smartd.service if=!vm
 unit fwupd-refresh.timer if=!vm
 unit power-profiles-daemon.service if=laptop

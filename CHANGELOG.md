@@ -4,6 +4,14 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.9.0 (2026-10-26): Tailscale
+
+### Added
+- **Tailscale on every machine**: a group `packages/tailscale.list` (`tailscale` and Trayscale from
+  the AUR), `tailscaled.service` in the manifest, and Trayscale in the XDG autostart, hidden, so it
+  is just its icon in the bar's tray. Logging in and the operator stay one step per machine
+  (`tailscale up --operator=$USER`); `verify` says when one is missing.
+
 ## v2.8.0 (2026-10-25): the plain look
 
 ### Added

@@ -1,0 +1,3 @@
+# Tailscale: the daemon (tailscaled.service in the manifest) and Trayscale, its window and tray icon
+aur:trayscale
+tailscale

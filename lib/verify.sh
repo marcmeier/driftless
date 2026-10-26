@@ -73,6 +73,15 @@ cmd_verify() {
   if grep -qx sshd.service < <(manifest unit) && [[ ! -s $HOME/.ssh/authorized_keys ]]; then
     info "SSH: no ~/.ssh/authorized_keys, so no key can log in here (add the public keys of your other machines)"
   fi
+  # the login and the operator (who may switch it without sudo, as Trayscale does) are tailscaled's
+  # state, not a file: once per machine, by hand
+  if grep -qx tailscaled.service < <(manifest unit) && systemctl is-active -q tailscaled 2> /dev/null; then
+    if tailscale status --json 2> /dev/null | grep -q '"BackendState": "NeedsLogin"'; then
+      info "Tailscale: not logged in  ->  tailscale up --operator=$USER"
+    elif ! tailscale debug prefs 2> /dev/null | grep -q "\"OperatorUser\": \"$USER\""; then
+      info "Tailscale: $USER is not the operator, so Trayscale cannot switch it  ->  sudo tailscale set --operator=$USER"
+    fi
+  fi
   failed=$(systemctl --failed --no-legend --plain 2> /dev/null | awk '{ print $1 }' | paste -sd' ' || true)
   [[ -z $failed ]] && ok "no failed system units" || warn_ "failed system units: $failed"
   if systemctl --user show-environment > /dev/null 2>&1; then
