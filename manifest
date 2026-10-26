@@ -74,6 +74,8 @@ user-unit pipewire.socket
 user-unit pipewire-pulse.socket
 user-unit wireplumber.service
 user-unit gnome-keyring-daemon.socket
+# the OpenSSH key agent: a key with a passphrase is asked for once per session (SSH_AUTH_SOCK in uwsm/env)
+user-unit ssh-agent.socket
 user-unit hypridle.service
 user-unit cliphist.service
 user-unit driftless-wallpaper.service

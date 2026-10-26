@@ -4,6 +4,14 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.10.0 (2026-10-26): SSH agent
+
+### Added
+- **An SSH agent in every session**: `ssh-agent.socket` (from openssh) in the manifest and
+  `SSH_AUTH_SOCK` in `~/.config/uwsm/env`. A key with a passphrase is then asked for once per session
+  (with `AddKeysToAgent yes` in `~/.ssh/config`), instead of on every connection. Takes effect at the
+  next login.
+
 ## v2.9.0 (2026-10-26): Tailscale
 
 ### Added

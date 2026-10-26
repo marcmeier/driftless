@@ -3,6 +3,10 @@ export XCURSOR_THEME=capitaine-cursors XCURSOR_SIZE=24
 export HYPRCURSOR_THEME=capitaine-cursors HYPRCURSOR_SIZE=24
 export QT_QPA_PLATFORMTHEME=qt6ct
 
+# the OpenSSH key agent (ssh-agent.socket); with "AddKeysToAgent yes" in ~/.ssh/config a key's
+# passphrase is asked for once per session
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
 # NVIDIA without an integrated GPU next to it: the NVIDIA GL and VA-API libraries
 if [ -d /sys/module/nvidia ] && [ ! -d /sys/module/amdgpu ] && [ ! -d /sys/module/i915 ] && [ ! -d /sys/module/xe ]; then
   export LIBVA_DRIVER_NAME=nvidia __GLX_VENDOR_LIBRARY_NAME=nvidia

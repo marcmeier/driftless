@@ -241,6 +241,8 @@ latency) and rules that open stubborn games fullscreen on the right monitor.
 - zram, a firewall (ufw), SMART warnings as desktop notifications, locked screen after 10 minutes
 - **SSH** on every machine, with keys only (no password, no root login) and a rate limit in the
   firewall. The keys that may log in stay in each machine's `~/.ssh/authorized_keys`
+- an **SSH agent** in every session: give your key a passphrase, and with `AddKeysToAgent yes` in
+  `~/.ssh/config` you type it once per session
 - the session runs under uwsm: the shell (bar, notifications, lock screen), idle, clipboard and
   the desktop colour are systemd user units that restart when they crash
 
