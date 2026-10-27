@@ -4,6 +4,26 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.13.0 (2026-10-27): palettes
+
+### Added
+- **Palettes** next to the plain greys, softer and well known, each dark and light so auto works with
+  all of them: Catppuccin (Mocha, Latte), Dracula (Dracula, Alucard), Everforest, Gruvbox, Nord (Polar
+  Night, Snow Storm), Rosé Pine (Rosé Pine, Dawn), Solarized and Tokyo Night (Night, Day). They bring
+  their own background, text, accent and terminal colours; what a scheme has no colour for (the steps
+  between background and text, bevels, selection) is mixed from its background and text. The form
+  stays the plain look's: opaque, square, one accent. Shell, Ghostty, GTK, Qt, walker, btop, starship,
+  VS Code and Hyprland follow.
+- In the settings: a row of tiles under Appearance, each with a few of its colours; in walker as
+  "Palette: …"; on the command line `theme/apply.py --palette NAME` (`--palettes` lists them). The
+  choice is per machine (`~/.local/state/theme/palette`), plain stays the default.
+
+### Changed
+- The lock and the login screen stay dark, now in the palette's dark look; a palette chosen in the
+  settings hands the login screen its files at once.
+- The named palettes keep their originals' contrast (Solarized and Tokyo Night Day are softer):
+  `tests/theme.bats` asks AA for their text, the plain look keeps its stricter checks.
+
 ## v2.12.0 (2026-10-27): Crafting Apps instead of LibreOffice
 
 ### Changed

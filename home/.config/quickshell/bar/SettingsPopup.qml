@@ -5,7 +5,7 @@ import Quickshell.Hyprland
 import qs.services
 
 // The desktop settings (a click on your name; walker menus before): the look (dark, light, with the
-// sun), the bar's size and which widgets it shows, the monitors, and the way to the sync and the keys. Every choice is this machine's own (scripts/settings-menu.sh, scripts/bar_layout.py).
+// sun, and the palette), the bar's size and which widgets it shows, the monitors, and the way to the sync and the keys. Every choice is this machine's own (scripts/settings-menu.sh, scripts/bar_layout.py).
 Item {
     id: root
 
@@ -18,6 +18,9 @@ Item {
 
     property string pendingLook: ""  // clicked, apply.py is still rendering
     readonly property string look: pendingLook || Theme.appearance
+    property string pendingPalette: ""  // the same for the palette
+    readonly property string paletteName: pendingPalette || Theme.paletteName
+    readonly property var paletteNow: Theme.palettes[paletteName] || null
     property var widgets: []        // bar_layout.py --widgets
     readonly property bool laptopPanel: Hyprland.monitors.values.some(m => /^eDP-/.test(m.name))
 
@@ -56,6 +59,8 @@ Item {
         function onRendersChanged() {
             if (root.pendingLook === Theme.appearance)
                 root.pendingLook = "";
+            if (root.pendingPalette === Theme.paletteName)
+                root.pendingPalette = "";
         }
     }
 
@@ -196,8 +201,77 @@ Item {
                     wrapMode: Text.WordWrap
                     text: root.look === "auto"
                           ? "Light from sunrise (" + root.sunTimes.sunrise + ") to sunset (" + root.sunTimes.sunset + "), dark at night"
+                          : root.paletteName !== "plain" && root.paletteNow
+                          ? root.paletteNow.label + " " + root.paletteNow[root.look].name
                           : root.look === "light" ? "Light greys, dark text"
                           : "Dark greys, light text"
+                }
+
+                // ---- the palette: each in the variant that is on, a few of its colours as a preview ----
+                Flow {
+                    width: parent.width
+                    spacing: 6
+                    Repeater {
+                        model: Object.keys(Theme.palettes)
+                        Rectangle {
+                            id: tile
+                            required property string modelData
+                            readonly property var entry: Theme.palettes[modelData]
+                            readonly property var variant: entry[Theme.scheme] || entry.dark
+                            readonly property bool chosen: root.paletteName === modelData
+                            width: tileRow.implicitWidth + 20
+                            height: 28
+                            color: tileMouse.containsMouse ? Theme.hover : "transparent"
+                            border.width: 1
+                            border.color: chosen ? Theme.accent : Theme.border
+                            Row {
+                                id: tileRow
+                                anchors.centerIn: parent
+                                spacing: 7
+                                // the background with the accent and three colours on it
+                                Rectangle {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    width: swatches.implicitWidth + 6
+                                    height: 14
+                                    color: tile.variant.bg
+                                    border.width: 1
+                                    border.color: Theme.border
+                                    Row {
+                                        id: swatches
+                                        anchors.centerIn: parent
+                                        spacing: 2
+                                        Repeater {
+                                            model: ["primary", "red", "yellow", "green"]
+                                            Rectangle {
+                                                required property string modelData
+                                                width: 5
+                                                height: 8
+                                                color: tile.variant[modelData]
+                                            }
+                                        }
+                                    }
+                                }
+                                Label {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: tile.entry.label
+                                    font.pixelSize: 12
+                                    color: tile.chosen ? Theme.accent : Theme.text
+                                }
+                            }
+                            MouseArea {
+                                id: tileMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (tile.chosen)
+                                        return;
+                                    root.pendingPalette = tile.modelData;
+                                    root.run(["palette", tile.modelData]);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Separator {}

@@ -202,6 +202,10 @@ shell nor in Hyprland. The desktop, the lock and the login screen are one colour
 *Considered:* keeping the wallpaper as an option next to the plain look. Two looks in every QML file
 double what has to be kept in step; the point was less.
 
+*Later:* named palettes (Catppuccin, Nord, ...) next to the plain greys. They change only colours, not
+the form, and fill the same names of `scheme.py` (what a scheme has no colour for is mixed from its
+background and text), so no template and no QML file knows which palette is on.
+
 ## What stayed
 
 Hardware detection from sysfs. Review mode as the default for incoming changes. Signed commits with

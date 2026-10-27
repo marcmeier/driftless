@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
-"""Render the theme templates in the dark or the light look (the plain look: greys and one accent).
+"""Render the theme templates in the dark or the light look of a palette (scheme.py; the default is the
+plain look: greys and one accent).
 
   apply.py --current                   render the look that is chosen (also --default, the same)
   apply.py --appearance dark|light|auto   choose the look and render it (auto: light from sunrise
                                        to sunset, the weather feed's times, else 7 to 19 o'clock)
+  apply.py --palette NAME              choose the palette (plain, catppuccin, ...) and render it
+  apply.py --palettes                  list the palettes (name, a tab, the label)
   apply.py --follow-sun                with auto: render again when the sun has risen or set since
 
 Template tokens: @primary@ -> #rrggbb, @primary+88@ -> #rrggbb88 (alpha suffix),
@@ -12,7 +15,8 @@ Template tokens: @primary@ -> #rrggbb, @primary+88@ -> #rrggbb88 (alpha suffix),
 Names: every colour of scheme.py (fg, bg, dim, line, red, ..., primary, secondary, primary_dim)
 in the look that is on; @scheme@ -> dark|light, @gtk_theme@, @qt_style@, @shadow_alpha@, @terminal_opacity@ (first, so
 @shadow:@shadow_alpha@@ works).
-The login screen and the fallback lock screen stay dark in both looks (night, like the greeter).
+The login screen and the fallback lock screen stay dark in both looks (night, like the greeter): the
+palette's dark variant.
 
 Everything written here is per machine and not in the repository (.gitignore): the desktop's plain
 background ~/.config/wall.png (one colour, shown by awww), the rendered configs, the round avatar from
@@ -39,6 +43,7 @@ THEME = CONFIG / "theme"
 TEMPLATES = HERE / "templates"
 STATE = Path(os.environ.get("XDG_STATE_HOME") or HOME / ".local" / "state") / "theme"
 APPEARANCE = STATE / "appearance"  # dark | light | auto, per machine
+PALETTE = STATE / "palette"  # a name of scheme.PALETTES, per machine
 SUN = HOME / ".cache" / "theme" / "sun.json"  # {"sunrise": "07:24", "sunset": "18:55"}, weather.py
 
 # template (in theme/templates/) -> destination (relative to ~/.config); NIGHT ones are always dark
@@ -57,6 +62,7 @@ TARGETS = {
 }
 NIGHT = {"hyprlock.conf"}
 PREVIEW = ("desk", "glass", "bg", "bg_alt", "fg", "dim", "line", "overlay", "primary", "secondary")
+SWATCHES = ("bg", "primary", "red", "yellow", "green", "blue")  # a palette in brief, for the settings
 
 
 def appearance():
@@ -66,6 +72,15 @@ def appearance():
     except OSError:
         return "dark"
     return chosen if chosen in ("dark", "light", "auto") else "dark"
+
+
+def palette():
+    """The chosen palette (scheme.py), the plain look unless another is chosen."""
+    try:
+        chosen = PALETTE.read_text().strip()
+    except OSError:
+        return scheme.DEFAULT
+    return scheme.palette_name(chosen)
 
 
 def sun_is_up(now=None):
@@ -200,7 +215,7 @@ VSCODE_MANIFEST = """<?xml version="1.0" encoding="utf-8"?>
  <Metadata>
   <Identity Language="en-US" Id="theme" Version="1.0.0" Publisher="driftless"/>
   <DisplayName>driftless</DisplayName>
-  <Description xml:space="preserve">2026 Dark or Light, plain greys with one accent (theme/apply.py)</Description>
+  <Description xml:space="preserve">2026 Dark or Light in the desktop's palette (theme/apply.py)</Description>
   <Categories>Themes</Categories>
   <Properties><Property Id="Microsoft.VisualStudio.Code.Engine" Value="^1.80.0"/></Properties>
  </Metadata>
@@ -302,10 +317,25 @@ def reload_programs():
         subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
 
 
+def palettes_in_brief():
+    """Every palette's label, the names of its variants and a few colours of each, for the settings."""
+    return {
+        key: {
+            "label": entry["label"],
+            "dark": {"name": entry["dark_name"]}
+            | {k: scheme.to_hex(v) for k, v in scheme.scheme("dark", key).items() if k in SWATCHES},
+            "light": {"name": entry["light_name"]}
+            | {k: scheme.to_hex(v) for k, v in scheme.scheme("light", key).items() if k in SWATCHES},
+        }
+        for key, entry in scheme.PALETTES.items()
+    }
+
+
 def render_all(name):
     """Render every target in the look `name`, the desktop's colour and the login screen's files."""
-    rgb_colors = scheme.scheme(name)
-    night_colors = scheme.scheme("dark")
+    chosen = palette()
+    rgb_colors = scheme.scheme(name, chosen)
+    night_colors = scheme.scheme("dark", chosen)
     accents = {key: scheme.to_hex(night_colors[key]) for key in ("primary", "secondary")}
     write(
         THEME / "colors.json",
@@ -315,13 +345,15 @@ def render_all(name):
                 "secondary": scheme.to_hex(rgb_colors["secondary"]),
                 "appearance": appearance(),
                 "scheme": name,
+                "palette": chosen,
+                "palettes": palettes_in_brief(),
                 "accents": accents,
                 "colors": scheme.describe(rgb_colors),
                 "night": scheme.describe(night_colors),
                 # both looks in brief, for the previews in the settings
                 "looks": {
                     look_name: {key: scheme.to_hex(colors[key]) for key in PREVIEW}
-                    for look_name, colors in (("dark", night_colors), ("light", scheme.scheme("light")))
+                    for look_name, colors in (("dark", night_colors), ("light", scheme.scheme("light", chosen)))
                 },
             },
             indent=1,
@@ -343,7 +375,7 @@ def render_all(name):
     write(cache / "colors.json", json.dumps(accents | {"colors": scheme.describe(night_colors)}, indent=1) + "\n")
     write(cache / "regreet.css", render((TEMPLATES / "regreet.css").read_text(), night_colors))
     plain(cache / "login.png", night_colors["desk"])
-    print(f"plain look, {name}")
+    print(f"{scheme.PALETTES[chosen]['label']}, {name}")
 
 
 def current_scheme():
@@ -361,6 +393,18 @@ def main(argv):
         write(APPEARANCE, argv[1] + "\n")
         render_all(look(argv[1]))
         reload_programs()
+        return
+    if argv and argv[0] == "--palette":
+        if len(argv) < 2 or argv[1] not in scheme.PALETTES:
+            sys.exit("usage: apply.py --palette " + "|".join(scheme.PALETTES))
+        STATE.mkdir(parents=True, exist_ok=True)
+        write(PALETTE, argv[1] + "\n")
+        render_all(look())
+        reload_programs()
+        return
+    if argv and argv[0] == "--palettes":
+        for key, entry in scheme.PALETTES.items():
+            print(f"{key}\t{entry['label']}")
         return
     if argv and argv[0] == "--follow-sun":
         if appearance() == "auto" and look() != current_scheme():

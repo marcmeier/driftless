@@ -5,10 +5,12 @@ import Quickshell.Io
 import QtQuick
 
 // The shell's look in one place (the bar, the notifications, the power menu, the on-screen display, the
-// password dialog): the plain look. Greys and one accent, everything opaque with a 1 px line around it,
-// square corners, nothing that fades, glows or blends. theme/apply.py writes ~/.config/theme/colors.json
-// with the named colours of the look that is on, dark or light (theme/scheme.py); the shell follows a
-// change at once. The lock screen keeps the dark look in both (`night`), like the login screen it matches.
+// password dialog): the plain look, or one of the named palettes (Catppuccin, Nord, ...) in its place.
+// Background and one accent, everything opaque with a 1 px line around it, square corners, nothing that
+// fades, glows or blends. theme/apply.py writes ~/.config/theme/colors.json with the named colours of
+// the look that is on, dark or light, in the chosen palette (theme/scheme.py); the shell follows a
+// change at once. The lock screen keeps the palette's dark look in both (`night`), like the login screen
+// it matches.
 Singleton {
     id: theme
 
@@ -17,6 +19,8 @@ Singleton {
     property string appearance: "dark"      // what was chosen: dark, light or auto
     readonly property bool light: scheme === "light"
     property var looks: ({})                // both looks in brief, for the previews in the settings
+    property string paletteName: "plain"    // theme/scheme.py's PALETTES
+    property var palettes: ({})             // every palette in brief: label, dark and light (name, swatches)
     property int renders: 0                 // bumps whenever apply.py rendered (a new look)
 
     property color primary: "#7aa6d9"
@@ -139,6 +143,8 @@ Singleton {
             theme.night.field = n.field;
         }
         theme.looks = c.looks || {};
+        theme.paletteName = c.palette || "plain";
+        theme.palettes = c.palettes || {};
         theme.renders++;
     }
 

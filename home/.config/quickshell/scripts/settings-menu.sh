@@ -6,6 +6,7 @@
 #        settings-menu.sh monitors-arrange|monitors-reset|display-mode
 #        settings-menu.sh avatar               your picture (~/.face) for the bar, the lock and login screen
 #        settings-menu.sh appearance dark|light|auto   the look (auto: light from sunrise to sunset)
+#        settings-menu.sh palette NAME         the palette (plain, catppuccin, ...: theme/apply.py --palettes)
 #        settings-menu.sh avatar-save IMAGE [X Y SIZE]   the square the picture editor chose
 # Per machine choices: widget layout, bar size, monitor layout and the look (~/.local/state), and the
 # files rendered from the look (not in the repository). None of them travels to your other machines.
@@ -60,18 +61,37 @@ PY
   else notify-send -a settings -u critical "Your picture" "Failed, see $STATE/set-wallpaper.log"; fi
 }
 
-# the look in walker, when the shell does not answer
+# a new palette is also the login screen's (its dark look): hand it the files (polkit, no password)
+login_screen() {
+  [[ -x /usr/lib/driftless/greeter-update ]] || return 0
+  pkexec /usr/lib/driftless/greeter-update "$HOME/.cache/theme" >> "$STATE/set-wallpaper.log" 2>&1 || true
+}
+
+# the look in walker, when the shell does not answer: dark, light or auto, then the palettes
 look() {
-  local choice
-  choice=$(printf '%s\n' "Dark" "Light" "Auto (light from sunrise to sunset)" | pick "Appearance") || return 0
+  local choice key label
+  local -a entries=("Dark" "Light" "Auto (light from sunrise to sunset)")
+  local -A palettes=()
+  while IFS=$'\t' read -r key label; do
+    entries+=("Palette: $label")
+    palettes["Palette: $label"]=$key
+  done < <(python3 "$HOME/.config/theme/apply.py" --palettes)
+  choice=$(printf '%s\n' "${entries[@]}" | pick "Appearance") || return 0
   case $choice in
-    Dark) set -- dark ;;
-    Light) set -- light ;;
-    Auto*) set -- auto ;;
+    Dark) set -- --appearance dark ;;
+    Light) set -- --appearance light ;;
+    Auto*) set -- --appearance auto ;;
+    Palette:*)
+      [[ -n ${palettes[$choice]:-} ]] || return 0
+      set -- --palette "${palettes[$choice]}"
+      ;;
+    *) return 0 ;;
   esac
   mkdir -p "$STATE"
-  python3 "$HOME/.config/theme/apply.py" --appearance "$1" > "$STATE/set-wallpaper.log" 2>&1 ||
+  python3 "$HOME/.config/theme/apply.py" "$@" > "$STATE/set-wallpaper.log" 2>&1 ||
     notify-send -a settings -u critical "Appearance" "Failed, see $STATE/set-wallpaper.log"
+  [[ $1 == --palette ]] && login_screen
+  return 0
 }
 
 # nwg-displays writes monitors.lua/workspaces.lua next to the paths it gets; hyprland.lua loads them
@@ -171,6 +191,15 @@ case $action in
     [[ ${2:-} =~ ^(dark|light|auto)$ ]] || exit 2
     python3 "$HOME/.config/theme/apply.py" --appearance "$2" > "$STATE/set-wallpaper.log" 2>&1 ||
       notify-send -a settings -u critical "Appearance" "Failed, see $STATE/set-wallpaper.log"
+    ;;
+  palette)
+    mkdir -p "$STATE"
+    [[ ${2:-} =~ ^[a-z-]+$ ]] || exit 2
+    if python3 "$HOME/.config/theme/apply.py" --palette "$2" > "$STATE/set-wallpaper.log" 2>&1; then
+      login_screen
+    else
+      notify-send -a settings -u critical "Palette" "Failed, see $STATE/set-wallpaper.log"
+    fi
     ;;
   avatar-save)
     mkdir -p "$STATE"

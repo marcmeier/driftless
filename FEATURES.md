@@ -198,7 +198,8 @@ A click on your name opens them as a popup of the bar, every choice per machine 
   mask: drag to move, wheel or slider to zoom. The settings, fastfetch and the notifications use it.
   It is `~/.face`; linked into `personal/` (as `examples/personal/manifest` suggests), the sync takes it
   to your other machines, which render it too
-- **Appearance**: dark, light, or auto (light from sunrise to sunset); a click switches everything at once
+- **Appearance**: dark, light, or auto (light from sunrise to sunset), and the palette (plain, Catppuccin,
+  Dracula, ...: each tile shows a few of its colours); a click switches everything at once
 - **Bar size**: automatic, always full size, always compact
 - **Widgets**: a click shows or hides one, the bar follows at once; "Move widgets" orders them,
   separately for the spacious and the compact bar
@@ -221,6 +222,11 @@ accent). The calendar, fastfetch, bat and fzf use the terminal's accent slots, s
 - **Dark or light**, or auto (light from sunrise to sunset, the weather feed's times), per machine in
   the settings. GTK, libadwaita, Electron apps, Qt, Ghostty, walker, btop, starship, VS Code and
   Hyprland follow; the lock and the login screen stay dark, as one night screen
+- **Softer palettes** in place of the plain greys, each dark and light so auto works with all of them:
+  Catppuccin (Mocha, Latte), Dracula (Dracula, Alucard), Everforest, Gruvbox, Nord (Polar Night, Snow
+  Storm), Rosé Pine (Rosé Pine, Dawn), Solarized and Tokyo Night (Night, Day). They keep the plain look's
+  form (opaque, square, one accent) and bring their own background, text, accent and terminal colours,
+  in the originals' contrast. Per machine in the settings, or `theme/apply.py --palette NAME`
 - `set-wallpaper --current` renders it all again (it keeps its name from the days of wallpaper images)
 
 <table>
