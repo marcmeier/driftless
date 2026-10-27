@@ -1,19 +1,16 @@
 # everyday applications
 aur:brave-origin-bin
 aur:claude-code
+aur:deckcraft-bin
+aur:gridcraft-bin
 aur:localsend-bin
 aur:obsidian-bin
 aur:visual-studio-code-bin
+aur:wordcraft-bin
 celluloid
 discord
 flatpak
 hunspell-de
 hunspell-en_us
-hyphen-de
-hyphen-en
-libreoffice-fresh
-libreoffice-fresh-de
-mythes-de
-mythes-en
 thunderbird
 vlc-plugins-all

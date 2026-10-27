@@ -4,6 +4,24 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.12.0 (2026-10-27): Crafting Apps instead of LibreOffice
+
+### Changed
+- **Office is now the Crafting Apps** by storytold/ArtCraft: WordCraft, GridCraft and DeckCraft
+  (`aur:wordcraft-bin`, `aur:gridcraft-bin`, `aur:deckcraft-bin` in `packages/apps.list`). The `-bin`
+  packages install the official release binaries (their checksums match upstream's `SHA256SUMS.txt`),
+  so an update is a download, not a Rust build; they update with the rest of the AUR in the update
+  pill. Flatpak is no option yet: the apps only ship bundles in their GitHub releases, without a
+  repository flatpak could update them from.
+- `mimeapps.list` opens Word, ODT and RTF files in WordCraft, Excel, ODS and CSV in GridCraft and
+  PowerPoint (`.pptx`) in DeckCraft; the bar names their windows with their own glyphs.
+
+### Removed
+- **LibreOffice** (`libreoffice-fresh`, `libreoffice-fresh-de`) and the hyphenation and thesaurus
+  packages only it used (`hyphen-de`, `hyphen-en`, `mythes-de`, `mythes-en`). The sync never uninstalls:
+  on a machine that has them, `driftless packages` lists them as installed but in no list, to remove
+  with `sudo pacman -Rns`. DeckCraft opens no `.ppt` or `.odp` yet.
+
 ## v2.11.0 (2026-10-27): a calmer right side
 
 ### Changed

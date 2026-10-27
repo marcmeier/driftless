@@ -19,7 +19,9 @@ Singleton {
         [/thunar|nautilus|dolphin|pcmanfm/i, "\u{F024B}", "Files"],
         [/obsidian/i, "\u{F082E}", "Obsidian"],
         [/nextcloud/i, "\u{F0163}", "Nextcloud"],
-        [/libreoffice/i, "\u{F0219}", "LibreOffice"],
+        [/wordcraft/i, "\u{F022C}", "WordCraft"],
+        [/gridcraft/i, "\u{F021B}", "GridCraft"],
+        [/deckcraft/i, "\u{F0227}", "DeckCraft"],
         [/loupe|eog|imv/i, "\u{F02E9}", "Images"],
         [/evince|zathura|okular/i, "\u{F0226}", "Documents"],
     ]

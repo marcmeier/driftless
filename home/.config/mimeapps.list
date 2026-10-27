@@ -28,17 +28,15 @@ audio/ogg=io.github.celluloid_player.Celluloid.desktop
 audio/mp4=io.github.celluloid_player.Celluloid.desktop
 audio/x-vorbis+ogg=io.github.celluloid_player.Celluloid.desktop
 application/pdf=org.gnome.Evince.desktop
-application/vnd.openxmlformats-officedocument.wordprocessingml.document=libreoffice-writer.desktop
-application/msword=libreoffice-writer.desktop
-application/vnd.oasis.opendocument.text=libreoffice-writer.desktop
-application/rtf=libreoffice-writer.desktop
-application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=libreoffice-calc.desktop
-application/vnd.ms-excel=libreoffice-calc.desktop
-application/vnd.oasis.opendocument.spreadsheet=libreoffice-calc.desktop
-text/csv=libreoffice-calc.desktop
-application/vnd.openxmlformats-officedocument.presentationml.presentation=libreoffice-impress.desktop
-application/vnd.ms-powerpoint=libreoffice-impress.desktop
-application/vnd.oasis.opendocument.presentation=libreoffice-impress.desktop
+application/vnd.openxmlformats-officedocument.wordprocessingml.document=ai.storyteller.wordcraft.desktop
+application/msword=ai.storyteller.wordcraft.desktop
+application/vnd.oasis.opendocument.text=ai.storyteller.wordcraft.desktop
+application/rtf=ai.storyteller.wordcraft.desktop
+application/vnd.openxmlformats-officedocument.spreadsheetml.sheet=ai.storyteller.gridcraft.desktop
+application/vnd.ms-excel=ai.storyteller.gridcraft.desktop
+application/vnd.oasis.opendocument.spreadsheet=ai.storyteller.gridcraft.desktop
+text/csv=ai.storyteller.gridcraft.desktop
+application/vnd.openxmlformats-officedocument.presentationml.presentation=ai.storyteller.deckcraft.desktop
 
 [Added Associations]
 x-scheme-handler/mailto=userapp-Thunderbird-IHJIX3.desktop;org.mozilla.Thunderbird.desktop;
