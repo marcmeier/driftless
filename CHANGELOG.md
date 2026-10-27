@@ -4,6 +4,21 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.14.0 (2026-10-27): settings like a settings app
+
+### Changed
+- **The settings popup is laid out like a settings app**: the pages on the left (Appearance, Bar,
+  Displays, System), on the right grouped rows, what a setting is on the left and its control on the
+  right, in place of one page of buttons.
+- Dark, light or auto, the bar size and the sync mode are segmented controls (`bar/PSegmented.qml`);
+  the palettes a grid of tiles with their colours under Appearance.
+- The widgets are a list of switches in place of a cloud of chips; a group that is off greys out its
+  members. "Arrange …" still orders them in the widget manager.
+
+### Added
+- The sync mode (automatic, review first, off) and "Sync now" right in the settings, under System;
+  "Open …" leads to the rest of the sync menu.
+
 ## v2.13.0 (2026-10-27): palettes
 
 ### Added

@@ -188,23 +188,27 @@ the desktop looks borrowed from another program.
 
 ## Settings menu
 
-A click on your name opens them as a popup of the bar, every choice per machine (but your picture):
+A click on your name opens them as a popup of the bar, laid out like a settings app: the pages on the
+left (Appearance, Bar, Displays, System), on the right one row per setting with its switch or button.
+Every choice is per machine (but your picture):
 
-<img src="docs/img/settings.jpg" alt="The settings popup: dark, light or auto, bar size, widget switches, monitors, sync and keys" width="560"><br>
+<img src="docs/img/settings.jpg" alt="The settings popup: pages on the left, one row per setting on the right" width="560"><br>
 <sub>The settings popup.</sub>
 
 
-- **Your picture**: a click on it (or "Picture …") picks an image, then you place it behind a round
-  mask: drag to move, wheel or slider to zoom. The settings, fastfetch and the notifications use it.
+- **Your picture**: a click on it (or "Change …" under Appearance) picks an image, then you place it
+  behind a round mask: drag to move, wheel or slider to zoom. The settings, fastfetch and the notifications use it.
   It is `~/.face`; linked into `personal/` (as `examples/personal/manifest` suggests), the sync takes it
   to your other machines, which render it too
 - **Appearance**: dark, light, or auto (light from sunrise to sunset), and the palette (plain, Catppuccin,
-  Dracula, ...: each tile shows a few of its colours); a click switches everything at once
+  Dracula, ...: a grid of tiles, each shows a few of its colours); a click switches everything at once
 - **Bar size**: automatic, always full size, always compact
-- **Widgets**: a click shows or hides one, the bar follows at once; "Move widgets" orders them,
+- **Widgets**: a switch per widget, the bar follows at once (a group that is off takes its members
+  with it); "Arrange …" orders them,
   separately for the spacious and the compact bar
 - **Monitors**: arrange them (nwg-displays), the display mode on a notebook, back to the automatic layout
-- **Sync**: mode, what is waiting, trust a new machine
+- **Sync**: the mode (automatic, review first, off) and "Sync now" right there; "Open …" for what
+  is waiting and trusting a new machine
 - **Keybindings**: the searchable list
 
 ## The plain look

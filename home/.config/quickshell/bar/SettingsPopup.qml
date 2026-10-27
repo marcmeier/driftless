@@ -4,13 +4,16 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import qs.services
 
-// The desktop settings (a click on your name; walker menus before): the look (dark, light, with the
-// sun, and the palette), the bar's size and which widgets it shows, the monitors, and the way to the sync and the keys. Every choice is this machine's own (scripts/settings-menu.sh, scripts/bar_layout.py).
+// The desktop settings (a click on your name; walker menus before), laid out like a settings app: the
+// pages on the left (appearance and palette, bar, monitors, system), on the right one row per setting,
+// what it is on the left and its switch or button on the right. Every choice is this machine's own
+// (scripts/settings-menu.sh, scripts/bar_layout.py, scripts/sync-menu.sh).
 Item {
     id: root
 
     property var popup
     property var bar
+    property string page: "appearance"
 
     readonly property string scripts: Quickshell.shellDir + "/scripts"
     readonly property string menu: scripts + "/settings-menu.sh"
@@ -22,10 +25,20 @@ Item {
     readonly property string paletteName: pendingPalette || Theme.paletteName
     readonly property var paletteNow: Theme.palettes[paletteName] || null
     property var widgets: []        // bar_layout.py --widgets
+    readonly property var hiddenGroups: widgets.filter(w => !w.group && w.hidden).map(w => w.id)
     readonly property bool laptopPanel: Hyprland.monitors.values.some(m => /^eDP-/.test(m.name))
+    readonly property string syncMode: (syncModeFile.text() || "review").trim()
 
-    implicitWidth: 780
-    implicitHeight: column.implicitHeight
+    readonly property var pages: [
+        ["appearance", "Appearance", "\u{F03D8}", "Dark or light, the palette and your picture"],
+        ["bar", "Bar", "\u{F06FC}", "Size of the bar and the widgets it shows"],
+        ["displays", "Displays", "\u{F037A}", "Arrangement and mode of the monitors"],
+        ["system", "System", "\u{F0493}", "Sync with your other machines, keyboard"]
+    ]
+    readonly property var current: pages.find(p => p[0] === page) || pages[0]
+
+    implicitWidth: 720
+    implicitHeight: 440
 
     function run(args) {
         Actions.launch([root.menu].concat(args));
@@ -35,6 +48,9 @@ Item {
         run(args);
         if (popup)
             popup.close();
+    }
+    function sync(args) {
+        Actions.launch([root.scripts + "/sync-menu.sh"].concat(args));
     }
 
     // ---- what there is ----
@@ -70,6 +86,15 @@ Item {
         printErrors: false
     }
 
+    // the sync mode of this machine (sync-menu.sh writes it)
+    FileView {
+        id: syncModeFile
+        path: root.stateDir + "/driftless/mode"
+        watchChanges: true
+        onFileChanged: reload()
+        printErrors: false
+    }
+
     Process {
         id: widgetList
         running: true
@@ -91,145 +116,221 @@ Item {
         }
     }
 
+    // ---- left: who, and the pages ----
     Column {
-        id: column
-        width: parent.width
-        spacing: 14
+        id: side
+        width: 184
+        height: parent.height
+        spacing: 12
 
-        // ---- who and where; a click on the picture changes it ----
-        Item {
-            width: column.width
-            height: who.implicitHeight
-            Row {
-                id: who
-                spacing: 12
-                Item {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: 40
-                    height: 40
-                    Image {
-                        anchors.fill: parent
-                        sourceSize: Qt.size(80, 80)
-                        source: Theme.avatarVersion >= 0 ? "file://" + Theme.avatar : ""
-                        cache: false
-                        smooth: true
-                        mipmap: true
-                    }
-                    Rectangle {
-                        anchors.fill: parent
-                        radius: width / 2
-                        color: Qt.rgba(0, 0, 0, 0.5)
-                        visible: faceMouse.containsMouse
-                        Icon {
-                            anchors.centerIn: parent
-                            text: "\u{F03EB}"
-                            size: 16
-                        }
-                    }
-                    MouseArea {
-                        id: faceMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.open(["avatar"])
-                    }
-                }
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-                    Label {
-                        text: Feeds.userName
-                        bold: true
-                        font.pixelSize: 13
-                    }
-                    Label {
-                        small: true
-                        dim: true
-                        text: "Settings of this machine"
-                    }
-                }
-            }
-            PButton {
-                anchors.right: parent.right
+        // you; a click on the picture changes it
+        Rectangle {
+            width: parent.width
+            height: 52
+            color: meMouse.containsMouse ? Theme.hover : "transparent"
+            Image {
+                id: face
+                x: 8
                 anchors.verticalCenter: parent.verticalCenter
-                icon: "\u{F06BC}"
-                text: "Picture …"
-                onClicked: root.open(["avatar"])
+                width: 36
+                height: 36
+                sourceSize: Qt.size(72, 72)
+                source: Theme.avatarVersion >= 0 ? "file://" + Theme.avatar : ""
+                cache: false
+                smooth: true
+                mipmap: true
             }
-        }
-
-        Separator {
-            width: column.width
-        }
-
-        Row {
-            spacing: 24
-
-            // left: the look, the monitors, the rest
             Column {
-                id: left
-                width: 360
-                spacing: 12
-
-                // ---- the look: dark, light or with the sun ----
-                Caption {
-                    text: "Appearance"
-                }
-                Row {
-                    spacing: 6
-                    Repeater {
-                        model: [["dark", "Dark", "\u{F0594}"], ["light", "Light", "\u{F0599}"], ["auto", "Auto", "\u{F050E}"]]
-                        PButton {
-                            required property var modelData
-                            readonly property string look: modelData[0]
-                            text: modelData[1]
-                            icon: modelData[2]
-                            checked: root.look === look
-                            onClicked: {
-                                if (root.look === look)
-                                    return;
-                                root.pendingLook = look;
-                                root.run(["appearance", look]);
-                            }
-                        }
-                    }
+                anchors.left: face.right
+                anchors.leftMargin: 10
+                anchors.right: parent.right
+                anchors.rightMargin: 8
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 2
+                Label {
+                    width: parent.width
+                    elide: Text.ElideRight
+                    text: Feeds.userName
+                    bold: true
                 }
                 Label {
                     small: true
                     dim: true
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    text: root.look === "auto"
-                          ? "Light from sunrise (" + root.sunTimes.sunrise + ") to sunset (" + root.sunTimes.sunset + "), dark at night"
-                          : root.paletteName !== "plain" && root.paletteNow
-                          ? root.paletteNow.label + " " + root.paletteNow[root.look].name
-                          : root.look === "light" ? "Light greys, dark text"
-                          : "Dark greys, light text"
+                    text: "This machine"
                 }
+            }
+            MouseArea {
+                id: meMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.open(["avatar"])
+            }
+        }
 
-                // ---- the palette: each in the variant that is on, a few of its colours as a preview ----
-                Flow {
+        Column {
+            width: parent.width
+            spacing: 2
+            Repeater {
+                model: root.pages
+                Rectangle {
+                    id: nav
+                    required property var modelData
+                    readonly property bool on: root.page === modelData[0]
+                    width: side.width
+                    height: 32
+                    color: on ? Theme.raised : navMouse.containsMouse ? Theme.hover : "transparent"
+                    // the current page: a line in the accent on the left
+                    Rectangle {
+                        visible: nav.on
+                        width: 2
+                        height: parent.height
+                        color: Theme.accent
+                    }
+                    Icon {
+                        x: 12
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: nav.modelData[2]
+                        size: 15
+                        color: nav.on ? Theme.accent : Theme.dim
+                    }
+                    Label {
+                        x: 40
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: nav.modelData[1]
+                        color: nav.on ? Theme.strong : Theme.text
+                        bold: nav.on
+                    }
+                    MouseArea {
+                        id: navMouse
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            root.page = nav.modelData[0];
+                            flick.contentY = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: divider
+        x: side.width + 14
+        y: -14
+        width: 1
+        height: parent.height + 28
+        color: Theme.separator
+    }
+
+    // ---- right: the page ----
+    Item {
+        id: main
+        x: divider.x + 1 + 20
+        width: parent.width - x
+        height: parent.height
+
+        Column {
+            id: head
+            width: parent.width
+            spacing: 3
+            Label {
+                text: root.current[1]
+                bold: true
+                color: Theme.strong
+                font.pixelSize: 16
+            }
+            Label {
+                small: true
+                dim: true
+                text: root.current[3]
+            }
+        }
+
+        Flickable {
+            id: flick
+            y: head.height + 16
+            width: parent.width
+            height: parent.height - y
+            clip: true
+            contentHeight: pageLoader.height
+            boundsBehavior: Flickable.StopAtBounds
+
+            Loader {
+                id: pageLoader
+                width: flick.width - 12
+                sourceComponent: ({ appearance: appearancePage, bar: barPage, displays: displaysPage, system: systemPage })[root.page]
+            }
+        }
+        // where in a long page you are
+        Rectangle {
+            visible: flick.contentHeight > flick.height
+            x: parent.width - 3
+            y: flick.y + flick.visibleArea.yPosition * flick.height
+            width: 3
+            height: flick.visibleArea.heightRatio * flick.height
+            color: Theme.border
+        }
+    }
+
+    // ---- the pages ----
+
+    Component {
+        id: appearancePage
+        Column {
+            spacing: 18
+            Group {
+                title: "Style"
+                SettingRow {
+                    first: true
+                    title: "Appearance"
+                    detail: root.look === "auto"
+                            ? "Light from sunrise (" + root.sunTimes.sunrise + ") to sunset (" + root.sunTimes.sunset + "), dark at night"
+                            : root.paletteName !== "plain" && root.paletteNow
+                            ? root.paletteNow.label + " " + root.paletteNow[root.look].name
+                            : root.look === "light" ? "Light greys, dark text" : "Dark greys, light text"
+                    PSegmented {
+                        options: [["dark", "Dark", "\u{F0594}"], ["light", "Light", "\u{F0599}"], ["auto", "Auto", "\u{F050E}"]]
+                        current: root.look
+                        onPicked: value => {
+                            root.pendingLook = value;
+                            root.run(["appearance", value]);
+                        }
+                    }
+                }
+            }
+            // the palettes, each in the variant that is on, a few of its colours as a preview
+            Group {
+                title: "Palette"
+                Item {
                     width: parent.width
-                    spacing: 6
-                    Repeater {
-                        model: Object.keys(Theme.palettes)
-                        Rectangle {
-                            id: tile
-                            required property string modelData
-                            readonly property var entry: Theme.palettes[modelData]
-                            readonly property var variant: entry[Theme.scheme] || entry.dark
-                            readonly property bool chosen: root.paletteName === modelData
-                            width: tileRow.implicitWidth + 20
-                            height: 28
-                            color: tileMouse.containsMouse ? Theme.hover : "transparent"
-                            border.width: 1
-                            border.color: chosen ? Theme.accent : Theme.border
-                            Row {
-                                id: tileRow
-                                anchors.centerIn: parent
-                                spacing: 7
+                    height: tiles.implicitHeight + 24
+                    Grid {
+                        id: tiles
+                        x: 12
+                        y: 12
+                        columns: 3
+                        spacing: 8
+                        readonly property real tileWidth: Math.floor((parent.width - 24 - spacing * (columns - 1)) / columns)
+                        Repeater {
+                            model: Object.keys(Theme.palettes)
+                            Rectangle {
+                                id: tile
+                                required property string modelData
+                                readonly property var entry: Theme.palettes[modelData]
+                                readonly property var variant: entry[Theme.scheme] || entry.dark
+                                readonly property bool chosen: root.paletteName === modelData
+                                width: tiles.tileWidth
+                                height: 32
+                                color: chosen ? Theme.raised : tileMouse.containsMouse ? Theme.hover : "transparent"
+                                border.width: 1
+                                border.color: chosen ? Theme.accent : Theme.border
                                 // the background with the accent and three colours on it
                                 Rectangle {
+                                    id: swatch
+                                    x: 10
                                     anchors.verticalCenter: parent.verticalCenter
                                     width: swatches.implicitWidth + 6
                                     height: 14
@@ -252,149 +353,264 @@ Item {
                                     }
                                 }
                                 Label {
+                                    anchors.left: swatch.right
+                                    anchors.leftMargin: 8
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 8
                                     anchors.verticalCenter: parent.verticalCenter
+                                    elide: Text.ElideRight
                                     text: tile.entry.label
                                     font.pixelSize: 12
                                     color: tile.chosen ? Theme.accent : Theme.text
                                 }
-                            }
-                            MouseArea {
-                                id: tileMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    if (tile.chosen)
-                                        return;
-                                    root.pendingPalette = tile.modelData;
-                                    root.run(["palette", tile.modelData]);
+                                MouseArea {
+                                    id: tileMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: tile.chosen ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                    onClicked: {
+                                        if (tile.chosen)
+                                            return;
+                                        root.pendingPalette = tile.modelData;
+                                        root.run(["palette", tile.modelData]);
+                                    }
                                 }
                             }
                         }
                     }
                 }
-
-                Separator {}
-
-                // ---- monitors, sync, keys ----
-                Caption {
-                    text: "Monitors"
-                }
-                Flow {
-                    width: parent.width
-                    spacing: 6
+            }
+            Group {
+                title: "Account"
+                SettingRow {
+                    first: true
+                    title: "Picture"
+                    detail: "Pick an image and the square to show"
                     PButton {
-                        icon: "\u{F0379}"
+                        text: "Change …"
+                        onClicked: root.open(["avatar"])
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: barPage
+        Column {
+            spacing: 18
+            Group {
+                title: "Size"
+                SettingRow {
+                    first: true
+                    title: "Bar size"
+                    detail: BarLayout.mode === "spacious" ? "Full size on every monitor"
+                            : BarLayout.mode === "compact" ? "Compact on every monitor"
+                            : "Compact on notebook panels, full size elsewhere"
+                    PSegmented {
+                        options: [["auto", "Automatic"], ["spacious", "Full size"], ["compact", "Compact"]]
+                        current: BarLayout.mode
+                        onPicked: value => Actions.run([root.scripts + "/bar_layout.py", "--mode", value])
+                    }
+                }
+            }
+            Group {
+                title: "Widgets"
+                SettingRow {
+                    first: true
+                    title: "Order and groups"
+                    detail: "Move widgets and put them into groups"
+                    PButton {
+                        text: "Arrange …"
+                        onClicked: root.open(["widgets"])
+                    }
+                }
+                // which widgets show; a group that is off takes its members with it
+                Repeater {
+                    model: root.widgets
+                    SettingRow {
+                        id: wrow
+                        required property var modelData
+                        readonly property bool inGroup: modelData.group !== ""
+                        readonly property bool groupOff: inGroup && root.hiddenGroups.includes(modelData.group)
+                        rowHeight: 36
+                        indent: inGroup ? 20 : 0
+                        title: modelData.name
+                        strong: !inGroup
+                        enabled: !groupOff
+                        opacity: groupOff ? 0.45 : 1
+                        PSwitch {
+                            checked: !wrow.modelData.hidden
+                            onToggled: Actions.run([root.scripts + "/bar_layout.py", "--toggle", wrow.modelData.id])
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: displaysPage
+        Column {
+            spacing: 18
+            Group {
+                title: "Monitors"
+                SettingRow {
+                    first: true
+                    title: "Arrangement"
+                    detail: "Position, resolution and scale of each monitor"
+                    PButton {
                         text: "Arrange …"
                         onClicked: root.open(["monitors-arrange"])
                     }
+                }
+                SettingRow {
+                    visible: root.laptopPanel
+                    title: "Display mode"
+                    detail: "Extend, mirror or one screen only"
                     PButton {
-                        visible: root.laptopPanel
-                        icon: "\u{F037A}"
-                        text: "Display mode"
+                        text: "Choose …"
                         onClicked: root.open(["display-mode"])
                     }
+                }
+                SettingRow {
+                    title: "Layout"
+                    detail: customMonitors.loaded ? "Your own arrangement is in use" : "Automatic, nothing arranged by hand"
                     PButton {
                         visible: customMonitors.loaded
-                        icon: "\u{F0450}"
-                        text: "Automatic layout"
+                        text: "Reset"
                         onClicked: {
                             root.run(["monitors-reset"]);
                             customMonitors.reload();
                         }
                     }
                 }
-
-                Separator {}
-
-                Flow {
-                    width: parent.width
-                    spacing: 6
-                    PButton {
-                        icon: "\u{F04E6}"
-                        text: "Sync with your machines …"
-                        onClicked: root.open(["sync"])
-                    }
-                    PButton {
-                        icon: "\u{F030C}"
-                        text: "Keybindings"
-                        onClicked: root.open(["keys"])
-                    }
-                }
-            }
-
-            // right: the bar
-            Column {
-                id: right
-                width: root.width - left.width - 24
-                spacing: 12
-
-                // ---- the bar ----
-                Caption {
-                    text: "Bar"
-                }
-                Row {
-                    spacing: 6
-                    Repeater {
-                        model: [["auto", "Automatic"], ["spacious", "Full size"], ["compact", "Compact"]]
-                        PButton {
-                            required property var modelData
-                            text: modelData[1]
-                            checked: BarLayout.mode === modelData[0]
-                            onClicked: Actions.run([root.scripts + "/bar_layout.py", "--mode", modelData[0]])
-                        }
-                    }
-                }
-                Label {
-                    small: true
-                    dim: true
-                    text: "Widgets: a click shows or hides one"
-                }
-                // which widgets show: a click switches one on or off; the order is the widget manager's job
-                Flow {
-                    width: parent.width
-                    spacing: 6
-                    Repeater {
-                        model: root.widgets
-                        Rectangle {
-                            id: chip
-                            required property var modelData
-                            readonly property bool shownNow: !modelData.hidden
-                            width: chipText.implicitWidth + 22
-                            height: 26
-                            color: chipMouse.containsMouse ? Theme.hover : "transparent"
-                            border.width: 1
-                            border.color: shownNow ? Theme.accent : Theme.cardBorder
-                            Label {
-                                id: chipText
-                                anchors.centerIn: parent
-                                text: (chip.modelData.group ? "· " : "") + chip.modelData.name
-                                font.pixelSize: 12
-                                color: chip.shownNow ? Theme.text : Theme.faint
-                            }
-                            MouseArea {
-                                id: chipMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: Actions.run([root.scripts + "/bar_layout.py", "--toggle", chip.modelData.id])
-                            }
-                        }
-                    }
-                }
-                PButton {
-                    icon: "\u{F04E1}"
-                    text: "Move widgets …"
-                    onClicked: root.open(["widgets"])
-                }
-
             }
         }
     }
 
-    component Separator: Rectangle {
+    Component {
+        id: systemPage
+        Column {
+            spacing: 18
+            Group {
+                title: "Sync"
+                SettingRow {
+                    first: true
+                    title: "Mode"
+                    detail: root.syncMode === "auto" ? "Changes from GitHub come in by themselves"
+                            : root.syncMode === "off" ? "This machine does not sync"
+                            : "Changes from GitHub wait for “Sync now”"
+                    PSegmented {
+                        options: [["auto", "Automatic"], ["review", "Review first"], ["off", "Off"]]
+                        current: root.syncMode
+                        onPicked: value => root.sync([value])
+                    }
+                }
+                SettingRow {
+                    title: "Sync now"
+                    detail: "Fetch, check and apply what is new"
+                    PButton {
+                        text: "Start"
+                        onClicked: root.sync(["now"])
+                    }
+                }
+                SettingRow {
+                    title: "More"
+                    detail: "Installs, trusted machines, the log"
+                    PButton {
+                        text: "Open …"
+                        onClicked: root.open(["sync"])
+                    }
+                }
+            }
+            Group {
+                title: "Keyboard"
+                SettingRow {
+                    first: true
+                    title: "Keyboard shortcuts"
+                    detail: "Every key binding of the desktop"
+                    PButton {
+                        text: "Show …"
+                        onClicked: root.open(["keys"])
+                    }
+                }
+            }
+        }
+    }
+
+    // ---- the parts of a page ----
+
+    // a few rows in one frame, a caption above
+    component Group: Column {
+        property alias title: cap.text
+        default property alias rows: inner.data
         width: parent ? parent.width : 0
-        height: 1
-        color: Theme.separator
+        spacing: 8
+        Caption {
+            id: cap
+        }
+        Rectangle {
+            width: parent.width
+            height: inner.implicitHeight + 2
+            color: Theme.well
+            border.width: 1
+            border.color: Theme.cardBorder
+            Column {
+                id: inner
+                x: 1
+                y: 1
+                width: parent.width - 2
+            }
+        }
+    }
+
+    // one setting: what it is on the left (and a line on it), its control on the right
+    component SettingRow: Item {
+        id: srow
+        property string title: ""
+        property string detail: ""
+        property bool first: false
+        property bool strong: false
+        property int indent: 0
+        property int rowHeight: 48
+        default property alias control: slot.data
+        width: parent ? parent.width : 0
+        height: visible ? Math.max(rowHeight, texts.implicitHeight + 20) : 0
+
+        Rectangle {
+            visible: !srow.first
+            width: parent.width
+            height: 1
+            color: Theme.separator
+        }
+        Column {
+            id: texts
+            x: 14 + srow.indent
+            width: parent.width - x - slot.width - 30
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 2
+            Label {
+                width: parent.width
+                elide: Text.ElideRight
+                text: srow.title
+                bold: srow.strong
+            }
+            Label {
+                visible: srow.detail !== ""
+                width: parent.width
+                wrapMode: Text.WordWrap
+                small: true
+                dim: true
+                text: srow.detail
+            }
+        }
+        Row {
+            id: slot
+            anchors.right: parent.right
+            anchors.rightMargin: 12
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 8
+        }
     }
 }
