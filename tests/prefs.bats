@@ -59,3 +59,15 @@ setup() {
   python3 -I "$PREFS" set pointerSpeed 3
   grep -q 'sensitivity = 1.0' "$XDG_STATE_HOME/hypr/input.lua"
 }
+
+@test "night light: off, at night or always, and four warmths" {
+  python3 -I "$PREFS" set nightLight sun
+  python3 -I "$PREFS" set nightTemp 3500
+  for bad in "nightLight dusk" "nightTemp 2000"; do
+    # shellcheck disable=SC2086 # two words on purpose
+    run python3 -I "$PREFS" set $bad
+    [ "$status" -eq 2 ] || { echo "accepted: $bad"; return 1; }
+  done
+  run python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1])))' "$XDG_STATE_HOME/driftless-shell/settings.json"
+  [ "$output" = "{'nightLight': 'sun', 'nightTemp': 3500}" ]
+}

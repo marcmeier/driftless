@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """The settings of this machine beyond the look and the bar, for the settings popup (bar/SettingsPopup.qml):
-the clock, notifications, when the screen locks and turns off, mouse, touchpad and keyboard.
+the clock, the night light, notifications, when the screen locks and turns off, mouse, touchpad and
+keyboard.
 
 settings.json holds only what was changed (~/.local/state/driftless-shell, per machine, outside the
 repository); a setting that is not in it is whatever the configuration says. From it come
-  the shell        reads settings.json itself (services/Prefs.qml): clock, notifications
+  the shell        reads settings.json itself (services/Prefs.qml): clock, night light, notifications
   input.lua        ~/.local/state/hypr, loaded by hyprland.lua after the host and personal layers
   idle.conf        ~/.local/state/hypr, sourced by hypr/hypridle.conf (the times as $variables)
 A change reaches Hyprland at once (hyprctl eval) and hypridle with a restart.
@@ -56,12 +57,23 @@ def one_of(*values):
     return check
 
 
+def word(*values):
+    def check(v):
+        if v not in values:
+            raise ValueError(v)
+        return v
+
+    return check
+
+
 # key: (parse, where it goes, the Hyprland option)
 KEYS = {
     "clock24": (boolean, "shell", None),
     "clockSeconds": (boolean, "shell", None),
     "clockDate": (boolean, "shell", None),
     "holdInFullscreen": (boolean, "shell", None),
+    "nightLight": (word("off", "sun", "on"), "shell", None),
+    "nightTemp": (one_of(3000, 3500, 4000, 4500), "shell", None),
     "lockAfter": (seconds, "idle", "lock_after"),
     "screenOffAfter": (seconds, "idle", "screen_off_after"),
     "pointerSpeed": (speed, "input", "sensitivity"),

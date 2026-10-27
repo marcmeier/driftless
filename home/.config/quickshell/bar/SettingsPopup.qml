@@ -34,7 +34,7 @@ Item {
     readonly property var pages: [
         ["appearance", "Appearance", "\u{F03D8}", "Dark or light, the palette and your picture"],
         ["bar", "Bar", "\u{F06FC}", "Size of the bar and the widgets it shows"],
-        ["displays", "Displays", "\u{F037A}", "Arrangement and mode of the monitors"],
+        ["displays", "Displays", "\u{F037A}", "The monitors and the night light"],
         ["notifications", "Notifications", "\u{F009A}", "When they pop up, and the list"],
         ["input", "Mouse & keyboard", "\u{F037D}", "Pointer, touchpad, key repeat and shortcuts"],
         ["power", "Power", "\u{F0425}", "When the screen locks and turns off, the power profile"],
@@ -533,6 +533,32 @@ Item {
         id: displaysPage
         Column {
             spacing: 18
+            Group {
+                title: "Night light"
+                SettingRow {
+                    first: true
+                    title: "Warmer colours"
+                    detail: Prefs.nightLight === "sun"
+                            ? "From sunset (" + NightLight.sun.sunset + ") to sunrise (" + NightLight.sun.sunrise + ")"
+                              + (NightLight.active ? ", on now" : "")
+                            : Prefs.nightLight === "on" ? "On until you turn it off" : "Off: the colours as they are"
+                    PSegmented {
+                        options: [["off", "Off"], ["sun", "At night"], ["on", "Always"]]
+                        current: Prefs.nightLight
+                        onPicked: value => Prefs.set("nightLight", value)
+                    }
+                }
+                SettingRow {
+                    visible: Prefs.nightLight !== "off"
+                    title: "Warmth"
+                    detail: Prefs.nightTemp + " K"
+                    PSegmented {
+                        options: [["4500", "Slight"], ["4000", "Medium"], ["3500", "Warm"], ["3000", "Very warm"]]
+                        current: String(Prefs.nightTemp)
+                        onPicked: value => Prefs.set("nightTemp", Number(value))
+                    }
+                }
+            }
             Group {
                 title: "Monitors"
                 SettingRow {

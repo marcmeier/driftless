@@ -209,6 +209,8 @@ Every choice is per machine (but your picture):
   with it); "Arrange …" orders them,
   separately for the spacious and the compact bar
 - **Monitors**: arrange them (nwg-displays), the display mode on a notebook, back to the automatic layout
+- **Night light**: warmer colours from sunset to sunrise (today's times from the weather) or always,
+  four warmths; hyprsunset runs only while it is on (`services/NightLight.qml`)
 - **Notifications**: do not disturb, whether a fullscreen window (a game, a video) holds them back,
   clearing the list
 - **Mouse & keyboard**: pointer speed, focus follows the mouse; on a notebook natural scrolling, tap to

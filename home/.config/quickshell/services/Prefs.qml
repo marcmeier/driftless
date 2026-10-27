@@ -21,6 +21,9 @@ Singleton {
     readonly property bool clock24: value("clock24", true)
     readonly property bool clockSeconds: value("clockSeconds", false)
     readonly property bool clockDate: value("clockDate", true)
+    // the night light (services/NightLight.qml): off, sun (from sunset to sunrise) or on; its warmth in kelvin
+    readonly property string nightLight: value("nightLight", "off")
+    readonly property int nightTemp: value("nightTemp", 4000)
     // notifications that come while a fullscreen window is up wait for it (else they pop up)
     readonly property bool holdInFullscreen: value("holdInFullscreen", true)
     // seconds, 0: never (the defaults are hypr/hypridle.conf's)

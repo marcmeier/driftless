@@ -4,6 +4,15 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.16.0 (2026-10-27): night light
+
+### Added
+- **Night light** under Displays in the settings: off, from sunset to sunrise (today's times from the
+  weather, as for the auto look) or always, in four warmths (4500 to 3000 K). hyprsunset runs only
+  while it is on (`services/NightLight.qml`), so the screens get their colours back when it ends; a
+  new warmth reaches it at once. The choice is per machine like the other settings.
+- `hyprsunset` in the desktop packages.
+
 ## v2.15.0 (2026-10-27): more in the settings
 
 ### Added

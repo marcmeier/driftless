@@ -27,6 +27,9 @@ ShellRoot {
         Bar {}
     }
 
+    // the night light runs from the start, not only once the settings are open
+    readonly property bool nightLight: NightLight.active
+
     Notch {}
     Popups {}
     Osd {}
