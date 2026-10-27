@@ -189,7 +189,8 @@ the desktop looks borrowed from another program.
 ## Settings menu
 
 A click on your name opens them as a popup of the bar, laid out like a settings app: the pages on the
-left (Appearance, Bar, Displays, System), on the right one row per setting with its switch or button.
+left (Appearance, Bar, Displays, Notifications, Mouse & keyboard, Power, System), on the right one row
+per setting with its switch or button.
 Every choice is per machine (but your picture):
 
 <img src="docs/img/settings.jpg" alt="The settings popup: pages on the left, one row per setting on the right" width="560"><br>
@@ -203,13 +204,25 @@ Every choice is per machine (but your picture):
 - **Appearance**: dark, light, or auto (light from sunrise to sunset), and the palette (plain, Catppuccin,
   Dracula, ...: a grid of tiles, each shows a few of its colours); a click switches everything at once
 - **Bar size**: automatic, always full size, always compact
+- **Clock**: 24 or 12 hours, seconds, the date next to the time
 - **Widgets**: a switch per widget, the bar follows at once (a group that is off takes its members
   with it); "Arrange …" orders them,
   separately for the spacious and the compact bar
 - **Monitors**: arrange them (nwg-displays), the display mode on a notebook, back to the automatic layout
+- **Notifications**: do not disturb, whether a fullscreen window (a game, a video) holds them back,
+  clearing the list
+- **Mouse & keyboard**: pointer speed, focus follows the mouse; on a notebook natural scrolling, tap to
+  click, the touchpad off while typing; how soon and how fast a held key repeats; the searchable list of
+  keybindings. Hyprland follows at once (`hyprctl eval`), the choices stay in
+  `~/.local/state/hypr/input.lua`, loaded after the host and personal layers
+- **Power**: lock the screen and turn it off after 5, 10, 15, 30 minutes or never (hypridle reads the
+  times from `~/.local/state/hypr/idle.conf`), keep awake, the power profile on a notebook, the power menu
 - **Sync**: the mode (automatic, review first, off) and "Sync now" right there; "Open …" for what
   is waiting and trusting a new machine
-- **Keybindings**: the searchable list
+- **About**: the machine, the driftless version, kernel, Hyprland, processor and memory
+
+The choices beyond the look and the bar are `scripts/prefs.py`'s (`~/.local/state/driftless-shell/settings.json`,
+only what you changed).
 
 ## The plain look
 

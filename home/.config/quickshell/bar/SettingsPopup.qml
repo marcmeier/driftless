@@ -2,12 +2,14 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import Quickshell.Hyprland
+import Quickshell.Services.UPower
 import qs.services
 
 // The desktop settings (a click on your name; walker menus before), laid out like a settings app: the
-// pages on the left (appearance and palette, bar, monitors, system), on the right one row per setting,
-// what it is on the left and its switch or button on the right. Every choice is this machine's own
-// (scripts/settings-menu.sh, scripts/bar_layout.py, scripts/sync-menu.sh).
+// pages on the left (appearance and palette, bar, monitors, notifications, mouse and keyboard, power,
+// system), on the right one row per setting, what it is on the left and its switch or button on the
+// right. Every choice is this machine's own (scripts/settings-menu.sh, scripts/bar_layout.py,
+// scripts/prefs.py, scripts/sync-menu.sh).
 Item {
     id: root
 
@@ -33,12 +35,15 @@ Item {
         ["appearance", "Appearance", "\u{F03D8}", "Dark or light, the palette and your picture"],
         ["bar", "Bar", "\u{F06FC}", "Size of the bar and the widgets it shows"],
         ["displays", "Displays", "\u{F037A}", "Arrangement and mode of the monitors"],
-        ["system", "System", "\u{F0493}", "Sync with your other machines, keyboard"]
+        ["notifications", "Notifications", "\u{F009A}", "When they pop up, and the list"],
+        ["input", "Mouse & keyboard", "\u{F037D}", "Pointer, touchpad, key repeat and shortcuts"],
+        ["power", "Power", "\u{F0425}", "When the screen locks and turns off, the power profile"],
+        ["system", "System", "\u{F0493}", "Sync with your other machines, this machine"]
     ]
     readonly property var current: pages.find(p => p[0] === page) || pages[0]
 
-    implicitWidth: 720
-    implicitHeight: 440
+    implicitWidth: 760
+    implicitHeight: 460
 
     function run(args) {
         Actions.launch([root.menu].concat(args));
@@ -52,6 +57,52 @@ Item {
     function sync(args) {
         Actions.launch([root.scripts + "/sync-menu.sh"].concat(args));
     }
+
+    // ---- mouse, touchpad and keyboard: what Hyprland has now (prefs.py input) ----
+    property var input: ({})
+    function setInput(key, value) {
+        root.input = Object.assign({}, root.input, { [key]: value });
+        Prefs.set(key, value);
+    }
+    Process {
+        id: inputNow
+        running: true
+        command: [Prefs.script, "input"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    root.input = JSON.parse(text);
+                } catch (e) {}
+            }
+        }
+    }
+    // the speed while the slider moves, handed over once it rests
+    property real pendingSpeed: 0
+    Timer {
+        id: speedLater
+        interval: 250
+        onTriggered: root.setInput("pointerSpeed", root.pendingSpeed)
+    }
+
+    // this machine (prefs.py about), for System
+    property var about: ({})
+    Process {
+        running: true
+        command: [Prefs.script, "about"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    root.about = JSON.parse(text);
+                } catch (e) {}
+            }
+        }
+    }
+
+    readonly property var laptop: UPower.displayDevice && UPower.displayDevice.isLaptopBattery && UPower.displayDevice.isPresent
+    function minutes(s) {
+        return s % 3600 === 0 ? s / 3600 + (s === 3600 ? " hour" : " hours") : Math.round(s / 60) + " minutes";
+    }
+    readonly property var idleTimes: [["300", "5 min"], ["600", "10 min"], ["900", "15 min"], ["1800", "30 min"], ["0", "Never"]]
 
     // ---- what there is ----
 
@@ -261,7 +312,9 @@ Item {
             Loader {
                 id: pageLoader
                 width: flick.width - 12
-                sourceComponent: ({ appearance: appearancePage, bar: barPage, displays: displaysPage, system: systemPage })[root.page]
+                sourceComponent: ({ appearance: appearancePage, bar: barPage, displays: displaysPage,
+                                    notifications: notificationsPage, input: inputPage, power: powerPage,
+                                    system: systemPage })[root.page]
             }
         }
         // where in a long page you are
@@ -415,6 +468,33 @@ Item {
                 }
             }
             Group {
+                title: "Clock"
+                SettingRow {
+                    first: true
+                    title: "24-hour time"
+                    detail: Prefs.clock24 ? "14:30, not 2:30 PM" : "2:30 PM, not 14:30"
+                    PSwitch {
+                        checked: Prefs.clock24
+                        onToggled: Prefs.set("clock24", !Prefs.clock24)
+                    }
+                }
+                SettingRow {
+                    title: "Seconds"
+                    PSwitch {
+                        checked: Prefs.clockSeconds
+                        onToggled: Prefs.set("clockSeconds", !Prefs.clockSeconds)
+                    }
+                }
+                SettingRow {
+                    title: "Date next to the time"
+                    detail: "The weekday, day and month; the calendar is a click on the clock"
+                    PSwitch {
+                        checked: Prefs.clockDate
+                        onToggled: Prefs.set("clockDate", !Prefs.clockDate)
+                    }
+                }
+            }
+            Group {
                 title: "Widgets"
                 SettingRow {
                     first: true
@@ -490,6 +570,220 @@ Item {
     }
 
     Component {
+        id: notificationsPage
+        Column {
+            spacing: 18
+            Group {
+                title: "Pop-ups"
+                SettingRow {
+                    first: true
+                    title: "Do not disturb"
+                    detail: Notifs.dnd ? "Only critical ones pop up, the rest wait in the list"
+                                       : "Notifications pop up at the top right"
+                    PSwitch {
+                        checked: Notifs.dnd
+                        onToggled: Notifs.setDnd(!Notifs.dnd)
+                    }
+                }
+                SettingRow {
+                    title: "Quiet while fullscreen"
+                    detail: Prefs.holdInFullscreen
+                            ? "Games and videos are not interrupted; afterwards one card says what came"
+                            : "They pop up over fullscreen windows too"
+                    PSwitch {
+                        checked: Prefs.holdInFullscreen
+                        onToggled: Prefs.set("holdInFullscreen", !Prefs.holdInFullscreen)
+                    }
+                }
+            }
+            Group {
+                title: "List"
+                SettingRow {
+                    first: true
+                    title: Notifs.count === 0 ? "Nothing in the list" : Notifs.count === 1 ? "One notification" : Notifs.count + " notifications"
+                    detail: "Kept on this machine for " + Notifs.keepDays + " days, at most " + Notifs.maxHistory
+                    PButton {
+                        visible: Notifs.count > 0
+                        text: "Clear"
+                        onClicked: Notifs.clear()
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: inputPage
+        Column {
+            spacing: 18
+            Component.onCompleted: inputNow.running = true
+            Group {
+                title: "Mouse"
+                SettingRow {
+                    first: true
+                    title: "Pointer speed"
+                    readonly property real speed: root.input.pointerSpeed || 0
+                    detail: speed === 0 ? "As the device moves it" : speed < 0 ? "Slower" : "Faster"
+                    PSlider {
+                        implicitWidth: 160
+                        value: ((root.input.pointerSpeed || 0) + 1) / 2
+                        step: 0.05
+                        onMoved: v => {
+                            root.pendingSpeed = Math.round((v * 2 - 1) * 20) / 20;
+                            speedLater.restart();
+                        }
+                    }
+                    PButton {
+                        visible: (root.input.pointerSpeed || 0) !== 0
+                        text: "Reset"
+                        flat: true
+                        onClicked: root.setInput("pointerSpeed", 0)
+                    }
+                }
+                SettingRow {
+                    title: "Focus follows the mouse"
+                    detail: root.input.followMouse !== false ? "The window under the pointer gets the keys"
+                                                             : "A click gives a window the keys"
+                    PSwitch {
+                        checked: root.input.followMouse !== false
+                        onToggled: root.setInput("followMouse", !checked)
+                    }
+                }
+            }
+            Group {
+                visible: !!root.input.touchpad
+                title: "Touchpad"
+                SettingRow {
+                    first: true
+                    title: "Natural scrolling"
+                    detail: "The content follows your fingers"
+                    PSwitch {
+                        checked: !!root.input.naturalScroll
+                        onToggled: root.setInput("naturalScroll", !checked)
+                    }
+                }
+                SettingRow {
+                    title: "Tap to click"
+                    PSwitch {
+                        checked: !!root.input.tapToClick
+                        onToggled: root.setInput("tapToClick", !checked)
+                    }
+                }
+                SettingRow {
+                    title: "Off while typing"
+                    detail: "No stray clicks from the heel of your hand"
+                    PSwitch {
+                        checked: !!root.input.disableWhileTyping
+                        onToggled: root.setInput("disableWhileTyping", !checked)
+                    }
+                }
+            }
+            Group {
+                title: "Keyboard"
+                SettingRow {
+                    first: true
+                    title: "Repeat after"
+                    detail: "How long a held key waits before it repeats"
+                    PSegmented {
+                        options: [["600", "Long"], ["400", "Medium"], ["250", "Short"]]
+                        current: String(root.input.repeatDelay || "")
+                        onPicked: value => root.setInput("repeatDelay", Number(value))
+                    }
+                }
+                SettingRow {
+                    title: "Repeat speed"
+                    PSegmented {
+                        options: [["25", "Slow"], ["35", "Medium"], ["50", "Fast"]]
+                        current: String(root.input.repeatRate || "")
+                        onPicked: value => root.setInput("repeatRate", Number(value))
+                    }
+                }
+                SettingRow {
+                    title: "Keyboard shortcuts"
+                    detail: "Every key binding of the desktop"
+                    PButton {
+                        text: "Show …"
+                        onClicked: root.open(["keys"])
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: powerPage
+        Column {
+            spacing: 18
+            Group {
+                title: "When you are away"
+                SettingRow {
+                    first: true
+                    title: "Lock the screen"
+                    detail: Prefs.lockAfter === 0 ? "Only by hand (SUPER + L) and before the machine sleeps"
+                                                  : "After " + root.minutes(Prefs.lockAfter) + " without input, and before sleep"
+                    PSegmented {
+                        options: root.idleTimes
+                        current: String(Prefs.lockAfter)
+                        onPicked: value => Prefs.set("lockAfter", Number(value))
+                    }
+                }
+                SettingRow {
+                    title: "Turn the screen off"
+                    detail: Prefs.screenOffAfter === 0 ? "Never by itself"
+                                                       : "After " + root.minutes(Prefs.screenOffAfter) + " without input"
+                    PSegmented {
+                        options: root.idleTimes
+                        current: String(Prefs.screenOffAfter)
+                        onPicked: value => Prefs.set("screenOffAfter", Number(value))
+                    }
+                }
+                SettingRow {
+                    title: "Keep awake"
+                    detail: KeepAwake.on ? "On: no lock, the screen stays on (the cup in the bar)"
+                                         : "For a presentation or a long download, until you turn it off"
+                    PSwitch {
+                        checked: KeepAwake.on
+                        onToggled: KeepAwake.on = !KeepAwake.on
+                    }
+                }
+            }
+            Group {
+                visible: root.laptop
+                title: "Battery"
+                SettingRow {
+                    first: true
+                    title: "Power profile"
+                    detail: PowerProfiles.profile === PowerProfile.PowerSaver ? "Longer on battery, a little slower"
+                            : PowerProfiles.profile === PowerProfile.Performance ? "Fastest, the fan and battery pay for it"
+                            : "Fast when needed, quiet otherwise"
+                    PSegmented {
+                        options: [[String(PowerProfile.PowerSaver), "Saver"], [String(PowerProfile.Balanced), "Balanced"]]
+                                 .concat(PowerProfiles.hasPerformanceProfile ? [[String(PowerProfile.Performance), "Performance"]] : [])
+                        current: String(PowerProfiles.profile)
+                        onPicked: value => PowerProfiles.profile = Number(value)
+                    }
+                }
+            }
+            Group {
+                title: "Session"
+                SettingRow {
+                    first: true
+                    title: "Lock, log out, sleep, restart, shut down"
+                    detail: "The power menu (SUPER + SHIFT + M)"
+                    PButton {
+                        text: "Open …"
+                        onClicked: {
+                            if (root.popup)
+                                root.popup.close();
+                            Session.powerMenu();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
         id: systemPage
         Column {
             spacing: 18
@@ -524,15 +818,27 @@ Item {
                     }
                 }
             }
+            // what this machine is, one fact per row
             Group {
-                title: "Keyboard"
-                SettingRow {
-                    first: true
-                    title: "Keyboard shortcuts"
-                    detail: "Every key binding of the desktop"
-                    PButton {
-                        text: "Show …"
-                        onClicked: root.open(["keys"])
+                title: "About"
+                Repeater {
+                    model: [["Machine", root.about.host], ["driftless", root.about.version ? "v" + root.about.version : ""],
+                            ["System", [root.about.os, root.about.kernel].filter(x => !!x).join(" · ")],
+                            ["Hyprland", root.about.hyprland], ["Processor", root.about.cpu], ["Memory", root.about.memory]]
+                            .filter(r => !!r[1])
+                    SettingRow {
+                        id: fact
+                        required property var modelData
+                        required property int index
+                        first: index === 0
+                        rowHeight: 36
+                        title: modelData[0]
+                        Label {
+                            text: fact.modelData[1]
+                            dim: true
+                            width: Math.min(implicitWidth, 300)
+                            elide: Text.ElideRight
+                        }
                     }
                 }
             }

@@ -4,6 +4,25 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.15.0 (2026-10-27): more in the settings
+
+### Added
+- **Notifications** page: do not disturb, whether a fullscreen window (a game, a video) holds them
+  back, clearing the list.
+- **Mouse & keyboard** page: pointer speed, focus follows the mouse; on a notebook natural scrolling,
+  tap to click and the touchpad off while typing; how soon and how fast a held key repeats; the
+  keybindings (moved here from System). Hyprland follows at once (`hyprctl eval`).
+- **Power** page: lock the screen and turn it off after 5, 10, 15, 30 minutes or never; keep awake;
+  the power profile on a notebook; the power menu.
+- **Clock** under Bar: 24 or 12 hours, seconds, the date next to the time.
+- **About** under System: the machine, the driftless version, kernel, Hyprland, processor and memory.
+
+### Changed
+- The new choices are per machine like the others: `scripts/prefs.py` keeps only what was changed in
+  `~/.local/state/driftless-shell/settings.json` and writes `~/.local/state/hypr/input.lua` (loaded by
+  `hyprland.lua` after the host and personal layers) and `~/.local/state/hypr/idle.conf`, whose times
+  `hypridle.conf` reads as variables; a drop-in for `hypridle.service` creates that file empty first.
+
 ## v2.14.0 (2026-10-27): settings like a settings app
 
 ### Changed

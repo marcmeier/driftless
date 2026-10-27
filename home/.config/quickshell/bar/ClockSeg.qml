@@ -12,7 +12,7 @@ Seg {
 
     SystemClock {
         id: clock
-        precision: SystemClock.Minutes
+        precision: Prefs.clockSeconds ? SystemClock.Seconds : SystemClock.Minutes
     }
 
     // ISO 8601 week
@@ -40,12 +40,15 @@ Seg {
 
     Label {
         anchors.verticalCenter: parent.verticalCenter
-        text: Qt.formatDateTime(clock.date, "HH:mm")
+        // 24 or 12 hours, seconds: the settings (Bar > Clock)
+        text: Qt.formatDateTime(clock.date, (Prefs.clock24 ? "HH:mm" : "h:mm") + (Prefs.clockSeconds ? ":ss" : "")
+                                + (Prefs.clock24 ? "" : " AP"))
         bold: true
         font.pixelSize: seg.compact ? 13 : 14
         font.letterSpacing: seg.compact ? 0.5 : 1
     }
     Label {
+        visible: Prefs.clockDate
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: 1
         text: Qt.formatDateTime(clock.date, "ddd dd MMM")

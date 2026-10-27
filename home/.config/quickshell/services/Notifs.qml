@@ -28,7 +28,7 @@ Singleton {
     // the bell's list is open: no cards on top of it (they are in the list)
     property bool listOpen: false
     // a fullscreen window (a game, a video) on the workspace you look at: quiet like do not disturb,
-    // and one card afterwards that says how many came in meanwhile
+    // and one card afterwards that says how many came in meanwhile (unless the settings say otherwise)
     readonly property bool fullscreen: !!(Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.hasFullscreen)
     property var heldInFullscreen: ({})   // id -> true, each one counted once
     // the summary card asks the shell to open the list (shell.qml)
@@ -284,7 +284,7 @@ Singleton {
             showPopup(r);
         else if (dnd)
             return;
-        else if (fullscreen)
+        else if (fullscreen && Prefs.holdInFullscreen)
             heldInFullscreen = Object.assign({}, heldInFullscreen, { [n.id]: true });
         else
             showPopup(r);

@@ -429,12 +429,13 @@ hl.window_rule({
 -- In this order, each one winning over the ones before:
 --   1. hosts/<host>/hyprland.lua   this machine in the repository (e.g. a monitor's refresh rate)
 --   2. personal/hyprland.lua       yours on every machine (e.g. the keyboard layout)
---   3. the Monitors menu           nwg-displays (avatar menu > Monitors), saved in ~/.local/state/hypr,
---                                  never in the repository: what you set there is what you get
+--   3. the settings                Displays (nwg-displays) and Mouse & keyboard (quickshell/scripts/prefs.py),
+--                                  saved in ~/.local/state/hypr, never in the repository: what you set
+--                                  there is what you get
 for _, layer in ipairs({ "host", "personal" }) do
     pcall(dofile, os.getenv("HOME") .. "/.config/driftless/" .. layer .. "/hyprland.lua")
 end
 local layout_dir = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")) .. "/hypr/"
-for _, file in ipairs({ "monitors.lua", "workspaces.lua" }) do
+for _, file in ipairs({ "monitors.lua", "workspaces.lua", "input.lua" }) do
     pcall(dofile, layout_dir .. file) -- missing until the first save
 end
