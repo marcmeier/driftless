@@ -88,7 +88,7 @@ A new machine gets everything from two scripts.
 </tr>
 <tr>
 <td><img src="docs/img/theme-light.jpg" alt="The light look: btop, Ghostty and Nautilus"><br><sub>The light look.</sub></td>
-<td><img src="docs/img/settings.jpg" alt="The settings popup: dark, light or auto, the bar's size and widgets"><br><sub>Dark, light or with the sun, chosen in the settings.</sub></td>
+<td><img src="docs/img/settings.jpg" alt="The settings popup: pages on the left, dark, light or auto and the palettes on the right"><br><sub>Dark, light or with the sun, and the palette, chosen in the settings.</sub></td>
 </tr>
 </table>
 
