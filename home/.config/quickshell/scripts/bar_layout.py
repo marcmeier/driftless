@@ -53,10 +53,11 @@ NAMES = {
     "bluetooth": "Bluetooth",
     "custom/updates": "Updates",
     "custom/sync": "Sync",
-    "idle_inhibitor": "Idle inhibitor",
+    "idle_inhibitor": "Keep awake",
     "custom/notifications": "Notifications",
     "group/status": "Status",
-    "group/system": "System",
+    "group/pending": "Pending",
+    "group/session": "Session",
     "custom/power": "Power",
 }
 # group members that only make sense together with their group (drawn as one pill)

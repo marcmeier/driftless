@@ -4,6 +4,22 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.11.0 (2026-10-27): a calmer right side
+
+### Changed
+- **The bar's right side follows one rule**: from what comes and goes (next to the clock) to what
+  always stays (at the edge), one kind of thing per pill: media · tray · pending · voice and Claude ·
+  status · session. A pill that appears or grows now only pushes the passing things aside.
+  - **Pending** (`group/pending`, new): updates and the sync, only while something waits. They used to
+    sit in the pill at the edge and shift everything left of it when they came and went.
+  - **Session** (`group/session`, replaces `group/system`): notifications, keep awake, power, always in
+    the same place.
+  - **Tray** moves inward next to the media, so the apps' coloured icons no longer split the
+    monochrome status and session pills.
+- A saved layout follows on its own (the new pills go next to their neighbours); a `group/system`
+  hidden in the widget manager has to be hidden again as Session. The widget manager calls the idle
+  inhibitor "Keep awake".
+
 ## v2.10.0 (2026-10-26): SSH agent
 
 ### Added

@@ -109,6 +109,8 @@ without a restart. Groups from left to right:
   ikhal. Click the weather: the next hours and three days
 - **Media**: play/pause, skip, the title (cut with "…" when it is long). Click it: cover, progress (click
   to jump), shuffle and repeat, and every player that runs
+- **Tray**: the apps' own icons (right click: the app's menu in the same style)
+- **Pending**, only while something waits: updates (click: update in a terminal) and the sync
 - **Voice and Claude**: the ✨ button asks Claude by voice (click: talk, click again: send; the bubble
   opens below it), dictation next to it, then Claude's session and weekly limits; click them: both
   with their resets and the tokens per day
@@ -116,9 +118,8 @@ without a restart. Groups from left to right:
   with their battery, and the ones nearby to pair with one click; right: on/off), volume (wheel: level;
   click: outputs, microphones and a level per app that plays; right: mute), microphone, battery (click:
   time left, power draw, health, power profile)
-- **Tray**: the apps' own icons (right click: the app's menu in the same style)
-- **System**: pending updates, the sync, keep awake, notifications (click: the list; right: do not
-  disturb; middle: clear all), power (click: the power menu; right: lock)
+- **Session**, always at the edge: notifications (click: the list; right: do not disturb; middle: clear
+  all), keep awake, power (click: the power menu; right: lock)
 
 Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Popups also open from a key
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,

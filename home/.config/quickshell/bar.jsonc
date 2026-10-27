@@ -3,10 +3,12 @@
 // ~/.local/state/driftless-shell/layout.json; scripts/bar_layout.py and services/BarLayout.qml both read this
 // file. A widget missing from a saved order (new here) goes in right after the widget before it.
 // Groups are drawn as one pill; their members can be hidden one by one, they move with the group.
+// The right side runs from what comes and goes (next to the clock) to what always stays (at the edge),
+// so a pill that appears or grows pushes only the passing things aside; each pill holds one kind of thing.
 {
     "modules-left": ["group/user", "group/workspaces", "custom/window"],
     "modules-center": ["group/datetime"],
-    "modules-right": ["group/media", "group/claude", "group/status", "group/tray", "group/system"],
+    "modules-right": ["group/media", "group/tray", "group/pending", "group/claude", "group/status", "group/session"],
 
     "groups": {
         // avatar and name; a click opens the settings (bar/SettingsPopup.qml)
@@ -18,10 +20,13 @@
         "group/datetime": ["clock", "custom/weather", "custom/calendar"],
         // how this machine is connected: network, Bluetooth, output, microphone, battery
         "group/status": ["network", "bluetooth", "pulseaudio", "pulseaudio#mic", "battery"],
-        // the apps' own icons, apart from the kit's monochrome ones
+        // the apps' own icons, apart from the kit's monochrome ones, next to the media (apps too)
         "group/tray": ["tray"],
-        // the machine itself: what waits (updates, sync), keep awake, notifications, power
-        "group/system": ["custom/updates", "custom/sync", "idle_inhibitor", "custom/notifications", "custom/power"]
+        // what waits for you: updates, the sync; gone while there is nothing to do
+        "group/pending": ["custom/updates", "custom/sync"],
+        // you and the session, always in the same place at the edge: notifications (do not disturb),
+        // keep awake, power
+        "group/session": ["custom/notifications", "idle_inhibitor", "custom/power"]
     },
 
     // the compact bar (narrow screens) has the same pills with fewer words; these groups lose members
