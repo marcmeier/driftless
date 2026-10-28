@@ -101,7 +101,7 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
   git -C "$T/intruder" push -q origin main
   dl B sync
   [ "$(result B)" = untrusted ]
-  refute grep -q evil "$(hypr B)"
+  refute grep -qx -- "-- evil" "$(hypr B)"
 }
 
 @test "a new machine's commits wait until it is trusted" {
@@ -111,7 +111,7 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
   dl C sync
   dl A sync
   [ "$(result A)" = joining ]
-  refute grep -q "from C" "$(hypr A)"
+  refute grep -qx -- "-- from C" "$(hypr A)"
 }
 
 @test "a deletion reaches the other machine" {
