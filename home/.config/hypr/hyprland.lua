@@ -411,6 +411,30 @@ hl.window_rule({
     move       = "0 0",
 })
 
+-- Browser extension popups (e.g. Bitwarden's unlock/popout in Brave, Chrome, Chromium, Vivaldi): they open as
+-- toplevels without a parent, so Hyprland would tile them. Their first title is "_crx_<extension id>", which an
+-- installed web app (same class pattern brave-<id>-Default) never has: floating, centered over the browser.
+-- With a fixed size, because the browser draws the first frame at the tiled size and leaves white patches
+-- when Hyprland resizes it afterwards. 480x760 fits Bitwarden; an extension that needs another size gets
+-- its own rule below this one, matched by its id (initial_title = "^_crx_<id>$").
+hl.window_rule({
+    name  = "browser-extension-popups-float",
+    match = { initial_title = "^_crx_[a-p]{32}$" },
+
+    float  = true,
+    center = true,
+    size   = "480 760",
+})
+
+-- Picture-in-picture videos (Chromium browsers, Firefox): floating, on every workspace
+hl.window_rule({
+    name  = "picture-in-picture-float",
+    match = { title = "^(Picture[- ]in[- ][Pp]icture|Bild[- ]im[- ]Bild)$" },
+
+    float = true,
+    pin   = true,
+})
+
 -- Calendar (ikhal, started from the calendar in the bar): floating, centered
 hl.window_rule({
     name  = "calendar-float",

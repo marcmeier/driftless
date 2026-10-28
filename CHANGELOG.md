@@ -4,6 +4,16 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.17.0 (2026-10-28): floating extension popups
+
+### Changed
+- **Browser extension popups float**: Bitwarden's unlock and popout and every other extension window
+  of a Chromium browser (Brave, Chrome, Chromium, Vivaldi) open centered at 480×760 instead of tiled.
+  They are told apart from installed web apps, which share their class pattern, by their first title
+  `_crx_<extension id>`. The fixed size keeps the browser from leaving white patches when Hyprland
+  resized the first frame; an extension that needs another size gets its own rule by its id.
+- **Picture-in-picture videos float** and stay on every workspace.
+
 ## v2.16.0 (2026-10-27): night light
 
 ### Added
