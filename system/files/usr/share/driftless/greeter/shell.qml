@@ -24,6 +24,7 @@ ShellRoot {
         property color desk: "#0e0e0e"
         property color line: "#2b2b2b"
         property color field: "#111111"
+        readonly property color fieldBorder: line
         property color text: "#d6d6d6"
         property color strong: "#f2f2f2"
         property color dim: "#8a8a8a"

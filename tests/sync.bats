@@ -71,6 +71,12 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
   refute github_has home/.config/hypr/hyprland.lua "-- x"
 }
 
+@test "mode off twice still remembers the mode to resume" {
+  dl B mode off
+  dl B mode off
+  [ "$(state B mode.resume)" = auto ]
+}
+
 @test "edits on both machines in different places: linear history, both arrive" {
   echo "-- from A" >> "$(hypr A)"
   echo "# from B" >> "$(home B)/.bashrc"

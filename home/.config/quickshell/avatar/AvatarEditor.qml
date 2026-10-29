@@ -1,7 +1,5 @@
 import Quickshell
 import Quickshell.Io
-import Quickshell.Wayland
-import Quickshell.Hyprland
 import QtQuick
 import qs.services
 import "../bar"
@@ -32,10 +30,7 @@ Scope {
         zoom = 1;
         placeLater.restart();
         focusLater.restart();
-        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
-        const target = Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
-        if (target && win.screen !== target)
-            win.screen = target;
+        Actions.toFocusedScreen(win);
     }
     function cancel() {
         path = "";
@@ -94,31 +89,11 @@ Scope {
         id: saver
     }
 
-    PanelWindow {
+    ScrimWindow {
         id: win
-
-        anchors {
-            top: true
-            bottom: true
-            left: true
-            right: true
-        }
-        exclusionMode: ExclusionMode.Ignore
-        color: "transparent"
-        visible: root.open
-        WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "driftless-avatar"
-        WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-
-        Rectangle {
-            id: backdrop
-            anchors.fill: parent
-            color: Theme.scrim
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.cancel()
-            }
-        }
+        open: root.open
+        name: "avatar"
+        onDismissed: root.cancel()
 
         Rectangle {
             id: card

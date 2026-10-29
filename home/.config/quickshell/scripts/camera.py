@@ -9,6 +9,7 @@ import ctypes
 import json
 import os
 import select
+import signal
 import sys
 import time
 
@@ -17,6 +18,7 @@ IN_CLOSE_NOWRITE = 0x10
 IN_OPEN = 0x20
 IN_CREATE = 0x100
 IN_DELETE = 0x200
+PR_SET_PDEATHSIG = 1
 SKIP = {"pipewire", "wireplumber"}
 
 libc = ctypes.CDLL(None, use_errno=True)
@@ -55,6 +57,11 @@ def holders():
 
 
 def main():
+    # go with the shell: it only reads us, and a pipe nobody reads is not noticed until the next change
+    parent = os.getppid()
+    libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+    if os.getppid() != parent:
+        sys.exit(0)
     fd = libc.inotify_init1(os.O_NONBLOCK | os.O_CLOEXEC)
     if fd < 0:
         sys.exit("inotify_init1 failed")

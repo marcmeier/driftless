@@ -27,25 +27,41 @@ Singleton {
         command: [feeds.scripts + "/claude-usage.py"]
         interval: 180
     }
+    // the sync pokes at the start and the end of every run: the interval only ages the "ago" texts
     Feed {
         id: sync
         command: [feeds.scripts + "/sync.py"]
-        interval: 60
+        interval: 300
     }
     Feed {
         id: weather
         command: [feeds.scripts + "/weather.py"]
         interval: 1800
     }
+    // calendar-sync.sh pokes after every sync; besides, ask again when the next event starts and
+    // when the day changes ("tmrw" becomes today)
     Feed {
         id: calendar
         command: [feeds.scripts + "/agenda.py"]
-        interval: 60
+        interval: 600
     }
+    SystemClock {
+        id: minute
+        precision: SystemClock.Minutes
+        property string day: Qt.formatDate(date, "yyyy-MM-dd")
+        onDayChanged: calendar.refresh()
+        onDateChanged: {
+            const next = calendar.value && calendar.value.next;
+            if (next && next.at && next.at * 1000 <= date.getTime())
+                calendar.refresh();
+        }
+    }
+    // network calls: not in the rush of the login
     Feed {
         id: updates
         command: [feeds.scripts + "/updates.sh"]
         interval: 1800
+        delay: 120
     }
     Feed {
         id: dictate

@@ -18,7 +18,6 @@ Singleton {
     property string scheme: "dark"
     property string appearance: "dark"      // what was chosen: dark, light or auto
     readonly property bool light: scheme === "light"
-    property var looks: ({})                // both looks in brief, for the previews in the settings
     property string paletteName: "plain"    // theme/scheme.py's PALETTES
     property var palettes: ({})             // every palette in brief: label, dark and light (name, swatches)
     property int renders: 0                 // bumps whenever apply.py rendered (a new look)
@@ -35,7 +34,6 @@ Singleton {
     property color lineColor: "#2b2b2b"      // every border and separator
     property color fieldColor: "#111111"     // where you type
     property color overlay: "#ffffff"        // what hovers are made of
-    property color shadow: "#000000"
     property color text: "#d6d6d6"
     property color dim: "#8a8a8a"
     property color strong: "#f2f2f2"
@@ -58,12 +56,10 @@ Singleton {
     readonly property color field: fieldColor
     readonly property color fieldBorder: lineColor
     readonly property color scrim: desk                               // behind the power menu and the password dialog
-    readonly property color dropShadow: "transparent"
 
     // the lock screen: always the dark look
     readonly property QtObject night: QtObject {
         property color primary: "#7aa6d9"
-        property color secondary: "#7aa6d9"
         property color desk: "#0e0e0e"
         property color text: "#d6d6d6"
         property color dim: "#8a8a8a"
@@ -72,12 +68,9 @@ Singleton {
         readonly property color faint: Qt.alpha(dim, 0.6)
         property color warn: "#e0a040"
         property color crit: "#e06666"
-        property color card: "#161616"
         property color field: "#111111"
         readonly property color fieldBorder: line
-        function accentAt(f) {
-            return primary;
-        }
+        readonly property string font: theme.font
     }
 
     readonly property string font: "JetBrainsMono Nerd Font"
@@ -86,8 +79,6 @@ Singleton {
     readonly property int barHeight: 28
     readonly property int barGap: 0
     readonly property int barSide: 4
-    readonly property int radius: 0
-    readonly property int innerRadius: 0
 
     // the round avatar (apply.py renders it from ~/.face); bumps when it is written again
     readonly property string avatar: Quickshell.env("HOME") + "/.config/theme/avatar.png"
@@ -95,13 +86,6 @@ Singleton {
 
     readonly property string applyScript: Quickshell.env("HOME") + "/.config/theme/apply.py"
 
-    function mix(a, b, f) {
-        return Qt.rgba(a.r + (b.r - a.r) * f, a.g + (b.g - a.g) * f, a.b + (b.b - a.b) * f, a.a + (b.a - a.a) * f);
-    }
-    // once a colour between two accents; the plain look has one
-    function accentAt(f) {
-        return primary;
-    }
     // ok / warn / crit for a percentage that is running out
     function levelColor(percent) {
         return percent >= 90 ? crit : percent >= 70 ? warn : primary;
@@ -121,7 +105,6 @@ Singleton {
         theme.lineColor = k.line || "#2b2b2b";
         theme.fieldColor = k.field || "#111111";
         theme.overlay = k.overlay || "#ffffff";
-        theme.shadow = k.shadow || "#000000";
         theme.text = k.fg || "#d6d6d6";
         theme.dim = k.dim || "#8a8a8a";
         theme.strong = k.fg_strong || "#f2f2f2";
@@ -131,7 +114,6 @@ Singleton {
         const n = c.night || {};
         if (n.primary) {
             theme.night.primary = n.primary;
-            theme.night.secondary = n.secondary || n.primary;
             theme.night.desk = n.desk;
             theme.night.text = n.fg;
             theme.night.dim = n.dim;
@@ -139,10 +121,8 @@ Singleton {
             theme.night.line = n.line;
             theme.night.warn = n.orange;
             theme.night.crit = n.red;
-            theme.night.card = n.glass;
             theme.night.field = n.field;
         }
-        theme.looks = c.looks || {};
         theme.paletteName = c.palette || "plain";
         theme.palettes = c.palettes || {};
         theme.renders++;
@@ -169,19 +149,17 @@ Singleton {
         }
     }
 
-    // auto: look at the sun every few minutes; apply.py only renders when it rose or set since
+    // auto: when the sun rises or sets (NightLight follows the clock and today's times) and when
+    // auto is chosen or read at the start; apply.py only renders when the look is not the right one
     Process {
         id: sunWatch
         command: ["python3", theme.applyScript, "--follow-sun"]
     }
-    Timer {
-        interval: 5 * 60 * 1000
-        running: theme.appearance === "auto"
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            if (!sunWatch.running)
-                sunWatch.running = true;
-        }
+    readonly property bool sunUp: !NightLight.dark
+    onSunUpChanged: followSun()
+    onAppearanceChanged: followSun()
+    function followSun() {
+        if (appearance === "auto" && !sunWatch.running)
+            sunWatch.running = true;
     }
 }

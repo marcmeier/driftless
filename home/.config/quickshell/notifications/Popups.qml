@@ -1,7 +1,6 @@
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import QtQuick
 import qs.services
 
@@ -15,10 +14,7 @@ Scope {
 
     // a new card shows on the screen you are working on (the ones still there come along)
     function place() {
-        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
-        const target = Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
-        if (target && win.screen !== target)
-            win.screen = target;
+        Actions.toFocusedScreen(win);
     }
     Connections {
         target: Notifs.popups

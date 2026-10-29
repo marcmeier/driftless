@@ -43,7 +43,6 @@ pipewire-pulse
 playerctl
 python-emoji
 python-pillow
-python-psutil
 qt6ct
 quickshell
 satty

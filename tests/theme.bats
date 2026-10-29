@@ -94,6 +94,7 @@ import apply, scheme
 apply.gtk_look = lambda name: None
 apply.vscode_theme = lambda colors, name: None
 apply.reload_programs = lambda: None
+apply.login_screen = lambda: None            # no pkexec here
 apply.main(["--appearance", "light"])
 apply.main(["--palette", "nord"])
 c = json.loads((apply.THEME / "colors.json").read_text())

@@ -46,14 +46,17 @@ set_switch() { # set_switch NAME VALUE ALLOWED...
   shift 2
   [[ " $* " == *" $value "* ]] || die "usage: driftless $name $*"
   mkdir -p "$STATE"
-  [[ $name == mode && $value == off ]] && cp -f "$STATE/mode" "$STATE/mode.resume" 2> /dev/null
+  # pausing remembers the mode, resuming (sync-menu.sh toggle) brings it back
+  if [[ $name == mode && $value == off && $(cat "$STATE/mode" 2> /dev/null) != off ]]; then
+    cp -f "$STATE/mode" "$STATE/mode.resume" 2> /dev/null || true
+  fi
   echo "$value" > "$STATE/$name"
   poke_bar
   echo "$name: $value (this machine only)"
 }
 
 usage() {
-  sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,/^set -euo/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
   exit "${1:-0}"
 }
 

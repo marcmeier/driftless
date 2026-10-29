@@ -1,17 +1,15 @@
 import QtQuick
 import qs.services
 
-// Now playing (MPRIS): previous · play/pause · next and the title, which slides through when it is
-// long (compact: play/pause and the title). Click on the title: cover, progress and the players ·
+// Now playing (MPRIS): previous · play/pause · next and the title, cut with "…" when it is long
+// (compact: play/pause and the title). Click on the title: cover, progress and the players ·
 // wheel: next/previous track · middle: play/pause · right: next track.
 Pill {
     id: pill
 
     readonly property var player: Media.player
     readonly property bool playing: Media.playing
-    // fades and folds in and out instead of popping: stays in the bar until it has faded out
-    shown: Media.shown || opacity > 0
-    opacity: Media.shown ? 1 : 0
+    shown: Media.shown
     implicitWidth: Media.shown ? row.implicitWidth + padding * 2 : 0
 
     // gives way beside the centre island: the title gets what the other pills and its buttons leave
@@ -97,7 +95,6 @@ Pill {
             text: Media.title
             // at least a few letters
             maxWidth: Math.max(60, Math.min(pill.compact ? 150 : 240, pill.titleRoom))
-            running: pill.playing
             font.weight: Font.DemiBold
             font.pixelSize: pill.compact ? 12 : 13
             color: pill.playing ? Theme.text : Theme.dim

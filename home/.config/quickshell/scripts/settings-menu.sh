@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Desktop settings. The avatar in the bar opens them as a popup of the shell (bar/SettingsPopup.qml),
-# which calls the actions below; without an argument ("Desktop settings" in the app launcher) this opens
-# that popup, or a walker menu when the shell does not answer.
-# Usage: settings-menu.sh [widgets|size|look|monitors|sync|keys]
+# Desktop settings: the actions behind the settings popup of the shell (bar/SettingsPopup.qml). Without
+# an argument ("Desktop settings" in the app launcher) this opens that popup.
+# Usage: settings-menu.sh [widgets|sync|keys]       the widget manager, the sync menu, the keybindings
 #        settings-menu.sh monitors-arrange|monitors-reset|display-mode
 #        settings-menu.sh avatar               your picture (~/.face) for the bar, the lock and login screen
 #        settings-menu.sh appearance dark|light|auto   the look (auto: light from sunrise to sunset)
@@ -17,7 +16,6 @@ if grep -q '\.service$' /proc/self/cgroup 2> /dev/null; then
 fi
 SCRIPTS=$(dirname "$(readlink -f "$0")")
 STATE=${XDG_STATE_HOME:-$HOME/.local/state}
-pick() { walker --dmenu -p "$1"; }
 
 # your picture: picked here, placed in the shell's editor (avatar/AvatarEditor.qml: drag, zoom), which
 # hands the square back to avatar-save; without the shell the middle of the image is taken
@@ -61,39 +59,6 @@ PY
   else notify-send -a settings -u critical "Your picture" "Failed, see $STATE/set-wallpaper.log"; fi
 }
 
-# a new palette is also the login screen's (its dark look): hand it the files (polkit, no password)
-login_screen() {
-  [[ -x /usr/lib/driftless/greeter-update ]] || return 0
-  pkexec /usr/lib/driftless/greeter-update "$HOME/.cache/theme" >> "$STATE/set-wallpaper.log" 2>&1 || true
-}
-
-# the look in walker, when the shell does not answer: dark, light or auto, then the palettes
-look() {
-  local choice key label
-  local -a entries=("Dark" "Light" "Auto (light from sunrise to sunset)")
-  local -A palettes=()
-  while IFS=$'\t' read -r key label; do
-    entries+=("Palette: $label")
-    palettes["Palette: $label"]=$key
-  done < <(python3 "$HOME/.config/theme/apply.py" --palettes)
-  choice=$(printf '%s\n' "${entries[@]}" | pick "Appearance") || return 0
-  case $choice in
-    Dark) set -- --appearance dark ;;
-    Light) set -- --appearance light ;;
-    Auto*) set -- --appearance auto ;;
-    Palette:*)
-      [[ -n ${palettes[$choice]:-} ]] || return 0
-      set -- --palette "${palettes[$choice]}"
-      ;;
-    *) return 0 ;;
-  esac
-  mkdir -p "$STATE"
-  python3 "$HOME/.config/theme/apply.py" "$@" > "$STATE/set-wallpaper.log" 2>&1 ||
-    notify-send -a settings -u critical "Appearance" "Failed, see $STATE/set-wallpaper.log"
-  [[ $1 == --palette ]] && login_screen
-  return 0
-}
-
 # nwg-displays writes monitors.lua/workspaces.lua next to the paths it gets; hyprland.lua loads them
 # from ~/.local/state/hypr. Hyprland does not watch those files: reload whenever nwg-displays saves
 # (also when its "keep these settings?" countdown restores the old ones).
@@ -113,68 +78,13 @@ arrange() {
   [[ $now != "$seen" ]] && hyprctl reload > /dev/null
 }
 
-monitors() {
-  local items=("󰍹  Arrange monitors (position, resolution, scale)")
-  # laptop panel + external monitor: quick modes like Win+P (display-mode.sh)
-  hyprctl -j monitors all | grep -q '"name": "eDP-' && items+=("󰍺  Display mode (extend, mirror, one screen)")
-  [[ -f $STATE/hypr/monitors.lua ]] && items+=("󰑓  Reset to the automatic layout")
-  local choice
-  choice=$(printf '%s\n' "${items[@]}" | pick "Monitors") || return 0
-  case $choice in
-    *Arrange*) arrange ;;
-    *"Display mode"*) "$HOME/.config/hypr/display-mode.sh" ;;
-    *Reset*) exec "$0" monitors-reset ;;
-  esac
-}
-
-# bar size: automatic (compact bar on the narrow outputs, bar_layout.py) or one size on every monitor;
-# the bar follows at once
-size() {
-  local current choice mode items=() label
-  current=$("$SCRIPTS/bar_layout.py" --get-mode)
-  for mode in auto spacious compact; do
-    case $mode in
-      auto) label="󰁨  Automatic (compact on notebook panels)" ;;
-      spacious) label="󰍹  Always full size" ;;
-      compact) label="󰍺  Always compact" ;;
-    esac
-    [[ $mode == "$current" ]] && label+="  (current)"
-    items+=("$label")
-  done
-  choice=$(printf '%s\n' "${items[@]}" | pick "Bar size") || return 0
-  case $choice in
-    *Automatic*) mode=auto ;;
-    *full*) mode=spacious ;;
-    *compact) mode=compact ;;
-    *) return 0 ;;
-  esac
-  [[ $mode == "$current" ]] && return 0
-  "$SCRIPTS/bar_layout.py" --mode "$mode"
-}
-
-action=$1
-# no argument: the shell's popup on the focused screen, else the walker menu
-if [[ -z $action ]] && [[ $(quickshell ipc -p "$HOME/.config/quickshell" call bar popup settings 2> /dev/null) == true ]]; then
-  exit 0
-fi
-if [[ -z $action ]]; then
-  choice=$(printf '%s\n' "󰕮  Bar widgets (show, hide, move)" "󰯌  Bar size (full, compact, automatic)" "󰔎  Appearance (dark, light, auto)" "󰍹  Monitors" "󰓦  Sync with your other machines" "󰌌  Keybindings (search)" |
-    pick "Settings") || exit 0
-  case $choice in
-    *widgets*) action=widgets ;;
-    *size*) action=size ;;
-    *Appearance*) action=look ;;
-    *Monitors) action=monitors ;;
-    *sync) action=sync ;;
-    *Keybindings*) action=keys ;;
-    *) exit 0 ;;
-  esac
-fi
-case $action in
+case ${1:-} in
+  # the shell's popup on the focused screen
+  "")
+    [[ $(quickshell ipc -p "$HOME/.config/quickshell" call bar popup settings 2> /dev/null) == true ]] ||
+      notify-send -a settings -u critical "Settings" "The desktop shell does not answer: systemctl --user restart driftless-shell"
+    ;;
   widgets) exec "$SCRIPTS/widgets.py" ;;
-  size) size ;;
-  look) look ;;
-  monitors) monitors ;;
   monitors-arrange) arrange ;;
   monitors-reset)
     rm -f "$STATE"/hypr/{monitors,workspaces}.{conf,lua}
@@ -195,11 +105,8 @@ case $action in
   palette)
     mkdir -p "$STATE"
     [[ ${2:-} =~ ^[a-z-]+$ ]] || exit 2
-    if python3 "$HOME/.config/theme/apply.py" --palette "$2" > "$STATE/set-wallpaper.log" 2>&1; then
-      login_screen
-    else
+    python3 "$HOME/.config/theme/apply.py" --palette "$2" > "$STATE/set-wallpaper.log" 2>&1 ||
       notify-send -a settings -u critical "Palette" "Failed, see $STATE/set-wallpaper.log"
-    fi
     ;;
   avatar-save)
     mkdir -p "$STATE"
@@ -209,7 +116,7 @@ case $action in
   sync) exec "$SCRIPTS/sync-menu.sh" ;;
   keys) exec "$HOME/.config/hypr/keybinds.py" ;;
   *)
-    echo "usage: $0 [widgets|size|look|monitors|sync|keys]" >&2
+    echo "usage: $0 [widgets|sync|keys|monitors-arrange|monitors-reset|display-mode|avatar|appearance|palette|avatar-save]" >&2
     exit 2
     ;;
 esac

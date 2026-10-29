@@ -44,6 +44,7 @@ RUN = Path(os.environ.get("XDG_RUNTIME_DIR", "/tmp")) / "claude-notch"
 STATE = RUN / "state.json"
 LAST = RUN / "last.json"  # session of the last answer, for follow-up questions
 AUDIO = RUN / "audio.wav"
+LEVEL = RUN / "level"  # the microphone's level while recording, read by the bubble (a file: no process per value)
 SPEAKER = RUN / "speaker.pid"
 DATA = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share"))
 VENV = DATA / "claude-notch/venv"  # Piper (piper-tts from PyPI)
@@ -113,12 +114,8 @@ def ensure_shell():
         time.sleep(0.05)
 
 
-def bubble(*args, wait=True):
-    cmd = ["quickshell", "ipc", "-p", str(SHELL), "call", "notch", *map(str, args)]
-    if wait:
-        subprocess.run(cmd, capture_output=True)
-    else:
-        subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+def bubble(*args):
+    subprocess.run(["quickshell", "ipc", "-p", str(SHELL), "call", "notch", *map(str, args)], capture_output=True)
 
 
 # ---- state: idle (no file) | recording | busy, changed under a lock (down and up race) ----
@@ -163,12 +160,13 @@ def log(msg):
     path.write_text("\n".join(lines) + "\n")
 
 
-# ---- recording: pw-record -> WAV, the level goes to the bubble's bars ----
+# ---- recording: pw-record -> WAV, the level goes to the bubble's line ----
 
 
 def start():
     silence()  # a new question interrupts the last answer
     ensure_shell()
+    LEVEL.write_text("")
     bubble("listening")
     rec = subprocess.Popen(
         [sys.executable, __file__, "rec"],
@@ -213,7 +211,7 @@ def cmd_rec():
                 samples = struct.unpack(f"<{n}h", chunk[: n * 2])
                 rms = math.sqrt(sum(s * s for s in samples) / max(n, 1)) / 32768
                 db = 20 * math.log10(max(rms, 1e-6))
-                bubble("setLevel", f"{max(0.0, min(1.0, (db + 52) / 36)):.2f}", wait=False)
+                LEVEL.write_text(f"{max(0.0, min(1.0, (db + 52) / 36)):.2f}")
     pw.terminate()
     pw.wait()
 
@@ -483,25 +481,6 @@ def ask(question):
         bubble("error", err)
 
 
-def transcribe(d, cfg):
-    """dictate.py's Whisper call, but with the encoder window cut to the recording: Whisper encodes
-    30 s otherwise, which takes about three times as long for a short question."""
-    if not AUDIO.is_file() or AUDIO.stat().st_size < 16000:  # under half a second
-        return ""
-    seconds = (AUDIO.stat().st_size - 44) / 32000
-    ctx = min(1500, max(512, math.ceil((seconds + 1) * 50 / 64) * 64))  # 50 frames per second
-    cmd = ["whisper-cli", "-nt", "-np", "-l", cfg["lang"], "-ac", str(ctx), "-f", str(AUDIO)]
-    cmd += ["-m", str(d.model_file(f"ggml-{cfg['whisper']}.bin"))]
-    cmd += ["--vad", "-vm", str(d.model_file(d.VAD_MODEL))]
-    if cfg["prompt"]:
-        cmd += ["--prompt", cfg["prompt"]]
-    out = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
-    text = " ".join(line.strip() for line in out.splitlines() if line.strip())
-    if len(text) < 80 and d.HALLUCINATIONS.search(text):
-        return ""
-    return d.spoken_marks(text)
-
-
 def finish(st):
     """Stop the recording, transcribe, ask; called with the state already set to busy."""
     stop_recorder(st)
@@ -511,7 +490,7 @@ def finish(st):
         cfg["lang"] = LANG
         bubble("think", "")
         t0 = time.monotonic()
-        question = transcribe(d, cfg)
+        question = d.transcribe(cfg)
         log(f"whisper {time.monotonic() - t0:.2f}s: {question!r}")
         if (RUN / "cancelled").exists():
             return

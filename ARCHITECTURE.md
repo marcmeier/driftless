@@ -141,7 +141,7 @@ none of them knew the others or the bar.
 `NotificationServer`), and draws the lock screen (`lock/`, `WlSessionLock` and PAM), the power menu
 (`power/`), an on-screen display for volume and brightness (`osd/`) and, as the session's polkit agent,
 the password dialog (`polkit/`, hyprpolkitagent before), in the same plain boxes and colours as the
-bar; the lock screen and the password dialog share one password field (`bar/PasswordField.qml`). They
+bar; the lock screen and the password dialog share one password field with the login screen (`bar/PasswordField.qml`, below). They
 share state instead of polling: the bell reads the list itself, the lock screen and a fullscreen
 window hold the popups, suspend waits until the lock is drawn. One file
 (`services/Session.qml`) is where lock, log out and suspend happen, whoever asks.
@@ -159,8 +159,8 @@ Three things keep it safe:
   shut you out of your own screen for ten minutes after three typos.
 
 The settings are a popup of the bar too (`bar/SettingsPopup.qml`, walker menus before); the scripts
-behind them stay (`settings-menu.sh`, `bar_layout.py`), so the walker menus remain for what needs more
-room (moving widgets) and as the way in without the shell. The
+behind it (`settings-menu.sh`, `bar_layout.py`) do the work, and the widget manager (`widgets.py`)
+stays for what needs more room (moving widgets). The
 notification list outlives a restart in `~/.local/state/driftless-shell/notifications.json`: per
 machine, in a folder only the user can read, seven days at most. A token per run of the shell tells a
 restart (everything comes back from the file) from a reload (the live ones come back from the server
@@ -173,11 +173,14 @@ stays for its pairing agent and settings; the bar hides its tray icon, it shows 
 
 **The login screen** is Quickshell too, but not the shell: greetd starts it as its own user, which
 cannot read any home. So it is a small second config in driftless-system
-(`/usr/share/driftless/greeter`) with a copy of the lock screen's column and password field, and it
+(`/usr/share/driftless/greeter`) with a copy of the lock screen's column, and it
 shows only what `greeter-update` rendered into `/var/lib/driftless/greeter` (the colours and who
 rendered them last). It talks to greetd with Quickshell's `Greetd` service and
 starts the uwsm session first. `/usr/lib/driftless/greeter` runs it in cage and falls back to ReGreet,
-the login screen before, when Quickshell does not start: a broken greeter cannot keep you out.
+the login screen before, when Quickshell does not start: a broken greeter cannot keep you out. The
+password field is one file in that package; the shell links it from the repository
+(`home/.config/quickshell/bar/PasswordField.qml`): the shell takes a change with the sync, the login
+screen with the package, and the greeter never runs a file from a home.
 
 The polkit agent registers once, when the shell starts, and polkit allows one per session: the sync
 restarts the shell when the agent's files change, after the retired hyprpolkitagent let go. The lock

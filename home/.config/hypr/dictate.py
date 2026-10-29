@@ -18,6 +18,7 @@ Models live in ~/.local/share/whisper (downloaded on first use) and in Ollama.""
 
 import fcntl
 import json
+import math
 import os
 import re
 import signal
@@ -184,9 +185,14 @@ def model_file(name):
 
 
 def transcribe(cfg):
+    """The recording as text. The encoder window is cut to the recording (Whisper encodes 30 s
+    otherwise, about half again as long for a short sentence), but never below 20 s: shorter windows
+    make it repeat short sentences two or three times."""
     if not AUDIO.is_file() or AUDIO.stat().st_size < 16000:  # under half a second
         return ""
-    cmd = ["whisper-cli", "-nt", "-np", "-l", cfg["lang"], "-f", str(AUDIO)]
+    seconds = (AUDIO.stat().st_size - 44) / 32000
+    ctx = min(1500, max(1024, math.ceil((seconds + 1) * 50 / 64) * 64))  # 50 frames per second
+    cmd = ["whisper-cli", "-nt", "-np", "-l", cfg["lang"], "-ac", str(ctx), "-f", str(AUDIO)]
     cmd += ["-m", str(model_file(f"ggml-{cfg['whisper']}.bin"))]
     cmd += ["--vad", "-vm", str(model_file(VAD_MODEL))]  # no text from silence or noise
     if cfg["prompt"]:

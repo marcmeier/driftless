@@ -32,9 +32,6 @@ CLAUDE_WORKDIR="$HOME"
 # a full copy of the repository with history, refreshed by the sync (restore: git clone FILE)
 BUNDLE=""
 
-# moving from arch-hyprland-kit v1: links that keep this machine's live version
-MIGRATE_ADOPT=()
-
 # install/install-base.sh defaults for a new machine
 DEFAULT_USER=user
 DEFAULT_KEYMAP=us

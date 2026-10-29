@@ -1,6 +1,4 @@
 import Quickshell
-import Quickshell.Wayland
-import Quickshell.Hyprland
 import Quickshell.Services.Polkit
 import QtQuick
 import qs.services
@@ -37,10 +35,7 @@ Scope {
         password = "";
         checking = false;
         fails = 0;
-        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
-        const target = Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
-        if (target && win.screen !== target)
-            win.screen = target;
+        Actions.toFocusedScreen(win);
         focusLater.restart();
     }
     Timer {
@@ -76,31 +71,11 @@ Scope {
             flow.cancelAuthenticationRequest();
     }
 
-    PanelWindow {
+    ScrimWindow {
         id: win
-
-        anchors {
-            top: true
-            bottom: true
-            left: true
-            right: true
-        }
-        exclusionMode: ExclusionMode.Ignore
-        color: "transparent"
-        visible: root.open
-        WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "driftless-polkit"
-        WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-
-        Rectangle {
-            id: backdrop
-            anchors.fill: parent
-            color: Theme.scrim
-            // a click beside the card does nothing: a request is answered, not dismissed by accident
-            MouseArea {
-                anchors.fill: parent
-            }
-        }
+        open: root.open
+        name: "polkit"
+        // a click beside the card does nothing: a request is answered, not dismissed by accident
 
         Rectangle {
             id: card
@@ -159,6 +134,9 @@ Scope {
 
                     PasswordField {
                         id: field
+                        theme: Theme
+                        caps: Keyboard.caps
+                        onKeyPressed: Keyboard.check()
                         width: parent.width
                         text: root.password
                         checking: root.checking

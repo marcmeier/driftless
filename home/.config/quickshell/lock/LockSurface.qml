@@ -54,7 +54,9 @@ WlSessionLockSurface {
             }
             PasswordField {
                 id: field
-                night: true
+                theme: Theme.night
+                caps: Keyboard.caps
+                onKeyPressed: Keyboard.check()
                 width: parent.width
                 text: surface.ctx.password
                 checking: surface.ctx.checking

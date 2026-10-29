@@ -48,22 +48,13 @@ signing_check() {
 }
 
 # signing_setup: key, git config, signers/<host>.pub, and trust for every machine in signers/.
-# A machine coming from the old rebuild kit keeps its key and its list of trusted machines.
 signing_setup() {
-  local f signer old_state=${XDG_STATE_HOME:-$HOME/.local/state}/rebuild
+  local f signer
   git -C "$DRIFTLESS" config user.name > /dev/null || git -C "$DRIFTLESS" config user.name "driftless $HOST"
   git -C "$DRIFTLESS" config user.email > /dev/null || git -C "$DRIFTLESS" config user.email "driftless@$HOST.invalid"
-  if [[ ! -f $SIGNING_KEY && -f $HOME/.ssh/rebuild-signing ]]; then
-    cp -a "$HOME/.ssh/rebuild-signing" "$SIGNING_KEY"
-    cp -a "$HOME/.ssh/rebuild-signing.pub" "$SIGNING_KEY.pub"
-  fi
   if [[ ! -f $SIGNING_KEY ]]; then
     [[ -d $HOME/.ssh ]] || mkdir -m700 "$HOME/.ssh"
     ssh-keygen -q -t ed25519 -N '' -C "driftless $HOST" -f "$SIGNING_KEY"
-  fi
-  if [[ ! -e $ALLOWED && -s $old_state/allowed_signers ]]; then
-    mkdir -p "$STATE"
-    cp "$old_state/allowed_signers" "$ALLOWED"
   fi
   git -C "$DRIFTLESS" config gpg.format ssh
   git -C "$DRIFTLESS" config user.signingkey "$SIGNING_KEY.pub"

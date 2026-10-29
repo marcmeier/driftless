@@ -1,6 +1,5 @@
 import Quickshell
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
 import qs.services
@@ -10,7 +9,8 @@ import qs.services
 // words, a level line while it listens, the answer at once. notch.py drives
 // it over IPC, e.g.:
 //   quickshell ipc -p ~/.config/quickshell call notch think "Do I have meetings today?"
-// (listening, think, answer, append, error, setLevel, speaking, ringing, hide, state)
+// (listening, think, answer, append, error, speaking, ringing, hide, state); the microphone's level
+// while listening comes from $XDG_RUNTIME_DIR/claude-notch/level, which notch.py writes
 Scope {
     id: root
 
@@ -18,8 +18,7 @@ Scope {
     property string mode: "idle"
     property string prompt: ""
     property string fullText: ""
-    property int shown: 0
-    property real level: -1          // < 0: no real level, the bars move by themselves
+    property real level: -1          // < 0: no level yet, the line is hidden
     property bool speaking: false    // the answer is being spoken: stay open
     property bool ringing: false     // a timer rings: stay open until it is stopped
 
@@ -28,10 +27,7 @@ Scope {
     // where it grows from: the ask button's x on the focused screen (-1: the middle)
     property real anchorX: -1
     function place() {
-        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
-        const target = Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
-        if (target && win.screen !== target)
-            win.screen = target;
+        const target = Actions.toFocusedScreen(win);
         anchorX = target ? Voice.anchorX(target.name) : -1;
     }
     onModeChanged: {
@@ -43,7 +39,6 @@ Scope {
 
     function reset() {
         fullText = "";
-        shown = 0;
         level = -1;
     }
 
@@ -62,29 +57,22 @@ Scope {
         }
         function answer(text: string): void {
             root.fullText = text;
-            root.shown = 0;
             root.mode = "answer";
         }
         // streaming: add a piece of text
         function append(chunk: string): void {
             if (root.mode !== "answer") {
                 root.fullText = "";
-                root.shown = 0;
-                root.mode = "answer";
+                    root.mode = "answer";
             }
             root.fullText += chunk;
         }
         function error(text: string): void {
             root.fullText = text;
-            root.shown = 0;
             root.mode = "error";
         }
-        function setLevel(l: real): void { root.level = Math.max(0, Math.min(1, l)); }
         function ringing(on: bool): void { root.ringing = on; }
-        function speaking(on: bool): void {
-            root.speaking = on;
-            if (!on) root.level = -1;
-        }
+        function speaking(on: bool): void { root.speaking = on; }
         function hide(): void {
             root.speaking = false;
             root.ringing = false;
@@ -93,11 +81,15 @@ Scope {
         function state(): string { return root.mode; }
     }
 
-    // the whole text at once (no typewriter in the plain look)
-    Timer {
-        interval: 1
-        running: root.shown < root.fullText.length
-        onTriggered: root.shown = root.fullText.length
+    FileView {
+        path: root.mode === "listening" ? Quickshell.env("XDG_RUNTIME_DIR") + "/claude-notch/level" : ""
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: {
+            const l = parseFloat(text());
+            if (!isNaN(l))
+                root.level = Math.max(0, Math.min(1, l));
+        }
     }
 
     // fold away when done (not while the pointer is on it or it still speaks)
@@ -105,7 +97,6 @@ Scope {
         id: autoHide
         interval: root.mode === "error" ? 6000 : 9000 + root.fullText.length * 25
         running: (root.mode === "answer" || root.mode === "error")
-                 && root.shown >= root.fullText.length
                  && !hover.hovered
                  && !root.speaking
                  && !root.ringing
@@ -122,6 +113,7 @@ Scope {
         }
         implicitHeight: 360
         color: "transparent"
+        visible: root.open
 
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "claude-notch"
@@ -245,7 +237,7 @@ Scope {
                 font.family: Theme.font
                 font.pixelSize: 13
                 lineHeight: 1.15
-                text: root.fullText.substring(0, root.shown)
+                text: root.fullText
                 visible: root.mode === "answer" || root.mode === "error"
             }
         }

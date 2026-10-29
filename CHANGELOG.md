@@ -4,6 +4,40 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.23.0 (2026-10-29): leaner and quicker
+
+### Changed
+- **Dictation is about 30 % faster**: Whisper's window follows the length of the recording instead of
+  always 30 s, but never below 20 s, so the recognition stays as good. The voice bubble (SUPER + A)
+  uses the same, which ends its habit of repeating a short question two or three times.
+- **The automatic look follows the sun** from the night light's sunrise and sunset instead of asking
+  `apply.py` every five minutes; the calendar asks again when the next event starts, at midnight and
+  otherwise every ten minutes, the sync every five; every feed of the bar has a time limit, and
+  `updates.sh` waits at most a minute per network call (and two minutes after the login).
+- **A new look is quicker**: reloading and handing the files to the login screen happen in one place
+  (`apply.py --refresh`; `set-wallpaper.sh` calls it), the VS Code theme is installed again only when
+  its colours changed, and a sync renders the theme and looks for missing packages once per run.
+- **One password field** for the login screen, the lock screen and the polkit dialog: it lives in
+  driftless-system and the shell links it from the repository (`driftless system` brings it to the
+  login screen). The power menu, the password dialog and the picture editor share one window
+  (`bar/ScrimWindow.qml`).
+- **A broken Hyprland layer is shown**: a host, personal or saved monitor file that fails to load puts
+  a notification on the screen, and the other files still load. The example config's leftovers are
+  gone from `hyprland.lua`.
+
+### Removed
+- **The walker menus beside the settings popup**: without the shell, *Desktop settings* now says so.
+- **The way over from arch-hyprland-kit v1** (`install/migrate-from-rebuild.sh`,
+  `install/migrate-system.sh`, `MIGRATE_ADOPT`, the v1 signing key taken over) and `python-psutil`.
+
+### Fixed
+- The camera watcher of the privacy indicator ends with the shell; copies of it outlived restarts.
+- An open notification no longer redraws at the screen's refresh rate for its countdown, and the
+  voice bubble no longer keeps an invisible window or starts a process for every level of the
+  microphone.
+- Popups opened by a key show on the focused screen.
+- `driftless mode off` twice kept "off" as the mode to resume.
+
 ## v2.22.0 (2026-10-29): answer from the notification
 
 ### Added

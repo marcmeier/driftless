@@ -1,16 +1,14 @@
 """Speaker for notch.py: reads sentences from stdin, one per line, and speaks them with Piper.
 Started by notch.py as soon as a question is asked, so the voice loads while Claude thinks.
 
-The playback is paced to real time, so the level sent to the bubble (the face talks with it) matches
-what is heard. SIGTERM stops at once.
+The playback is paced to real time, so the bubble's "speaking" matches what is heard. SIGTERM stops
+at once.
 
 Usage: <venv>/bin/python speak.py <voice>[:<speaker>]
     e.g. de_DE-thorsten-high, de_DE-thorsten_emotional-medium:amused (in ~/.local/share/piper; the
     speaker by name or number). Runs with notch.py's venv (~/.local/share/claude-notch/venv), which
     has piper-tts; try a voice: echo "Hello there." | ~/.local/share/claude-notch/venv/bin/python speak.py NAME"""
 
-import array
-import math
 import os
 import re
 import signal
@@ -78,7 +76,6 @@ def main():
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
 
-    sent = 0.0
     start, written = 0.0, 0.0  # wall clock when playback began, seconds of audio handed over
     for line in sys.stdin:
         text = spoken(line)
@@ -107,13 +104,6 @@ def main():
                 player.stdin.write(piece)
                 player.stdin.flush()
                 written += len(piece) / 2 / rate
-                if now - sent < 0.08:
-                    continue
-                sent = now
-                samples = array.array("h", piece)
-                rms = math.sqrt(sum(s * s for s in samples) / max(len(samples), 1)) / 32768
-                level = max(0.0, min(1.0, (20 * math.log10(max(rms, 1e-6)) + 45) / 30))
-                bubble("setLevel", f"{level:.2f}")
     if player:
         player.stdin.close()
         player.wait()

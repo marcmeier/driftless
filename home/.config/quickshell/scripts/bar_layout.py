@@ -12,7 +12,7 @@ and outside the repository, so every machine keeps its own bar.
 bar.jsonc is the source of every widget: a widget missing from the saved order (new in bar.jsonc) goes in
 right after the widget before it there (first in its section when there is none), a saved one gone from
 bar.jsonc is ignored.
-Usage: bar_layout.py --get-mode | --mode auto|spacious|compact   (the bar size of this machine)
+Usage: bar_layout.py --mode auto|spacious|compact   (the bar size of this machine)
        bar_layout.py --widgets          every widget as JSON: [{"id", "name", "group", "hidden"}, ...]
        bar_layout.py --toggle WIDGET    show or hide a widget (the settings popup, widgets.py)"""
 
@@ -100,12 +100,10 @@ def variant_config(variant, path=None):
 
 def compact_outputs(path=HOST_CONFIG):
     """Outputs (connector names or descriptions) that get the compact bar."""
-    for candidate in (path, os.path.expanduser("~/.config/driftless/host/waybar.json")):
-        try:
-            return list(json.load(open(candidate))["compact"])
-        except (OSError, ValueError, KeyError, TypeError):
-            continue
-    return list(DEFAULT_COMPACT)
+    try:
+        return list(json.load(open(path))["compact"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return list(DEFAULT_COMPACT)
 
 
 def bar_mode(layout):
@@ -192,9 +190,7 @@ def widgets(variant="spacious"):
 
 
 if __name__ == "__main__":
-    if sys.argv[1:2] == ["--get-mode"]:
-        print(bar_mode(load_layout()))
-    elif sys.argv[1:2] == ["--mode"] and sys.argv[2:3] and sys.argv[2] in MODES:
+    if sys.argv[1:2] == ["--mode"] and sys.argv[2:3] and sys.argv[2] in MODES:
         current = load_layout()
         current["mode"] = sys.argv[2]
         save_layout(current)
@@ -203,4 +199,4 @@ if __name__ == "__main__":
     elif sys.argv[1:2] == ["--toggle"] and sys.argv[2:3]:
         toggle(sys.argv[2])
     else:
-        sys.exit(f"usage: {sys.argv[0]} --get-mode | --mode {'|'.join(MODES)} | --widgets | --toggle WIDGET")
+        sys.exit(f"usage: {sys.argv[0]} --mode {'|'.join(MODES)} | --widgets | --toggle WIDGET")

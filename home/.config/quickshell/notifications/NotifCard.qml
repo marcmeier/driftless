@@ -343,15 +343,28 @@ Rectangle {
         }
     }
 
-    // the popup's time running out (no line drawn for it in the plain look)
-    property real remaining: 1
-    NumberAnimation on remaining {
+    // the popup's time running out, held while you are at it. A Timer, not an animation: a running
+    // animation would redraw the popups at the screen's refresh rate for as long as one shows.
+    readonly property bool counting: popup && timeout > 0
+                                     && !(hovered || swipe.active || answer.activeFocus || answer.text !== "")
+    property real timeLeft: timeout   // ms
+    property real since: 0
+    function countFrom() {
+        since = Date.now();
+        countdown.restart();
+    }
+    onCountingChanged: {
+        if (counting)
+            countFrom();
+        else if (countdown.running) {
+            countdown.stop();
+            timeLeft = Math.max(1, timeLeft - (Date.now() - since));
+        }
+    }
+    Component.onCompleted: if (counting) countFrom()
+    Timer {
         id: countdown
-        running: card.popup && card.timeout > 0
-        paused: running && (card.hovered || swipe.active || answer.activeFocus || answer.text !== "")
-        from: 1
-        to: 0
-        duration: Math.max(1, card.timeout)
-        onFinished: card.expired()
+        interval: Math.max(1, card.timeLeft)
+        onTriggered: card.expired()
     }
 }

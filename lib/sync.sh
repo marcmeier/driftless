@@ -136,7 +136,7 @@ apply_changes() {
     setup_units
   }
   if grep -q '^dconf.ini$' <<< "$files"; then dconf load / < "$DRIFTLESS/dconf.ini" 2> /dev/null || warn "dconf not loaded"; fi
-  grep -qE '^home/\.config/theme/(templates/|apply\.py|scheme\.py|set-wallpaper\.sh)' <<< "$files" && reload+=(theme hypr)
+  grep -qE '^home/\.config/theme/(templates/|apply\.py|scheme\.py|set-wallpaper\.sh)' <<< "$files" && reload+=(theme)
   # a new picture of you (~/.face linked into the repository, e.g. personal/face.png): the bar, the lock
   # and the login screen show it rendered round
   local face root
@@ -164,24 +164,18 @@ apply_changes() {
   ((${#off[@]} == 0)) || sysmsg+="${sysmsg:+, }not enabled here yet: ${off[*]}"
   [[ -z $sysmsg ]] || notify_once system normal "$sysmsg: run  driftless system  in a terminal"
   ((${#reload[@]} == 0)) || reload "${reload[@]}"
-  if grep -qE '^((personal/)?packages/|(personal/|hosts/[^/]+/)?manifest$)' <<< "$files"; then
-    install_missing
-  fi
+  # packages: cmd_sync's install_missing, after this
   return 0
 }
 
 # reload WHAT...: the running programs pick up what changed
 reload() {
   local r
-  for r in $(printf '%s\n' "$@" | sort -u); do
-    case $r in
-      # the configs, the desktop's colour, ghostty and the login screen's copy (pkexec, no password for
-      # the active session)
-      theme) "$HOME/.config/theme/set-wallpaper.sh" --current > /dev/null 2>&1 || warn "theme not rendered" ;;
-      # also the login screen's copy (pkexec, no password for the active session)
-      avatar) "$HOME/.config/theme/set-wallpaper.sh" --current > /dev/null 2>&1 || warn "picture not rendered" ;;
-    esac
-  done
+  # a new look or picture: the configs, the round picture, the desktop's colour, Hyprland, ghostty and
+  # the login screen's copy (pkexec, no password for the active session), all in one run
+  if [[ " $* " == *" theme "* || " $* " == *" avatar "* ]]; then
+    "$HOME/.config/theme/set-wallpaper.sh" --current > /dev/null 2>&1 || warn "theme not rendered"
+  fi
   for r in $(printf '%s\n' "$@" | sort -u); do
     case $r in
       systemd) systemctl --user daemon-reload 2> /dev/null || true ;;
@@ -309,6 +303,7 @@ cmd_sync() {
     cmd_link
     setup_units
     apply_changes ""
+    install_missing
   else
     commit_local
     old=$(git_ rev-parse HEAD)

@@ -47,9 +47,6 @@ A new machine gets everything from two scripts.
 > - Keep your own backup. Git history and btrfs snapshots are not a backup of your data.
 > - Keep the sync in *review first* (the default) until you trust it.
 
-> **Coming from arch-hyprland-kit v1?** This is its successor, rebuilt around links instead of
-> copies ([why](ARCHITECTURE.md)). See [moving over](#moving-over-from-arch-hyprland-kit-v1).
-
 ## What you get
 
 - **A complete Hyprland desktop in one plain look**: greys and one accent, a desktop of one colour,
@@ -116,7 +113,7 @@ files are declared in lists and a package, and `driftless verify` shows where a 
 | `system/` | The `driftless-system` package: every system file as a drop-in (sysctl.d, service.d, conf.d ...) |
 | `dconf.ini` | The GNOME/GTK settings every machine gets |
 | `lib/`, `driftless` | The `driftless` command |
-| `install/` | `install-base.sh` (live ISO), `bootstrap.sh` (first boot), moving over from v1, switching to UKIs |
+| `install/` | `install-base.sh` (live ISO), `bootstrap.sh` (first boot), switching to UKIs |
 
 Facts come from the hardware (`driftless facts`): `cpu-amd`, `cpu-intel`, `gpu-amd`, `gpu-intel`,
 `gpu-nvidia`, `hybrid`, `laptop`, `surface`, `marvell`, `vm`, plus `host:NAME`. The manifest picks
@@ -164,23 +161,6 @@ everything rendered from it, the bar's widget layout (`~/.local/state/driftless-
 
 `driftless verify` checks at any time whether a machine is what the repository describes
 (read-only, the exit code is the number of problems).
-
-## Moving over from arch-hyprland-kit v1
-
-v1 copied files between your home and the repository; driftless links them. On each machine, one
-after the other:
-
-1. `sudo snapper -c root create -d "before driftless"` and the same for `home`.
-2. Put your driftless repository (made as in [Make it yours](#make-it-yours)) at
-   `~/.local/share/driftless`, then look at what would happen:
-   `bash ~/.local/share/driftless/install/migrate-from-rebuild.sh --dry-run`
-3. Run it without `--dry-run` in your Hyprland session, then
-   `sudo bash ~/.local/share/driftless/install/migrate-system.sh`, reboot and `driftless verify`.
-
-The dotfiles come from driftless; your v1 versions are kept in `~/.local/state/driftless/backup/`.
-**If you changed v1's dotfiles, carry those changes over by hand** (or list files that should keep
-the machine's version in `MIGRATE_ADOPT`, `personal/config`). The old sync is switched off, the old
-repository is left alone.
 
 ## Every day
 
@@ -237,7 +217,7 @@ as GitHub, with real SSH signatures. `pacman`, `systemctl` and the desktop tools
 |---|---|
 | Desktop PC (AMD CPU and GPU) | in daily use |
 | Notebook (Intel) | in daily use |
-| QEMU/KVM VM | fresh install with LUKS and UKI; moving over from v1 |
+| QEMU/KVM VM | fresh install with LUKS and UKI |
 | Surface Pro 5, Dell Latitude (Intel) | worked with v1; untested with driftless |
 | NVIDIA desktop, hybrid notebook | untested |
 

@@ -2,13 +2,12 @@ import QtQuick
 import qs.services
 
 // One line of text, cut with "…" when it is wider than `maxWidth` (the plain look does not scroll it;
-// the tooltip has the whole text). `running` stays for the callers and does nothing.
+// the tooltip has the whole text).
 Item {
     id: marquee
 
     property string text: ""
     property int maxWidth: 240
-    property bool running: true
     property alias font: first.font
     property alias color: first.color
     readonly property bool overflow: first.implicitWidth > maxWidth

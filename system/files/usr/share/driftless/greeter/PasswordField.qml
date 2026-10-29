@@ -1,8 +1,12 @@
 import QtQuick
 
-// The greeter's copy of the shell's password field (home/.config/quickshell/bar/PasswordField.qml; the
-// greeter runs as another user and cannot read the home): keep the two in step. The colours come from
-// `theme` (shell.qml), Caps Lock from `caps`.
+// The password field of the login screen, the lock screen and the polkit dialog: a framed line, small
+// squares for what you typed, "checking …" while it is checked, red after a wrong one, a Caps Lock
+// warning. One file for both: the greeter runs as another user and reads it here, the shell through a
+// link in the repository (home/.config/quickshell/bar/PasswordField.qml), so it takes no singletons.
+// `theme`: the colours (field, fieldBorder, primary, text, dim, faint, warn, crit) and the font;
+// `caps`: Caps Lock is on; `keyPressed` on every key (a moment to look at Caps Lock again).
+// `text` is what is typed (set it to change the field); `edited(text)` when you type.
 Rectangle {
     id: field
 
@@ -28,9 +32,19 @@ Rectangle {
 
     implicitWidth: 300
     implicitHeight: 32
-    color: field.theme.field
+    color: theme.field
     border.width: 1
-    border.color: failed ? field.theme.crit : input.activeFocus ? field.theme.primary : field.theme.line
+    border.color: failed ? theme.crit : input.activeFocus ? theme.primary : theme.fieldBorder
+
+    component Line: Text {
+        anchors.verticalCenter: parent.verticalCenter
+        x: 12
+        font.family: field.theme.font
+        font.pixelSize: 13
+        verticalAlignment: Text.AlignVCenter
+        textFormat: Text.PlainText
+        renderType: Text.NativeRendering
+    }
 
     TextInput {
         id: input
@@ -57,30 +71,19 @@ Rectangle {
         onClicked: input.forceActiveFocus()
     }
 
-    Text {
-        anchors.verticalCenter: parent.verticalCenter
-        x: 12
+    Line {
         visible: field.text === "" && !field.checking
         text: field.placeholder
         color: field.theme.faint
-        font.family: field.theme.font
-        font.pixelSize: 13
-        renderType: Text.NativeRendering
     }
 
     // what you typed, shown (not a password)
-    Text {
-        anchors.verticalCenter: parent.verticalCenter
-        x: 12
+    Line {
         width: parent.width - 50
         elide: Text.ElideLeft
         visible: field.reveal && !field.checking
         text: field.text
         color: field.theme.text
-        font.family: field.theme.font
-        font.pixelSize: 13
-        textFormat: Text.PlainText
-        renderType: Text.NativeRendering
     }
 
     Row {
@@ -102,26 +105,23 @@ Rectangle {
     }
 
     // checking: one quiet word
-    Text {
-        anchors.verticalCenter: parent.verticalCenter
-        x: 12
+    Line {
         visible: field.checking
         text: "checking …"
-        font.family: field.theme.font
         font.pixelSize: 12
         color: field.theme.dim
-        renderType: Text.NativeRendering
     }
 
-    Text {
+    // Caps Lock: one glyph in a cell of fixed width (the shell's Icon)
+    Line {
         anchors.right: parent.right
-        anchors.rightMargin: 12
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.rightMargin: 10
+        width: 21
+        height: 20
+        horizontalAlignment: Text.AlignHCenter
         visible: field.caps && !field.reveal
         text: "\u{F030E}"
-        font.family: field.theme.font
         font.pixelSize: 16
         color: field.theme.warn
-        renderType: Text.NativeRendering
     }
 }

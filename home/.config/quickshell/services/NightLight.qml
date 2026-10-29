@@ -7,7 +7,8 @@ import QtQuick
 // The night light (the settings, Displays): warmer colours from sunset to sunrise, or always. hyprsunset
 // runs only while it is on and gives the screens their colours back when it ends; a new warmth reaches
 // it through hyprctl. One process for all screens; it ends with the shell (it runs in
-// driftless-shell.service's cgroup). Sunrise and sunset are today's from weather.py (as for the auto look).
+// driftless-shell.service's cgroup). Sunrise and sunset are today's from weather.py; the automatic look
+// (Theme.qml) and the settings read them here too.
 Singleton {
     id: night
 
@@ -41,7 +42,7 @@ Singleton {
 
     Timer {
         interval: 60 * 1000
-        running: Prefs.nightLight === "sun"
+        running: Prefs.nightLight === "sun" || Theme.appearance === "auto"
         repeat: true
         triggeredOnStart: true
         onTriggered: night.now = new Date()

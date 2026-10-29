@@ -21,10 +21,18 @@ import "avatar"
 // (SUPER + A). One process, one plain look (services/Theme.qml).
 // Edits to these files apply on save; scripts tell it about changes with scripts/poke NAME.
 ShellRoot {
+    id: shell
+
     Variants {
         id: bars
         model: Quickshell.screens
         Bar {}
+    }
+
+    // the bar on the screen with the focus
+    function focusedBar() {
+        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
+        return bars.instances.find(b => b.monitor && b.monitor.name === name) || bars.instances[0];
     }
 
     // the night light runs from the start, not only once the settings are open
@@ -42,7 +50,7 @@ ShellRoot {
     Connections {
         target: Notifs
         function onListRequested() {
-            const bar = bars.instances.find(b => b.monitor && b.monitor.focused) || bars.instances[0];
+            const bar = shell.focusedBar();
             if (bar && !Notifs.listOpen)
                 bar.openNamed("notifications");
         }
@@ -77,7 +85,7 @@ ShellRoot {
         // open or close a popup of the bar on the focused screen: calendar, weather, media, claude,
         // audio, network, bluetooth, battery, notifications, settings (e.g. from a key binding)
         function popup(name: string): bool {
-            const bar = bars.instances.find(b => b.monitor && b.monitor.focused) || bars.instances[0];
+            const bar = shell.focusedBar();
             return !!bar && bar.openNamed(name);
         }
     }

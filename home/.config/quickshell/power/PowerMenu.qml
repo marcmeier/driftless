@@ -1,7 +1,5 @@
 import Quickshell
 import Quickshell.Io
-import Quickshell.Wayland
-import Quickshell.Hyprland
 import QtQuick
 import qs.services
 import "../bar"
@@ -17,20 +15,17 @@ Scope {
     property int current: 0
 
     readonly property var items: [
-        { key: "L", glyph: "\u{F033E}", text: "Lock", danger: false, run: () => Session.lock() },
-        { key: "E", glyph: "\u{F0343}", text: "Log out", danger: true, run: () => Session.logout() },
-        { key: "U", glyph: "\u{F04B2}", text: "Suspend", danger: false, run: () => Session.suspend() },
-        { key: "R", glyph: "\u{F0709}", text: "Reboot", danger: false, run: () => Session.reboot() },
-        { key: "S", glyph: "\u{F0425}", text: "Shut down", danger: true, run: () => Session.poweroff() }
+        { key: "L", text: "Lock", danger: false, run: () => Session.lock() },
+        { key: "E", text: "Log out", danger: true, run: () => Session.logout() },
+        { key: "U", text: "Suspend", danger: false, run: () => Session.suspend() },
+        { key: "R", text: "Reboot", danger: false, run: () => Session.reboot() },
+        { key: "S", text: "Shut down", danger: true, run: () => Session.poweroff() }
     ]
 
     function show() {
         if (Session.locked)
             return;
-        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
-        const target = Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
-        if (target && win.screen !== target)
-            win.screen = target;
+        Actions.toFocusedScreen(win);
         current = 0;
         uptime.reload();
         open = true;
@@ -81,32 +76,11 @@ Scope {
         return "up " + (d > 0 ? d + " d " + h + " h" : h > 0 ? h + " h " + m + " min" : m + " min");
     }
 
-    PanelWindow {
+    ScrimWindow {
         id: win
-
-        anchors {
-            top: true
-            bottom: true
-            left: true
-            right: true
-        }
-        exclusionMode: ExclusionMode.Ignore
-        color: "transparent"
-        visible: root.open
-        WlrLayershell.layer: WlrLayer.Overlay
-        WlrLayershell.namespace: "driftless-power"
-        WlrLayershell.keyboardFocus: root.open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-
-        Rectangle {
-            id: backdrop
-            anchors.fill: parent
-            color: Theme.scrim
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.hide()
-            }
-        }
+        open: root.open
+        name: "power"
+        onDismissed: root.hide()
 
         Item {
             id: keys

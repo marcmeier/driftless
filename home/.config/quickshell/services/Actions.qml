@@ -16,6 +16,19 @@ Singleton {
         Hyprland.dispatch(Hyprland.usingLua ? lua : legacy);
     }
 
+    // the screen with the focus, after Hyprland (Quickshell's monitor.focused lags behind)
+    function focusedScreen() {
+        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
+        return Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
+    }
+    // move a window of the shell there; returns that screen
+    function toFocusedScreen(win) {
+        const target = focusedScreen();
+        if (target && win.screen !== target)
+            win.screen = target;
+        return target;
+    }
+
     // a workspace number or a relative one ("e+1", "e-1")
     function focusWorkspace(ws) {
         const arg = typeof ws === "number" ? String(ws) : `"${ws}"`;

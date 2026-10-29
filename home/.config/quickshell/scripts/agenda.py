@@ -25,16 +25,17 @@ def khal(*args):
     return ANSI.sub("", out)
 
 
-def date_format():
+def khal_format(key, fallback):
     cfg = configparser.ConfigParser(interpolation=None, strict=False)
     try:
         cfg.read(os.path.expanduser("~/.config/khal/config"))
-        return cfg.get("locale", "dateformat", fallback="%d.%m.%Y")
+        return cfg.get("locale", key, fallback=fallback)
     except configparser.Error:
-        return "%d.%m.%Y"
+        return fallback
 
 
-FMT = date_format()
+FMT = khal_format("dateformat", "%d.%m.%Y")
+TIME_FMT = khal_format("timeformat", "%H:%M")
 
 
 def parse_date(text):
@@ -93,7 +94,13 @@ def summary():
             day = parse_date(parts[0])
             title = re.sub(r"\s*\(.*?\)\s*$", "", parts[2]).strip() or parts[2].strip()
             when = "" if day == today else "tmrw" if day == today + dt.timedelta(days=1) else f"{day:%a}"
-            nxt = {"when": " ".join(x for x in (when, parts[1].strip()) if x), "title": title}
+            nxt = {"when": " ".join(x for x in (when, parts[1].strip()) if x), "title": title, "at": None}
+            # when it starts (not for all-day events): the bar asks again then (services/Feeds.qml)
+            try:
+                start = dt.datetime.strptime(parts[1].strip(), TIME_FMT).time()
+                nxt["at"] = int(dt.datetime.combine(day, start).timestamp())
+            except ValueError:
+                pass
             break
     agenda = {}
     for day, event in listing(today, "7d"):

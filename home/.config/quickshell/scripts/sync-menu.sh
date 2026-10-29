@@ -7,12 +7,9 @@ STATE=${XDG_STATE_HOME:-$HOME/.local/state}/driftless
 mode=$(cat "$STATE/mode" 2> /dev/null || echo review)
 installs=$(cat "$STATE/installs" 2> /dev/null || echo on)
 refresh() { "$(dirname "$(readlink -f "$0")")/poke" sync; }
+# the switches themselves are driftless's (it pokes the bar)
 set_mode() {
-  mkdir -p "$STATE"
-  # pausing remembers the mode, resuming brings it back
-  [ "$1" = off ] && [ "$mode" != off ] && echo "$mode" > "$STATE/mode.resume"
-  echo "$1" > "$STATE/mode"
-  refresh
+  "$REPO/driftless" mode "$1" > /dev/null
   notify-send -a driftless "driftless sync" "$2"
 }
 
@@ -72,8 +69,7 @@ case $action in
   off) set_mode off "Sync switched off on this machine" ;;
   installs)
     new=$([ "$installs" = on ] && echo off || echo on)
-    echo "$new" > "$STATE/installs"
-    refresh
+    "$REPO/driftless" installs "$new" > /dev/null
     notify-send -a driftless "driftless sync" "Installing packages from the lists: $new"
     ;;
   # what the sync left waiting: in a terminal, with the password; yay shows each AUR package's

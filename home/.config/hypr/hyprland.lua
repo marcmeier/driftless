@@ -7,7 +7,7 @@ hl.monitor({
     output   = "",
     mode     = "preferred",
     position = "auto",
-    scale    = "1.0", -- Hyprland picks a fitting scale (HiDPI notebook panels)
+    scale    = "auto", -- Hyprland picks a fitting scale (HiDPI notebook panels)
 })
 
 -- Monitor rules of this machine: hosts/<host>/hyprland.lua, then the layout from the Monitors menu,
@@ -30,7 +30,6 @@ end)
 ---- MY PROGRAMS ----
 ---------------------
 
--- Set programs that you use
 -- the accent and the look (dark/light) of the plain theme, rendered by theme/apply.py. Not rendered yet
 -- (a fresh install whose theme step failed): the dark values keep the rest of this file working.
 local themed, theme = pcall(dofile, os.getenv("HOME") .. "/.config/theme/colors.lua")
@@ -41,7 +40,8 @@ local terminal = "ghostty"
 local menu = "walker"
 local fileManager = "nautilus"
 local browser = "brave-origin --hide-crash-restore-bubble"
-
+-- an area of the screen (slurp) to a file in ~/Pictures/Screenshots and the clipboard
+local shotArea = 'mkdir -p ~/Pictures/Screenshots && f=~/Pictures/Screenshots/shot-$(date +%F_%H-%M-%S).png && grim -g "$(slurp)" - | tee "$f" | wl-copy'
 
 
 -------------------
@@ -76,25 +76,6 @@ end
 
 
 -----------------------
------ PERMISSIONS -----
------------------------
-
--- See https://wiki.hypr.land/Configuring/Advanced-and-Cool/Permissions/
--- Please note permission changes here require a Hyprland restart and are not applied on-the-fly
--- for security reasons
-
--- hl.config({
---   ecosystem = {
---     enforce_permissions = true,
---   },
--- })
-
--- hl.permission("/usr/(bin|local/bin)/grim", "screencopy", "allow")
--- hl.permission("/usr/(lib|libexec|lib64)/xdg-desktop-portal-hyprland", "screencopy", "allow")
--- hl.permission("/usr/(bin|local/bin)/hyprpm", "plugin", "allow")
-
-
------------------------
 ---- LOOK AND FEEL ----
 -----------------------
 
@@ -112,22 +93,14 @@ hl.config({
             inactive_border = "rgb(" .. (theme.line or "3a3a3a") .. ")",
         },
 
-        -- Set to true to enable resizing windows by clicking and dragging on borders and gaps
-        resize_on_border = false,
-
-        -- Please see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Tearing/ before you turn this on
+        -- see https://wiki.hypr.land/Configuring/Advanced-and-Cool/Tearing/
         allow_tearing = true, -- only takes effect for windows with the "immediate" rule below
 
         layout = "dwindle",
     },
 
     decoration = {
-        rounding       = 0,
-        dim_inactive   = false,
-
-        -- Change transparency of focused and unfocused windows
-        active_opacity   = 1.0,
-        inactive_opacity = 1.0,
+        rounding = 0,
 
         -- plain: no shadow, no blur
         shadow = { enabled = false },
@@ -139,42 +112,10 @@ hl.config({
 })
 
 
--- Ref https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
--- "Smart gaps" / "No gaps when only"
--- uncomment all if you wish to use that.
--- hl.workspace_rule({ workspace = "w[tv1]", gaps_out = 0, gaps_in = 0 })
--- hl.workspace_rule({ workspace = "f[1]",   gaps_out = 0, gaps_in = 0 })
--- hl.window_rule({
---     name  = "no-gaps-wtv1",
---     match = { float = false, workspace = "w[tv1]" },
---     border_size = 0,
---     rounding    = 0,
--- })
--- hl.window_rule({
---     name  = "no-gaps-f1",
---     match = { float = false, workspace = "f[1]" },
---     border_size = 0,
---     rounding    = 0,
--- })
-
 -- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
 hl.config({
     dwindle = {
-        preserve_split = true, -- You probably want this
-    },
-})
-
--- See https://wiki.hypr.land/Configuring/Layouts/Master-Layout/ for more
-hl.config({
-    master = {
-        new_status = "master",
-    },
-})
-
--- See https://wiki.hypr.land/Configuring/Layouts/Scrolling-Layout/ for more
-hl.config({
-    scrolling = {
-        fullscreen_on_one_column = true,
+        preserve_split = true,
     },
 })
 
@@ -202,15 +143,9 @@ hl.config({
 
 hl.config({
     input = {
-        kb_layout  = "us", -- personal/hyprland.lua or hosts/<host>/hyprland.lua set yours
-        kb_variant = "",
-        kb_model   = "",
-        kb_options = "",
-        kb_rules   = "",
+        kb_layout = "us", -- personal/hyprland.lua or hosts/<host>/hyprland.lua set yours
 
         follow_mouse = 1,
-
-        sensitivity = 0, -- -1.0 - 1.0, 0 means no modification.
 
         touchpad = {
             natural_scroll = true,
@@ -232,10 +167,9 @@ hl.gesture({
 
 local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 
--- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
+-- See https://wiki.hypr.land/Configuring/Basics/Binds/
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal), { description = "Terminal (Ghostty)" })
-local closeWindowBind = hl.bind(mainMod .. " + W", hl.dsp.window.close(), { description = "Close window" })
--- closeWindowBind:set_enabled(false)
+hl.bind(mainMod .. " + W", hl.dsp.window.close(), { description = "Close window" })
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/quickshell call power toggle"), { description = "Power menu: lock, log out, suspend, reboot, shut down" })
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("~/.config/quickshell/scripts/lock"), { description = "Lock the screen" })
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/quickshell call bar popup notifications"), { description = "Notifications: the list" })
@@ -247,7 +181,7 @@ hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized", action
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphist decode | wl-copy"), { description = "Clipboard history" })
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("~/.config/hypr/claude-launch.sh"), { description = "Claude Code" })
 hl.bind("PRINT", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'), { description = "Screenshot: area to clipboard" })
-hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd('mkdir -p ~/Pictures/Screenshots && f=~/Pictures/Screenshots/shot-$(date +%F_%H-%M-%S).png && grim -g "$(slurp)" - | tee "$f" | wl-copy'), { description = "Screenshot: area to file and clipboard" })
+hl.bind("SHIFT + PRINT", hl.dsp.exec_cmd(shotArea), { description = "Screenshot: area to file and clipboard" })
 hl.bind("CTRL + PRINT", hl.dsp.exec_cmd('mkdir -p ~/Pictures/Screenshots && f=~/Pictures/Screenshots/shot-$(date +%F_%H-%M-%S).png && grim - | tee "$f" | wl-copy'), { description = "Screenshot: whole screen to file and clipboard" })
 -- Color picker: click a pixel -> hex code in clipboard + notification (Esc cancels)
 hl.bind(mainMod .. " + K", hl.dsp.exec_cmd("pidof hyprpicker || hyprpicker -a -n -q"), { description = "Colour picker: hex code to clipboard" })
@@ -289,13 +223,12 @@ for i = 1, 10 do
     hl.bind(mainMod .. " + SHIFT + " .. key,     hl.dsp.window.move({ workspace = i }), { description = "Move window to workspace 1-10" })
 end
 
--- Example special workspace (scratchpad)
+-- The scratchpad (special workspace)
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special("magic"), { description = "Scratchpad (special workspace): show or hide" })
--- Screenshot wie unter Windows: Bereich -> Datei + Zwischenablage
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd('mkdir -p ~/Pictures/Screenshots && f=~/Pictures/Screenshots/shot-$(date +%F_%H-%M-%S).png && grim -g "$(slurp)" - | tee "$f" | wl-copy'), { description = "Screenshot: area to file and clipboard" })
--- Screenshot mit Annotieren (satty): Bereich -> Editor, Speichern/Kopieren dort
+-- the screenshot keys of Windows, the same as SHIFT + PRINT
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(shotArea), { description = "Screenshot: area to file and clipboard" })
+-- an area into satty, to draw on it; save and copy from there
 hl.bind(mainMod .. " + SHIFT + A", hl.dsp.exec_cmd('mkdir -p ~/Pictures/Screenshots && grim -g "$(slurp)" - | satty --filename - --output-filename ~/Pictures/Screenshots/shot-%Y-%m-%d_%H-%M-%S.png --copy-command wl-copy --early-exit'), { description = "Screenshot: area, annotate (satty)" })
--- Scratchpad-Verschieben (vorher SUPER + SHIFT + S)
 hl.bind(mainMod .. " + ALT + S", hl.dsp.window.move({ workspace = "special:magic" }), { description = "Move window to the scratchpad" })
 
 -- Scroll through existing workspaces with mainMod + scroll
@@ -328,16 +261,13 @@ hl.bind("XF86AudioPrev",  hl.dsp.exec_cmd("playerctl previous"),   { locked = tr
 -- See https://wiki.hypr.land/Configuring/Basics/Window-Rules/
 -- and https://wiki.hypr.land/Configuring/Basics/Workspace-Rules/
 
--- Example window rules that are useful
-
-local suppressMaximizeRule = hl.window_rule({
-    -- Ignore maximize requests from all apps. You'll probably like this.
+hl.window_rule({
+    -- apps do not maximise themselves
     name  = "suppress-maximize-events",
     match = { class = ".*" },
 
     suppress_event = "maximize",
 })
--- suppressMaximizeRule:set_enabled(false)
 
 hl.window_rule({
     -- Fix some dragging issues with XWayland
@@ -353,14 +283,6 @@ hl.window_rule({
 
     no_focus = true,
 })
-
--- Layer rules also return a handle.
--- local overlayLayerRule = hl.layer_rule({
---     name  = "no-anim-overlay",
---     match = { namespace = "^my-overlay$" },
---     no_anim = true,
--- })
--- overlayLayerRule:set_enabled(false)
 
 -- The shell's popups, tooltips, notifications, on-screen display, power menu and password dialog appear at
 -- once, like everything in the plain look (no compositor fade either)
@@ -379,15 +301,6 @@ hl.layer_rule({
     no_anim = true,
 })
 
--- Hyprland-run windowrule
-hl.window_rule({
-    name  = "move-hyprland-run",
-    match = { class = "hyprland-run" },
-
-    move  = "20 monitor_h-120",
-    float = true,
-})
-
 -- Gaming: allow tearing (lower input latency) for Steam/Proton, Battle.net/Diablo (Wine) and gamescope windows.
 -- Requires general.allow_tearing = true above and vsync off in the game.
 hl.window_rule({
@@ -395,20 +308,6 @@ hl.window_rule({
     match = { class = "^(steam_app_.*|battle\\.net\\.exe|diablo iv\\.exe|gamescope)$" },
 
     immediate = true,
-})
-
--- Gaming: Diablo IV (Lutris/Wine, class steam_app_default) and Baldur's Gate 3 (Proton, steam_app_1086940),
--- matched by window title so the Battle.net launcher (same class) stays a normal window:
--- open floating and fullscreen on the whole monitor, so they don't get tiled first and end up half black.
-hl.window_rule({
-    name  = "games-fullscreen",
-    match = { class = "^(steam_app_default|steam_app_1086940|diablo iv\\.exe)$", title = "^(Diablo IV|Baldur's Gate 3)$" },
-
-    float      = true,
-    fullscreen = true,
-    monitor    = 0,
-    size       = "monitor_w monitor_h",
-    move       = "0 0",
 })
 
 -- Browser extension popups (e.g. Bitwarden's unlock/popout in Brave, Chrome, Chromium, Vivaldi): they open as
@@ -456,10 +355,20 @@ hl.window_rule({
 --   3. the settings                Displays (nwg-displays) and Mouse & keyboard (quickshell/scripts/prefs.py),
 --                                  saved in ~/.local/state/hypr, never in the repository: what you set
 --                                  there is what you get
-for _, layer in ipairs({ "host", "personal" }) do
-    pcall(dofile, os.getenv("HOME") .. "/.config/driftless/" .. layer .. "/hyprland.lua")
+-- A missing file is fine (no layer, nothing saved yet); a broken one shows on screen, and the files
+-- after it still load.
+local function layer(path)
+    local f = io.open(path)
+    if not f then return end
+    f:close()
+    local ok, err = pcall(dofile, path)
+    if not ok then
+        hl.notification.create({ text = "hyprland.lua: " .. tostring(err), duration = 15000, color = "rgb(e06c75)" })
+    end
 end
+layer(os.getenv("HOME") .. "/.config/driftless/host/hyprland.lua")
+layer(os.getenv("HOME") .. "/.config/driftless/personal/hyprland.lua")
 local layout_dir = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")) .. "/hypr/"
 for _, file in ipairs({ "monitors.lua", "workspaces.lua", "input.lua" }) do
-    pcall(dofile, layout_dir .. file) -- missing until the first save
+    layer(layout_dir .. file)
 end

@@ -24,7 +24,6 @@ Scope {
     property string message: ""         // what PAM says or why it failed
     property bool failed: false
     property bool checking: pam.active
-    property int fails: 0
     property bool unlocking: false      // the moment before the screens open
     readonly property bool locked: keep.locked
 
@@ -47,7 +46,6 @@ Scope {
         message = "";
         failed = false;
         unlocking = false;
-        fails = 0;
         Quickshell.execDetached(["touch", marker]);
         keep.locked = true;
     }
@@ -122,13 +120,11 @@ Scope {
         }
         onCompleted: result => {
             if (result === PamResult.Success) {
-                root.fails = 0;
                 root.done();
                 return;
             }
             root.password = "";
             root.failed = true;
-            root.fails++;
             root.message = result === PamResult.MaxTries ? "Too many tries, wait a moment" : "Wrong password";
         }
         onError: error => {

@@ -3,9 +3,12 @@
 plain look: greys and one accent).
 
   apply.py --current                   render the look that is chosen (also --default, the same)
+  apply.py --refresh                   the same, then reload the programs and the login screen
+                                       (set-wallpaper.sh --current)
   apply.py --appearance dark|light|auto   choose the look and render it (auto: light from sunrise
                                        to sunset, the weather feed's times, else 7 to 19 o'clock)
-  apply.py --palette NAME              choose the palette (plain, catppuccin, ...) and render it
+  apply.py --palette NAME              choose the palette (plain, catppuccin, ...) and render it,
+                                       the login screen too (its dark look)
   apply.py --palettes                  list the palettes (name, a tab, the label)
   apply.py --follow-sun                with auto: render again when the sun has risen or set since
 
@@ -20,7 +23,7 @@ palette's dark variant.
 
 Everything written here is per machine and not in the repository (.gitignore): the desktop's plain
 background ~/.config/wall.png (one colour, shown by awww), the rendered configs, the round avatar from
-~/.face and the login screen files in ~/.cache/theme (set-wallpaper.sh installs those as root; login.png
+~/.face and the login screen files in ~/.cache/theme (login_screen() installs those as root; login.png
 is the night desk colour, the shell's lock screen draws the same colour itself).
 The shell (bar, notifications, lock screen, power menu) reads colors.json itself and follows it live.
 """
@@ -61,7 +64,6 @@ TARGETS = {
     "btop.theme": "btop/themes/driftless.theme",
 }
 NIGHT = {"hyprlock.conf"}
-PREVIEW = ("desk", "glass", "bg", "bg_alt", "fg", "dim", "line", "overlay", "primary", "secondary")
 SWATCHES = ("bg", "primary", "red", "yellow", "green", "blue")  # a palette in brief, for the settings
 
 
@@ -235,7 +237,9 @@ VSCODE_TYPES = """<?xml version="1.0" encoding="utf-8"?>
 def vscode_theme(rgb_colors, name):
     """VS Code theme "driftless": packed as a .vsix next to VS Code's own theme files (it includes
     2026 Dark) and installed in the background; VS Code only picks up registered extensions.
-    Open windows show the new colours after a reload. Skipped without VS Code."""
+    Open windows show the new colours after a reload. Skipped without VS Code, and when the theme is
+    installed and did not change (installing starts VS Code)."""
+    import hashlib
     import shutil
     import zipfile
 
@@ -260,15 +264,23 @@ def vscode_theme(rgb_colors, name):
             ]
         },
     }
+    theme = render((TEMPLATES / "vscode-theme.json").read_text(), rgb_colors, name)
+    bases = sorted(VSCODE_THEMES.glob("*.json"))
+    digest = hashlib.sha256(json.dumps(package).encode() + theme.encode())
+    for base in bases:
+        digest.update(base.read_bytes())
     vsix = HOME / ".cache" / "theme" / "driftless-vscode.vsix"
+    stamp = vsix.with_name("driftless-vscode.sha256")
+    installed = any((HOME / ".vscode" / "extensions").glob("driftless.theme-*"))
+    if installed and stamp.is_file() and stamp.read_text() == digest.hexdigest():
+        return
     vsix.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(vsix.with_name(vsix.name + ".tmp"), "w", zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", VSCODE_TYPES)
         archive.writestr("extension.vsixmanifest", VSCODE_MANIFEST)
         archive.writestr("extension/package.json", json.dumps(package, indent=1))
-        for base in VSCODE_THEMES.glob("*.json"):
+        for base in bases:
             archive.write(base, "extension/themes/" + base.name)
-        theme = render((TEMPLATES / "vscode-theme.json").read_text(), rgb_colors, name)
         archive.writestr("extension/themes/driftless.json", theme)
     os.replace(vsix.with_name(vsix.name + ".tmp"), vsix)
     subprocess.Popen(
@@ -278,6 +290,7 @@ def vscode_theme(rgb_colors, name):
         stderr=subprocess.DEVNULL,
         start_new_session=True,
     )
+    write(stamp, digest.hexdigest())
 
 
 def write(dest, text):
@@ -307,14 +320,28 @@ def gtk_look(name):
 
 def reload_programs():
     """What does not follow the files by itself: the desktop's colour, Hyprland's borders, the terminals
-    and btop (USR2: both read their colours again)."""
+    and btop (USR2: both read their colours again). The shell follows colors.json itself."""
+    quiet = {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "check": False}
+    if subprocess.run(["awww", "img", "--transition-type", "none", str(CONFIG / "wall.png")], **quiet).returncode:
+        subprocess.run(["systemctl", "--user", "restart", "driftless-wallpaper.service"], **quiet)
     for command in (
-        ["awww", "img", "--transition-type", "none", str(CONFIG / "wall.png")],
         ["hyprctl", "reload"],
         ["pkill", "-USR2", "-x", "ghostty"],
         ["pkill", "-USR2", "-x", "btop"],
     ):
-        subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+        subprocess.run(command, **quiet)
+
+
+def login_screen():
+    """Hand the login screen its files from ~/.cache/theme: greeter-update of driftless-system copies
+    them to /var/lib/driftless/greeter (pkexec; polkit lets the active session do it without a password)."""
+    update = "/usr/lib/driftless/greeter-update"
+    if not os.access(update, os.X_OK):
+        print("Login screen NOT updated: driftless-system is not installed (driftless system)", file=sys.stderr)
+    elif subprocess.run(["pkexec", update, str(HOME / ".cache" / "theme")], check=False).returncode:
+        print("login screen NOT updated", file=sys.stderr)
+    else:
+        print("login screen updated")
 
 
 def palettes_in_brief():
@@ -350,11 +377,6 @@ def render_all(name):
                 "accents": accents,
                 "colors": scheme.describe(rgb_colors),
                 "night": scheme.describe(night_colors),
-                # both looks in brief, for the previews in the settings
-                "looks": {
-                    look_name: {key: scheme.to_hex(colors[key]) for key in PREVIEW}
-                    for look_name, colors in (("dark", night_colors), ("light", scheme.scheme("light", chosen)))
-                },
             },
             indent=1,
         )
@@ -401,6 +423,7 @@ def main(argv):
         write(PALETTE, argv[1] + "\n")
         render_all(look())
         reload_programs()
+        login_screen()
         return
     if argv and argv[0] == "--palettes":
         for key, entry in scheme.PALETTES.items():
@@ -413,6 +436,11 @@ def main(argv):
         return
     if argv and argv[0] in ("--current", "--default"):
         render_all(look())
+        return
+    if argv and argv[0] == "--refresh":
+        render_all(look())
+        reload_programs()
+        login_screen()
         return
     sys.exit(__doc__)
 

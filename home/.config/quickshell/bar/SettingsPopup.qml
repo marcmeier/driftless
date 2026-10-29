@@ -93,20 +93,7 @@ Item {
     // ---- what there is ----
 
     // today's sunrise and sunset (weather.py), for the line under the looks
-    FileView {
-        id: sun
-        path: Quickshell.env("HOME") + "/.cache/theme/sun.json"
-        watchChanges: true
-        onFileChanged: reload()
-        printErrors: false
-    }
-    readonly property var sunTimes: {
-        try {
-            return JSON.parse(sun.text());
-        } catch (e) {
-            return { sunrise: "07:00", sunset: "19:00" };
-        }
-    }
+    readonly property var sunTimes: NightLight.sun
     Connections {
         target: Theme
         function onRendersChanged() {

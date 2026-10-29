@@ -1,7 +1,6 @@
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Hyprland
 import Quickshell.Services.Pipewire
 import QtQuick
 import qs.services
@@ -45,10 +44,7 @@ Scope {
         root.text = text;
         root.glyph = glyph;
         root.off = off;
-        const name = Hyprland.focusedMonitor ? Hyprland.focusedMonitor.name : "";
-        const target = Quickshell.screens.find(s => s.name === name) || Quickshell.screens[0];
-        if (target && win.screen !== target)
-            win.screen = target;
+        Actions.toFocusedScreen(win);
         shown = true;
         hide.restart();
     }
