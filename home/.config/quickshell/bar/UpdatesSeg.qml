@@ -10,8 +10,8 @@ Seg {
     readonly property int flatpak: d ? (d.flatpak || 0) : 0
     readonly property int count: d ? d.repo + d.aur + flatpak : 0
     shown: count > 0
-    padL: compact ? 6 : 7
-    padR: compact ? 6 : 8
+    padL: compact ? 4 : 7
+    padR: compact ? 4 : 8
     spacing: 4
     tip: d ? `${d.repo} official, ${d.aur} AUR${flatpak ? `, ${flatpak} Flatpak` : ""}<br><font color='${Theme.dim}'>Click: update  ·  Right: check again</font>` : ""
 

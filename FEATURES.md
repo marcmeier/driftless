@@ -104,9 +104,10 @@ without a restart. Groups from left to right:
 
 - **You**: your name; a click opens the settings (next sections)
 - **Workspaces** (the active one bright, with a line in the accent below it) and the **active window**
-- **Clock, weather and your next calendar event**. Click the clock: the month with a dot on every day
-  that has events, click a day for its events, and what comes up; right click or a click on the event:
-  ikhal. Click the weather: the next hours and three days
+- **Clock with your next calendar event, and the weather**. Next to the date: the next event within
+  two days behind an accent dot (amber when the calendar sync failed); hover for the agenda. Click the
+  clock: the month with a dot on every day that has events, click a day for its events, and what comes
+  up; right click: ikhal. Click the weather: the next hours and three days
 - **Privacy indicator**, first on the right and only while it matters: an amber capsule with a symbol
   for each of microphone, camera and screen while an app records, films or shares it (red while the
   screen is shared); it pulses when something new starts. Hover: which apps; click: mute the

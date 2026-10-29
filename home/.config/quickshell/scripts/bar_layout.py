@@ -38,7 +38,6 @@ NAMES = {
     "custom/privacy": "Microphone, camera & screen in use",
     "group/datetime": "Clock & calendar",
     "clock": "Clock",
-    "custom/calendar": "Next event",
     "custom/weather": "Weather",
     "group/media": "Media",
     "tray": "Tray icons",

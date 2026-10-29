@@ -17,8 +17,8 @@ Seg {
     }
 
     shown: !!sink
-    padL: compact ? 6 : 6
-    padR: compact ? 6 : 8
+    padL: compact ? 4 : 6
+    padR: compact ? 4 : 8
     spacing: 6
     tip: sink ? `${Apps.esc(sink.description || sink.name)}<font color='${Theme.dim}'>  ·  ${muted ? "muted" : Math.round(level * 100) + "%"}</font>`
                 + `<br><font color='${Theme.dim}'>Click: outputs  ·  Middle: mixer  ·  Right: mute</font>` : ""

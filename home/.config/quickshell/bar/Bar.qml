@@ -67,7 +67,7 @@ PanelWindow {
         id: section
         property string name
         height: Theme.barHeight
-        spacing: bar.compact ? 8 : 14
+        spacing: bar.compact ? 14 : 20
 
         // the width of the pills that do not give way (all but those with `flexible`), with the gaps
         readonly property real rigidWidth: {
@@ -84,11 +84,29 @@ PanelWindow {
 
         Repeater {
             model: BarLayout.section(section.name, bar.variant)
-            delegate: Loader {
+            // a thin line in the middle of the gap before every group but the first: the groups read
+            // as groups, the widgets in one stay close together
+            delegate: Item {
                 required property string modelData
-                sourceComponent: bar.widget(modelData)
+                readonly property alias item: loader.item
+                readonly property alias sourceComponent: loader.sourceComponent
                 visible: !!(item && item.shown)
-                onLoaded: item.bar = bar
+                implicitWidth: loader.implicitWidth
+                implicitHeight: Theme.barHeight
+
+                Rectangle {
+                    visible: !parent.Positioner.isFirstItem
+                    x: -Math.round(section.spacing / 2) - 1
+                    width: 1
+                    height: 14
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Theme.separator
+                }
+                Loader {
+                    id: loader
+                    sourceComponent: bar.widget(parent.modelData)
+                    onLoaded: item.bar = bar
+                }
             }
         }
     }
@@ -112,7 +130,6 @@ PanelWindow {
             "group/session": sessionPill,
             "clock": clockSeg,
             "custom/weather": weatherSeg,
-            "custom/calendar": eventSeg,
             "network": networkSeg,
             "bluetooth": bluetoothSeg,
             "pulseaudio": volumeSeg,
@@ -142,7 +159,6 @@ PanelWindow {
     Component { id: sessionPill; GroupPill { name: "group/session" } }
     Component { id: clockSeg; ClockSeg {} }
     Component { id: weatherSeg; WeatherSeg {} }
-    Component { id: eventSeg; EventSeg {} }
     Component { id: networkSeg; NetworkSeg {} }
     Component { id: bluetoothSeg; BluetoothSeg {} }
     Component { id: volumeSeg; VolumeSeg {} }

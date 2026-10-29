@@ -9,8 +9,8 @@ Seg {
     readonly property var d: Feeds.sync.value
     readonly property string mode: d?.["class"] ?? "none"
     shown: !!d && mode !== "none"
-    padL: compact ? 6 : 7
-    padR: compact ? 6 : 8
+    padL: compact ? 4 : 7
+    padR: compact ? 4 : 8
     tip: (d?.tooltip ?? "").replace(/\n/g, "<br>").replace(/(^|<br>)( +)/g, (m, br, sp) => br + "&nbsp;".repeat(sp.length))
 
     onClicked: button => {

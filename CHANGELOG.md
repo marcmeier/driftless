@@ -4,6 +4,20 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.20.0 (2026-10-29): calendar in the clock
+
+### Changed
+- **The next event sits in the clock**: next to the date, behind an accent dot (amber when the
+  calendar sync failed; the compact bar shows only the dot), and the clock's tooltip carries the
+  agenda of the next days. Click: the month as before (sync and ikhal there); right click: ikhal.
+  The separate event widget after the weather (`custom/calendar`) is gone.
+- **The bar's groups read as groups**: a wider gap between them with a thin line in its middle, and
+  the widgets inside a group closer together on the compact bar.
+
+### Fixed
+- The shared `mimeapps.list` no longer makes VS Code the default for plain text; that entry slipped
+  in with v2.19.0.
+
 ## v2.19.0 (2026-10-29): privacy indicator and folded tray
 
 ### Added

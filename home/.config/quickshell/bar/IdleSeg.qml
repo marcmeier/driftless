@@ -5,8 +5,8 @@ import qs.services
 Seg {
     id: seg
 
-    padL: compact ? 6 : 7
-    padR: compact ? 6 : 7
+    padL: compact ? 4 : 7
+    padR: compact ? 4 : 7
     tip: KeepAwake.on ? "Kept awake (no lock, no screen off)<br><font color='" + Theme.dim + "'>Click: allow idle again</font>"
                       : "Idle allowed<br><font color='" + Theme.dim + "'>Click: keep awake</font>"
 

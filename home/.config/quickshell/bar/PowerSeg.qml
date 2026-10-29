@@ -5,8 +5,8 @@ import qs.services
 Seg {
     id: seg
 
-    padL: compact ? 6 : 7
-    padR: compact ? 6 : 7
+    padL: compact ? 4 : 7
+    padR: compact ? 4 : 7
     tip: "Power menu<br><font color='" + Theme.dim + "'>Click: lock, log out, suspend, reboot, shut down  ·  Right: lock</font>"
 
     onClicked: button => {

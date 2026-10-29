@@ -42,8 +42,8 @@ Item {
         Seg {
             id: more
             bar: tray.bar
-            padL: tray.compact ? 5 : 6
-            padR: tray.compact ? 5 : 6
+            padL: tray.compact ? 4 : 6
+            padR: tray.compact ? 4 : 6
             popupKey: "tray"
             popupComponent: Component {
                 TrayPopup {}

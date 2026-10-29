@@ -10,8 +10,8 @@ Seg {
     readonly property bool dnd: Notifs.dnd
     readonly property bool fresh: Notifs.unread > 0
 
-    padL: compact ? 6 : 7
-    padR: compact ? 6 : 7
+    padL: compact ? 4 : 7
+    padR: compact ? 4 : 7
     spacing: 4
     tip: (dnd ? "Do not disturb (only critical ones pop up)" : count > 0 ? `${count} notification${count === 1 ? "" : "s"}` : "No notifications")
          + (!dnd && Notifs.fullscreen ? `<br><font color='${Theme.dim}'>Quiet while a window is fullscreen</font>` : "")

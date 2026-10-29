@@ -18,8 +18,8 @@
         // your voice: ask Claude (the bubble grows out of this button), dictation, and how much of
         // Claude is left
         "group/claude": ["custom/ask", "custom/dictate", "custom/claude"],
-        // one island: time and date · weather · the next event
-        "group/datetime": ["clock", "custom/weather", "custom/calendar"],
+        // one island: time, date and the next event · weather
+        "group/datetime": ["clock", "custom/weather"],
         // how this machine is connected: network, Bluetooth, output (with the microphones in its popup), battery
         "group/status": ["network", "bluetooth", "pulseaudio", "battery"],
         // the apps' own icons, apart from the kit's monochrome ones, next to the media (apps too); folded

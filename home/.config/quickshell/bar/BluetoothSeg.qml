@@ -13,8 +13,8 @@ Seg {
     readonly property var withBattery: connected.find(d => d.batteryAvailable) || null
 
     shown: !!adapter
-    padL: compact ? 6 : 7
-    padR: compact ? 6 : (withBattery ? 8 : 7)
+    padL: compact ? 4 : 7
+    padR: compact ? 4 : (withBattery ? 8 : 7)
     spacing: 5
     tip: (!powered ? "Bluetooth off"
           : connected.length === 0 ? "Bluetooth on, nothing connected"

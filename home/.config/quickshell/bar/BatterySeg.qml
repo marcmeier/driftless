@@ -14,8 +14,8 @@ Seg {
     readonly property color tone: charging ? Theme.accent2 : percent <= 12 ? Theme.crit : percent <= 25 ? Theme.warn : Theme.text
 
     shown: !!dev && dev.isLaptopBattery && dev.isPresent
-    padL: compact ? 5 : 6
-    padR: compact ? 6 : 8
+    padL: compact ? 4 : 6
+    padR: compact ? 4 : 8
     spacing: compact ? 4 : 6
     tip: Battery.summary(dev)
 

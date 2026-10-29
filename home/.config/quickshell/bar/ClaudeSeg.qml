@@ -15,7 +15,7 @@ Seg {
 
     shown: !!d
     padL: compact ? 4 : 5
-    padR: compact ? 10 : 12
+    padR: compact ? 6 : 9
     spacing: 6
     tip: Usage.summary(d)
     onClicked: togglePopup()

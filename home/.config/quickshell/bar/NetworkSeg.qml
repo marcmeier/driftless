@@ -16,8 +16,8 @@ Seg {
     readonly property bool hasWifi: devices.some(d => d.type === DeviceType.Wifi)
 
     shown: !wired || !!wifi
-    padL: compact ? 6 : 8
-    padR: compact ? 6 : 8
+    padL: compact ? 4 : 8
+    padR: compact ? 4 : 8
     spacing: 6
     tip: offline ? "Offline" : `${Apps.esc(net ? net.name : wifi ? wifi.name : "Wired")}<font color='${Theme.dim}'>  ·  ${Math.round(strength * 100)}%</font>`
 
