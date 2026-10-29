@@ -4,6 +4,13 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.17.1 (2026-10-29): Hyprland 0.57.0
+
+### Fixed
+- **SUPER+F maximises again under Hyprland 0.57.0**: the fullscreen dispatcher now takes a table
+  (`hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" })`); the old two-argument call
+  failed to load the bind and showed a config error after login. The new form works on 0.56 too.
+
 ## v2.17.0 (2026-10-28): floating extension popups
 
 ### Changed
