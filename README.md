@@ -64,7 +64,7 @@ A new machine gets everything from two scripts.
   sync, ...), compact on notebook panels; a click opens the details: the month with your events, the
   forecast, cover and controls, outputs and levels per app, Wi-Fi networks, Bluetooth devices, power
   profiles
-- **Settings** on your name, a popup of the bar: your picture (placed and zoomed in a round mask),
+- **Settings** behind the cog at the right edge, a popup of the bar: your picture (placed and zoomed in a round mask),
   dark, light or auto, bar size, widgets, monitors, sync, and every keybinding in a list you
   search as you type (`SUPER + SHIFT + K`)
 - **Gaming stack**: Steam, Proton-GE, Lutris, gamescope, gamemode, tearing for games

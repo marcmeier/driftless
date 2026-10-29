@@ -153,8 +153,8 @@ Item {
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
-                    // the user pill is the way in here: it stays
-                    root.widgets = JSON.parse(text).filter(w => w.id !== "group/user" && w.group !== "group/user");
+                    // the cog is the way in here: its group stays
+                    root.widgets = JSON.parse(text).filter(w => w.id !== "group/session");
                 } catch (e) {}
             }
         }

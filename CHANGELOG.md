@@ -4,6 +4,21 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.21.0 (2026-10-29): about this machine
+
+### Added
+- **About this machine**, a click on your name: the model, processor, system, kernel, the Hyprland,
+  Quickshell and driftless versions (with the commit running here), uptime, the last full upgrade,
+  memory and disk (`scripts/about.py`, read on every open), with picture, lock and log out below.
+
+### Changed
+- **The settings sit behind a cog** at the right edge, next to the power menu, instead of behind your
+  name. The cog cannot be hidden in the widget list, so the way in stays.
+- **The sync shows the driftless mark** in the colour of its state instead of GitHub's, drawn for the
+  bar (`bar/DriftlessMark.qml`); `sync.py` hands what goes next to it over as `badge`.
+- **The sync moves to the group at the edge** (sync, notifications, keep awake, settings, power); the
+  pending group holds the updates alone.
+
 ## v2.20.0 (2026-10-29): calendar in the clock
 
 ### Changed

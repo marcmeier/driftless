@@ -207,7 +207,9 @@ def main():
     tooltip += last_change_per_machine(has_origin)
     tooltip += ["", "Click: menu  ·  Right: sync now  ·  Middle: pause / resume"]
 
-    print(json.dumps({"text": icon + badge, "class": state, "tooltip": "\n".join(tooltip)}))
+    # "badge": what the shell writes next to its own mark (bar/SyncSeg.qml)
+    extra = (MARK.get(state, "") + badge).strip()
+    print(json.dumps({"text": icon + badge, "badge": extra, "class": state, "tooltip": "\n".join(tooltip)}))
 
 
 if __name__ == "__main__":

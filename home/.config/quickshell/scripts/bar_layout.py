@@ -57,10 +57,19 @@ NAMES = {
     "group/status": "Status",
     "group/pending": "Pending",
     "group/session": "Session",
+    "custom/settings": "Settings",
     "custom/power": "Power",
 }
-# group members that only make sense together with their group (drawn as one pill)
-FIXED = {"custom/avatar", "custom/username", "custom/media-prev", "custom/media-play", "custom/media-next"}
+# group members that only make sense together with their group (drawn as one pill), and the settings
+# cog (the way into the widget list, so it cannot be hidden on its own)
+FIXED = {
+    "custom/avatar",
+    "custom/username",
+    "custom/media-prev",
+    "custom/media-play",
+    "custom/media-next",
+    "custom/settings",
+}
 
 
 def name(mod):

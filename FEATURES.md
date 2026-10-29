@@ -102,7 +102,9 @@ without a restart. Groups from left to right:
 <sub>The spacious bar on a 3440x1440 ultrawide.</sub>
 
 
-- **You**: your name; a click opens the settings (next sections)
+- **You**: your name; click: about this machine (model, processor, system, kernel, Hyprland,
+  Quickshell and driftless versions, uptime, the last full upgrade, memory and disk; your picture,
+  lock, log out)
 - **Workspaces** (the active one bright, with a line in the accent below it) and the **active window**
 - **Clock with your next calendar event, and the weather**. Next to the date: the next event within
   two days behind an accent dot (amber when the calendar sync failed); hover for the agenda. Click the
@@ -118,7 +120,7 @@ without a restart. Groups from left to right:
 - **Tray**, folded away: an arrow opens all the apps' own icons in a small box (click: the app; right
   click: its menu in the same style, below the icons, which stay usable). The pin on an icon keeps it in the bar next to the arrow (per
   machine); the arrow lights up while a folded app asks for attention
-- **Pending**, only while something waits: updates (click: update in a terminal) and the sync
+- **Pending**, only while something waits: updates (click: update in a terminal)
 - **Voice and Claude**: the ✨ button asks Claude by voice (click: talk, click again: send; the bubble
   opens below it), dictation next to it, then Claude's session and weekly limits; click them: both
   with their resets and the tokens per day
@@ -126,8 +128,9 @@ without a restart. Groups from left to right:
   with their battery, and the ones nearby to pair with one click; right: on/off), volume (wheel: level;
   click: outputs, microphones and a level per app that plays; right: mute), battery (click: time left,
   power draw, health, power profile)
-- **Session**, always at the edge: notifications (click: the list; right: do not disturb; middle: clear
-  all), keep awake, power (click: the power menu; right: lock)
+- **Session**, always at the edge: the sync (the driftless mark in the colour of its state; click: its
+  menu), notifications (click: the list; right: do not disturb; middle: clear all), keep awake, the
+  settings (cog), power (click: the power menu; right: lock)
 
 Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Popups also open from a key
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,
@@ -196,7 +199,7 @@ the desktop looks borrowed from another program.
 
 ## Settings menu
 
-A click on your name opens them as a popup of the bar, laid out like a settings app: the pages on the
+A click on the cog at the right edge opens them as a popup of the bar, laid out like a settings app: the pages on the
 left (Appearance, Bar, Displays, Notifications, Mouse & keyboard, Power, System), on the right one row
 per setting with its switch or button.
 Every choice is per machine (but your picture):

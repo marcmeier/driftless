@@ -2,8 +2,8 @@ import QtQuick
 import qs.services
 
 // You: your name (the plain look leaves the picture to the settings; "custom/avatar" alone shows the
-// name as well). A click opens the desktop settings (bar/SettingsPopup.qml: look, bar size and widgets,
-// monitors, sync, keys).
+// name as well). A click: about this machine (bar/AboutPopup.qml: the machine, its system and
+// versions, memory and disk; your picture, lock, log out). The settings sit behind the cog at the edge.
 Pill {
     id: pill
 
@@ -17,11 +17,11 @@ Pill {
         padL: pill.showAvatar ? 2 : 10
         padR: pill.showName ? 10 : 2
         spacing: 8
-        tip: "Desktop settings<br><font color='" + Theme.dim + "'>look · bar size and widgets · monitors · sync · keys</font>"
+        tip: "About this machine"
         onClicked: togglePopup()
-        popupKey: "settings"
+        popupKey: "about"
         popupComponent: Component {
-            SettingsPopup {}
+            AboutPopup {}
         }
 
         Item {

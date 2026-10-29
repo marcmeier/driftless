@@ -13,7 +13,7 @@
     "modules-right": ["custom/privacy", "group/media", "group/tray", "group/pending", "group/claude", "group/status", "group/session"],
 
     "groups": {
-        // avatar and name; a click opens the settings (bar/SettingsPopup.qml)
+        // who you are: your name (hover: the machine and its uptime)
         "group/user": ["custom/avatar", "custom/username"],
         // your voice: ask Claude (the bubble grows out of this button), dictation, and how much of
         // Claude is left
@@ -25,11 +25,11 @@
         // the apps' own icons, apart from the kit's monochrome ones, next to the media (apps too); folded
         // behind an arrow, only the pinned ones stay in the bar
         "group/tray": ["tray"],
-        // what waits for you: updates, the sync; gone while there is nothing to do
-        "group/pending": ["custom/updates", "custom/sync"],
-        // you and the session, always in the same place at the edge: notifications (do not disturb),
-        // keep awake, power
-        "group/session": ["custom/notifications", "idle_inhibitor", "custom/power"]
+        // what waits for you: updates; gone while there is nothing to do
+        "group/pending": ["custom/updates"],
+        // the system and you, always in the same place at the edge: the sync, notifications (do not
+        // disturb), keep awake, the settings (bar/SettingsPopup.qml), power
+        "group/session": ["custom/sync", "custom/notifications", "idle_inhibitor", "custom/settings", "custom/power"]
     },
 
     // the compact bar (narrow screens) has the same pills with fewer words; these groups lose members

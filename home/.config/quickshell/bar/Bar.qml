@@ -140,6 +140,7 @@ PanelWindow {
             "custom/sync": syncSeg,
             "idle_inhibitor": idleSeg,
             "custom/notifications": notifySeg,
+            "custom/settings": settingsSeg,
             "custom/power": powerSeg
         })[name] || null;
     }
@@ -148,6 +149,7 @@ PanelWindow {
     Component { id: workspaces; Workspaces {} }
     Component { id: windowPill; WindowPill {} }
     Component { id: privacySeg; PrivacySeg {} }
+    Component { id: settingsSeg; SettingsSeg {} }
     Component { id: dateTime; GroupPill { name: "group/datetime"; separators: true } }
     Component { id: mediaPill; MediaPill {} }
     Component { id: claudeGroup; GroupPill { name: "group/claude" } }
