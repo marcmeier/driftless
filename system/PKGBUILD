@@ -5,7 +5,7 @@
 pkgname=driftless-system
 pkgver=${DRIFTLESS_SYSTEM_VERSION:-0}
 pkgrel=1
-pkgdesc="System drop-ins of the driftless kit: greeter, SMART warnings, zram, mirrors, initramfs hooks, SSH"
+pkgdesc="System drop-ins of the driftless kit: greeter, SMART warnings, zram, mirrors, initramfs hooks, SSH, mDNS for printers"
 arch=(any)
 license=(MIT)
 depends=(bash polkit systemd util-linux greetd quickshell greetd-regreet cage smartmontools zram-generator reflector mkinitcpio openssh)

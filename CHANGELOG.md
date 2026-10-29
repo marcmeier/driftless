@@ -4,6 +4,17 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.18.0 (2026-10-29): printing
+
+### Added
+- **Printing without drivers**: a new package group `printing` (CUPS, cups-filters, avahi, nss-mdns,
+  system-config-printer) with `cups.socket` and `avahi-daemon.service` enabled. Network printers that
+  speak IPP Everywhere or AirPrint (most from the last ten years) show up in every print dialog;
+  `system-config-printer` sets one up for good.
+- driftless-system adds `mdns_minimal` to the `hosts` line of `/etc/nsswitch.conf` once, so printers
+  that announce themselves as `NAME.local` resolve. On a machine that is already set up, run
+  `driftless system` after the sync has installed the group.
+
 ## v2.17.1 (2026-10-29): Hyprland 0.57.0
 
 ### Fixed

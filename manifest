@@ -43,6 +43,7 @@ group dev
 group dictation
 group flatpak
 group tailscale
+group printing
 group hw-cpu-amd if=cpu-amd
 group hw-cpu-intel if=cpu-intel
 group hw-gpu-amd if=gpu-amd
@@ -65,6 +66,8 @@ unit ollama.service
 unit ufw.service
 unit sshd.service
 unit tailscaled.service
+unit cups.socket
+unit avahi-daemon.service
 unit smartd.service if=!vm
 unit fwupd-refresh.timer if=!vm
 unit power-profiles-daemon.service if=laptop

@@ -1,0 +1,7 @@
+# printing: CUPS finds network printers on its own (IPP Everywhere / AirPrint, no drivers), avahi
+# announces them, nss-mdns resolves their .local names (hosts line set by driftless-system)
+avahi
+cups
+cups-filters
+nss-mdns
+system-config-printer

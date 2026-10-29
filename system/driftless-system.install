@@ -5,6 +5,10 @@ _driftless_apply() {
   # pacman keeps local changes to it, so the two lines are added here instead of shipping the file)
   grep -q pam_gnome_keyring /etc/pam.d/greetd 2> /dev/null ||
     printf 'auth       optional     pam_gnome_keyring.so\nsession    optional     pam_gnome_keyring.so auto_start\n' >> /etc/pam.d/greetd
+  # printers announce themselves as NAME.local: nss-mdns resolves them before systemd-resolved
+  # (the hosts line of the Arch wiki; the filesystem package keeps a local nsswitch.conf on update)
+  grep -q mdns_minimal /etc/nsswitch.conf 2> /dev/null ||
+    sed -i 's/^hosts:\(.*\) resolve /hosts:\1 mdns_minimal [NOTFOUND=return] resolve /' /etc/nsswitch.conf
   /usr/lib/driftless/greeter-update || true
   systemctl daemon-reload
   sysctl --system > /dev/null 2>&1 || true

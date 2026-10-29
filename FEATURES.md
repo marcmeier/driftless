@@ -265,6 +265,9 @@ latency) and rules that open stubborn games fullscreen on the right monitor.
 - **btrfs with snapper** snapshots, optional **LUKS2** encryption (TPM unlock: [docs/encryption.md](docs/encryption.md))
 - **unified kernel images**, with an LTS kernel as fallback ([docs/boot.md](docs/boot.md))
 - zram, a firewall (ufw), SMART warnings as desktop notifications, locked screen after 10 minutes
+- **printing** without drivers: CUPS finds network printers that speak IPP Everywhere or AirPrint
+  (most from the last ten years) and offers them in every print dialog; `system-config-printer`
+  sets one up for good
 - **SSH** on every machine, with keys only (no password, no root login) and a rate limit in the
   firewall. The keys that may log in stay in each machine's `~/.ssh/authorized_keys`
 - an **SSH agent** in every session: give your key a passphrase, and with `AddKeysToAgent yes` in
