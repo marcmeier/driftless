@@ -243,7 +243,7 @@ hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/quickshell/scripts/widgets.py"), { description = "Bar widgets: show, hide, move" }) -- the bar's widget manager
 hl.bind(mainMod .. " + SHIFT + RETURN", hl.dsp.exec_cmd(browser), { description = "Browser" })
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager), { description = "File manager" })
-hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen("maximized", "toggle"), { description = "Maximise window (fullscreen)" })
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ mode = "maximized", action = "toggle" }), { description = "Maximise window (fullscreen)" })
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphist decode | wl-copy"), { description = "Clipboard history" })
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("~/.config/hypr/claude-launch.sh"), { description = "Claude Code" })
 hl.bind("PRINT", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'), { description = "Screenshot: area to clipboard" })
