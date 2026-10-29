@@ -49,3 +49,4 @@ application/x-extension-ics=org.mozilla.Thunderbird.desktop;
 x-scheme-handler/net.thunderbird=userapp-Thunderbird-UGOGX3.desktop;org.mozilla.Thunderbird.desktop;
 image/png=org.gnome.Loupe.desktop;
 image/jpeg=org.gnome.Loupe.desktop;
+text/plain=com.microsoft.VSCode.desktop;

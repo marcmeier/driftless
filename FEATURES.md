@@ -107,17 +107,24 @@ without a restart. Groups from left to right:
 - **Clock, weather and your next calendar event**. Click the clock: the month with a dot on every day
   that has events, click a day for its events, and what comes up; right click or a click on the event:
   ikhal. Click the weather: the next hours and three days
+- **Privacy indicator**, first on the right and only while it matters: an amber capsule with a symbol
+  for each of microphone, camera and screen while an app records, films or shares it (red while the
+  screen is shared); it pulses when something new starts. Hover: which apps; click: mute the
+  microphone, wheel: its level. Sees PipeWire streams, programs that open the camera directly and
+  screen recorders that copy straight from Hyprland
 - **Media**: play/pause, skip, the title (cut with "…" when it is long). Click it: cover, progress (click
   to jump), shuffle and repeat, and every player that runs
-- **Tray**: the apps' own icons (right click: the app's menu in the same style)
+- **Tray**, folded away: an arrow opens all the apps' own icons in a small box (click: the app; right
+  click: its menu in the same style, below the icons, which stay usable). The pin on an icon keeps it in the bar next to the arrow (per
+  machine); the arrow lights up while a folded app asks for attention
 - **Pending**, only while something waits: updates (click: update in a terminal) and the sync
 - **Voice and Claude**: the ✨ button asks Claude by voice (click: talk, click again: send; the bubble
   opens below it), dictation next to it, then Claude's session and weekly limits; click them: both
   with their resets and the tokens per day
 - **Status**: network (click: Wi-Fi networks, join a known one, on/off), Bluetooth (click: your devices
   with their battery, and the ones nearby to pair with one click; right: on/off), volume (wheel: level;
-  click: outputs, microphones and a level per app that plays; right: mute), microphone, battery (click:
-  time left, power draw, health, power profile)
+  click: outputs, microphones and a level per app that plays; right: mute), battery (click: time left,
+  power draw, health, power profile)
 - **Session**, always at the edge: notifications (click: the list; right: do not disturb; middle: clear
   all), keep awake, power (click: the power menu; right: lock)
 

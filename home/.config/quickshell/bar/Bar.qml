@@ -100,6 +100,7 @@ PanelWindow {
             "group/user": userPill,
             "group/workspaces": workspaces,
             "custom/window": windowPill,
+            "custom/privacy": privacySeg,
             "group/datetime": dateTime,
             "group/media": mediaPill,
             "group/claude": claudeGroup,
@@ -115,7 +116,6 @@ PanelWindow {
             "network": networkSeg,
             "bluetooth": bluetoothSeg,
             "pulseaudio": volumeSeg,
-            "pulseaudio#mic": micSeg,
             "custom/dictate": dictateSeg,
             "battery": batterySeg,
             "tray": traySeg,
@@ -130,6 +130,7 @@ PanelWindow {
     Component { id: userPill; UserPill {} }
     Component { id: workspaces; Workspaces {} }
     Component { id: windowPill; WindowPill {} }
+    Component { id: privacySeg; PrivacySeg {} }
     Component { id: dateTime; GroupPill { name: "group/datetime"; separators: true } }
     Component { id: mediaPill; MediaPill {} }
     Component { id: claudeGroup; GroupPill { name: "group/claude" } }
@@ -145,7 +146,6 @@ PanelWindow {
     Component { id: networkSeg; NetworkSeg {} }
     Component { id: bluetoothSeg; BluetoothSeg {} }
     Component { id: volumeSeg; VolumeSeg {} }
-    Component { id: micSeg; MicSeg {} }
     Component { id: dictateSeg; DictateSeg {} }
     Component { id: batterySeg; BatterySeg {} }
     Component { id: traySeg; TraySeg {} }
@@ -156,6 +156,11 @@ PanelWindow {
     Component { id: powerSeg; PowerSeg {} }
 
     // ---- tooltips and popups ----
+
+    // a tray app's menu, kept here: an icon in the tray's box goes with the box when its menu replaces it
+    property Component trayMenu: Component {
+        TrayMenu {}
+    }
 
     BarTooltip {
         id: tooltip

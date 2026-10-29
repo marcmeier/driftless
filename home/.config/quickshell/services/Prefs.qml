@@ -26,6 +26,8 @@ Singleton {
     readonly property int nightTemp: value("nightTemp", 4000)
     // notifications that come while a fullscreen window is up wait for it (else they pop up)
     readonly property bool holdInFullscreen: value("holdInFullscreen", true)
+    // the tray apps that stay in the bar, by their ids (the rest waits behind the arrow; services/Tray.qml)
+    readonly property var trayPinned: value("trayPinned", [])
     // seconds, 0: never (the defaults are hypr/hypridle.conf's)
     readonly property int lockAfter: value("lockAfter", 600)
     readonly property int screenOffAfter: value("screenOffAfter", 900)

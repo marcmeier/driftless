@@ -68,7 +68,8 @@ PanelWindow {
 
     Rectangle {
         id: card
-        readonly property int pad: 14
+        // the content may ask for less room around it (`pad`)
+        readonly property int pad: loader.item && loader.item.pad !== undefined ? loader.item.pad : 14
         width: (loader.item ? loader.item.implicitWidth : 0) + pad * 2
         height: (loader.item ? loader.item.implicitHeight : 0) + pad * 2
         x: Math.round(Math.max(Theme.barSide, Math.min(win.width - width - Theme.barSide, win.anchorX - width / 2)))

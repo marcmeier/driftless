@@ -66,6 +66,11 @@ def word(*values):
     return check
 
 
+def names(v):
+    """A list of names, comma-separated (empty: none)."""
+    return [n for n in v.split(",") if n]
+
+
 # key: (parse, where it goes, the Hyprland option)
 KEYS = {
     "clock24": (boolean, "shell", None),
@@ -74,6 +79,7 @@ KEYS = {
     "holdInFullscreen": (boolean, "shell", None),
     "nightLight": (word("off", "sun", "on"), "shell", None),
     "nightTemp": (one_of(3000, 3500, 4000, 4500), "shell", None),
+    "trayPinned": (names, "shell", None),
     "lockAfter": (seconds, "idle", "lock_after"),
     "screenOffAfter": (seconds, "idle", "screen_off_after"),
     "pointerSpeed": (speed, "input", "sensitivity"),

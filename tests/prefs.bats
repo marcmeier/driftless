@@ -71,3 +71,12 @@ setup() {
   run python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1])))' "$XDG_STATE_HOME/driftless-shell/settings.json"
   [ "$output" = "{'nightLight': 'sun', 'nightTemp': 3500}" ]
 }
+
+@test "the pinned tray apps are a list of ids, empty is none" {
+  python3 -I "$PREFS" set trayPinned "nm-applet,Nextcloud"
+  run python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))["trayPinned"])' "$XDG_STATE_HOME/driftless-shell/settings.json"
+  [ "$output" = "['nm-applet', 'Nextcloud']" ]
+  python3 -I "$PREFS" set trayPinned ""
+  run python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))["trayPinned"])' "$XDG_STATE_HOME/driftless-shell/settings.json"
+  [ "$output" = "[]" ]
+}

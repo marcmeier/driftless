@@ -4,6 +4,26 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.19.0 (2026-10-29): privacy indicator and folded tray
+
+### Added
+- **Privacy indicator** in the bar, first on the right and only while it matters: an amber capsule
+  with a symbol each for the microphone, the camera and the screen while an app records, films or
+  shares it (red while the screen is shared); it pulses when something new starts. Hover: which apps;
+  click: mute the microphone, wheel: its level. It sees PipeWire streams, programs that open
+  `/dev/video*` themselves (`scripts/camera.py`, woken by inotify) and screen recorders that copy
+  straight from Hyprland.
+
+### Changed
+- **The tray is folded away** behind an arrow: a small box under it holds every app's own icon (click:
+  the app; right click: its menu below the icons, which stay usable). The pin on an icon keeps it in
+  the bar next to the arrow, per machine (`trayPinned` in the settings); the arrow lights up while a
+  folded app asks for attention.
+
+### Removed
+- The permanent microphone switch in the status pill (`pulseaudio#mic`): the privacy indicator mutes
+  while an app listens, the volume popup lists the microphones, and the mute key works as before.
+
 ## v2.18.0 (2026-10-29): printing
 
 ### Added

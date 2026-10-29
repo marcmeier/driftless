@@ -1,19 +1,19 @@
 import QtQuick
-import Quickshell
-import Quickshell.Widgets
 import Quickshell.Services.SystemTray
 import qs.services
 
-// The tray (StatusNotifierItem): left click activates the app (or opens its menu when that is all it
-// has) · right click: its menu, drawn like the rest of the shell · middle: its secondary action.
-// blueman's icon stays out while the bar shows Bluetooth itself (bar/BluetoothSeg.qml).
+// The tray (StatusNotifierItem), folded away: the apps pinned to the bar, then an arrow that opens
+// all of them in a small box (bar/TrayPopup.qml), where the pins are set. The arrow carries the
+// accent square while a folded app asks for attention. services/Tray.qml decides what shows.
 Item {
     id: tray
 
     property var bar: null
     readonly property bool compact: bar ? bar.compact : false
-    readonly property bool ownBluetooth: !!bar && BarLayout.members("group/status", bar.variant).includes("bluetooth")
-    readonly property var items: SystemTray.items.values.filter(i => !(ownBluetooth && i.id === "blueman"))
+    readonly property var items: bar ? Tray.items(bar) : []
+    readonly property var pinned: items.filter(i => Tray.isPinned(i))
+    readonly property var folded: items.filter(i => !Tray.isPinned(i))
+    readonly property bool calling: folded.some(i => i.status === Status.NeedsAttention)
     property bool shown: items.length > 0
 
     implicitWidth: row.implicitWidth + (compact ? 6 : 8)
@@ -27,86 +27,49 @@ Item {
         spacing: 0
 
         Repeater {
-            model: tray.items
+            model: tray.pinned
 
-            delegate: Item {
-                id: slot
+            delegate: TrayItem {
                 required property var modelData
-                readonly property int iconSize: tray.compact ? 15 : 16
+                item: modelData
+                bar: tray.bar
+                iconSize: tray.compact ? 15 : 16
                 width: iconSize + (tray.compact ? 12 : 14)
                 height: parent.height
+            }
+        }
 
-                Rectangle {
-                    anchors.fill: parent
-                    anchors.bottomMargin: 1
-                    color: Theme.hover
-                    visible: mouse.containsMouse
+        Seg {
+            id: more
+            bar: tray.bar
+            padL: tray.compact ? 5 : 6
+            padR: tray.compact ? 5 : 6
+            popupKey: "tray"
+            popupComponent: Component {
+                TrayPopup {}
+            }
+            tip: tray.folded.length ? `${tray.folded.length} more ${tray.folded.length === 1 ? "app" : "apps"} in the tray` : "Tray"
+            onClicked: togglePopup()
+
+            Item {
+                anchors.verticalCenter: parent.verticalCenter
+                implicitWidth: arrow.width
+                implicitHeight: arrow.height
+
+                Icon {
+                    id: arrow
+                    text: "\u{F0140}"
+                    color: tray.calling ? Theme.accent : Theme.dim
                 }
-
-                IconImage {
-                    anchors.centerIn: parent
-                    implicitSize: slot.iconSize
-                    source: slot.modelData.icon
-                    opacity: slot.modelData.status === Status.Passive ? 0.5 : 1
-                }
-
-                // asks for attention: a small square in the accent
                 Rectangle {
-                    visible: slot.modelData.status === Status.NeedsAttention
+                    visible: tray.calling
                     width: 5
                     height: 5
                     color: Theme.accent
-                    x: parent.width / 2 + slot.iconSize / 2 - 4
-                    y: parent.height / 2 - slot.iconSize / 2 - 2
-                }
-
-                MouseArea {
-                    id: mouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
-                    cursorShape: Qt.PointingHandCursor
-                    property real wheelRest: 0
-
-                    function openMenu() {
-                        if (slot.modelData.hasMenu)
-                            tray.bar.togglePopup(slot, menuPopup, "tray:" + slot.modelData.id, { menu: slot.modelData.menu });
-                    }
-
-                    onClicked: e => {
-                        tray.bar.hideTip(slot);
-                        if (e.button === Qt.RightButton)
-                            openMenu();
-                        else if (e.button === Qt.MiddleButton)
-                            slot.modelData.secondaryActivate();
-                        else if (slot.modelData.onlyMenu)
-                            openMenu();
-                        else
-                            slot.modelData.activate();
-                    }
-                    onWheel: w => {
-                        wheelRest += w.angleDelta.y;
-                        if (Math.abs(wheelRest) >= 120) {
-                            slot.modelData.scroll(Math.trunc(wheelRest / 120), false);
-                            wheelRest = 0;
-                        }
-                    }
-                    onContainsMouseChanged: {
-                        const m = slot.modelData;
-                        const title = m.tooltipTitle || m.title || m.id;
-                        if (containsMouse && title)
-                            tray.bar.showTip(slot, () => Apps.esc(title)
-                                + (m.tooltipDescription ? `<br><font color='${Theme.dim}'>${m.tooltipDescription}</font>` : ""));
-                        else
-                            tray.bar.hideTip(slot);
-                    }
+                    x: arrow.width - 4
+                    y: 1
                 }
             }
         }
-    }
-
-    Component {
-        id: menuPopup
-        TrayMenu {}
     }
 }
