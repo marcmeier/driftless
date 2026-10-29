@@ -110,17 +110,16 @@ without a restart. Groups from left to right:
   two days behind an accent dot (amber when the calendar sync failed); hover for the agenda. Click the
   clock: the month with a dot on every day that has events, click a day for its events, and what comes
   up; right click: ikhal. Click the weather: the next hours and three days
-- **Privacy indicator**, first on the right and only while it matters: an amber capsule with a symbol
-  for each of microphone, camera and screen while an app records, films or shares it (red while the
-  screen is shared); it pulses when something new starts. Hover: which apps; click: mute the
-  microphone, wheel: its level. Sees PipeWire streams, programs that open the camera directly and
-  screen recorders that copy straight from Hyprland
 - **Media**: play/pause, skip, the title (cut with "…" when it is long). Click it: cover, progress (click
   to jump), shuffle and repeat, and every player that runs
 - **Tray**, folded away: an arrow opens all the apps' own icons in a small box (click: the app; right
   click: its menu in the same style, below the icons, which stay usable). The pin on an icon keeps it in the bar next to the arrow (per
   machine); the arrow lights up while a folded app asks for attention
-- **Pending**, only while something waits: updates (click: update in a terminal)
+- **Privacy indicator**, right after the tray and only while it matters: an amber capsule with a symbol
+  for each of microphone, camera and screen while an app records, films or shares it (red while the
+  screen is shared); it pulses when something new starts. Hover: which apps; click: mute the
+  microphone, wheel: its level. Sees PipeWire streams, programs that open the camera directly and
+  screen recorders that copy straight from Hyprland
 - **Voice and Claude**: the ✨ button asks Claude by voice (click: talk, click again: send; the bubble
   opens below it), dictation next to it, then Claude's session and weekly limits; click them: both
   with their resets and the tokens per day
@@ -128,9 +127,10 @@ without a restart. Groups from left to right:
   with their battery, and the ones nearby to pair with one click; right: on/off), volume (wheel: level;
   click: outputs, microphones and a level per app that plays; right: mute), battery (click: time left,
   power draw, health, power profile)
-- **Session**, always at the edge: the sync (the driftless mark in the colour of its state; click: its
-  menu), notifications (click: the list; right: do not disturb; middle: clear all), keep awake, the
-  settings (cog), power (click: the power menu; right: lock)
+- **Session**, always at the edge: updates while some wait (click: update in a terminal), the sync
+  (the driftless mark in the colour of its state; click: its menu), notifications (click: the list;
+  right: do not disturb; middle: clear all), keep awake, the settings (cog), power (click: the power
+  menu; right: lock)
 
 Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Popups also open from a key
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,
@@ -232,7 +232,7 @@ Every choice is per machine (but your picture):
   times from `~/.local/state/hypr/idle.conf`), keep awake, the power profile on a notebook, the power menu
 - **Sync**: the mode (automatic, review first, off) and "Sync now" right there; "Open …" for what
   is waiting and trusting a new machine
-- **About**: the machine, the driftless version, kernel, Hyprland, processor and memory
+- **About**: a button that opens the card about this machine (the same as a click on your name)
 
 The choices beyond the look and the bar are `scripts/prefs.py`'s (`~/.local/state/driftless-shell/settings.json`,
 only what you changed).

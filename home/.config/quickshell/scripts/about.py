@@ -10,7 +10,8 @@ import re
 import shutil
 import subprocess
 
-DRIFTLESS = os.path.join(os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share"), "driftless")
+# the running clone: where the driftless command links to
+DRIFTLESS = os.path.dirname(os.path.realpath(os.path.expanduser("~/.local/bin/driftless")))
 
 
 def read(path):

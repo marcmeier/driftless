@@ -58,7 +58,7 @@ Singleton {
         actionsSupported: true
         actionIconsSupported: false
         imageSupported: true
-        inlineReplySupported: false
+        inlineReplySupported: true
 
         // after a reload the server hands the kept ones over again (lastGeneration): quietly
         onNotification: n => notifs.add(n, n.lastGeneration)
@@ -118,7 +118,7 @@ Singleton {
             addToHistory({
                 nid: nextStoredId--, app: e.app || "Notification", summary: e.summary || "", body: Apps.safeMarkup(e.body || ""),
                 icon: e.icon || "", image: e.image || "", urgency: e.urgency || 0, progress: -1,
-                actions: "[]", clickable: false, timeout: 0, time: e.time
+                actions: "[]", clickable: false, reply: "", timeout: 0, time: e.time
             });
         }
         for (const n of server.trackedNotifications.values)
@@ -205,6 +205,8 @@ Singleton {
             actions: JSON.stringify((n.actions || []).filter(a => a.identifier !== "default" && a.text)
                                     .map(a => ({ id: a.identifier, text: a.text }))),
             clickable: (n.actions || []).some(a => a.identifier === "default") || !!n.desktopEntry,
+            // the app takes an answer right here (a messenger): the field's placeholder, else empty
+            reply: n.hasInlineReply ? (n.inlineReplyPlaceholder || "Reply") : "",
             timeout: timeout(n),
             time: time
         };
@@ -304,7 +306,7 @@ Singleton {
         showPopup({
             nid: -1, app: "Notifications", icon: "", image: "", urgency: NotificationUrgency.Normal,
             summary: `${n} notification${n === 1 ? "" : "s"} while you were in fullscreen`, body: "Click: the list", progress: -1,
-            actions: "[]", clickable: true, timeout: 8000, time: Date.now()
+            actions: "[]", clickable: true, reply: "", timeout: 8000, time: Date.now()
         });
     }
 
@@ -414,7 +416,9 @@ Singleton {
         }
     }
 
-    // a click on the card: the app's default action, else its window; then the card goes
+    // a click on the card: the app's default action, then its window (Hyprland only marks a window
+    // urgent when an app asks to be raised, so the shell goes there itself, a moment later, when the
+    // app has had time to ask); then the card goes
     function activate(id) {
         if (id === -1) {
             hidePopup(-1);
@@ -425,10 +429,23 @@ Singleton {
         if (!n)
             return;
         const def = (n.actions || []).find(a => a.identifier === "default");
-        if (def)
+        if (def) {
             def.invoke();
-        else
-            focusApp(n);
+            focusLater.keys = appKeys(n);
+            focusLater.restart();
+        } else {
+            focusApp(appKeys(n));
+        }
+        if (!n.resident)
+            n.dismiss();
+    }
+
+    // an answer typed into the card goes to the app; then the card goes
+    function reply(id, text) {
+        const n = objects[id];
+        if (!n || !n.hasInlineReply || !text.trim())
+            return;
+        n.sendInlineReply(text);
         if (!n.resident)
             n.dismiss();
     }
@@ -443,15 +460,26 @@ Singleton {
             n.dismiss();
     }
 
-    // the window of the app that sent it, by its desktop entry or name
-    function focusApp(n) {
-        const keys = [n.desktopEntry, n.appName].filter(k => !!k).map(k => k.toLowerCase());
+    // what names the app that sent it: its desktop entry and its name
+    function appKeys(n) {
+        return [n.desktopEntry, n.appName].filter(k => !!k).map(k => k.toLowerCase());
+    }
+    Timer {
+        id: focusLater
+        property var keys: []
+        interval: 300
+        onTriggered: notifs.focusApp(keys)
+    }
+
+    // the window of that app, the one that asked for attention first
+    function focusApp(keys) {
         if (!keys.length)
             return;
-        const win = Hyprland.toplevels.values.find(t => {
+        const wins = Hyprland.toplevels.values.filter(t => {
             const cls = ((t.wayland && t.wayland.appId) || (t.lastIpcObject && t.lastIpcObject.class) || "").toLowerCase();
             return cls && keys.some(k => cls === k || cls.endsWith("." + k) || k.endsWith("." + cls));
         });
+        const win = wins.find(t => t.urgent) || wins[0];
         if (!win)
             return;
         const address = String(win.address).startsWith("0x") ? win.address : "0x" + win.address;

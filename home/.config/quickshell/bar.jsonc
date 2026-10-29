@@ -5,12 +5,12 @@
 // Groups are drawn as one pill; their members can be hidden one by one, they move with the group.
 // The right side runs from what comes and goes (next to the clock) to what always stays (at the edge),
 // so a pill that appears or grows pushes only the passing things aside; each pill holds one kind of thing.
-// First of all the privacy indicator (custom/privacy): only there while an app records the microphone,
-// uses the camera or shares the screen.
+// The apps (media, tray) come first, then the system's own parts, led by the privacy indicator
+// (custom/privacy): only there while an app records the microphone, uses the camera or shares the screen.
 {
     "modules-left": ["group/user", "group/workspaces", "custom/window"],
     "modules-center": ["group/datetime"],
-    "modules-right": ["custom/privacy", "group/media", "group/tray", "group/pending", "group/claude", "group/status", "group/session"],
+    "modules-right": ["group/media", "group/tray", "custom/privacy", "group/claude", "group/status", "group/session"],
 
     "groups": {
         // who you are: your name (hover: the machine and its uptime)
@@ -25,11 +25,10 @@
         // the apps' own icons, apart from the kit's monochrome ones, next to the media (apps too); folded
         // behind an arrow, only the pinned ones stay in the bar
         "group/tray": ["tray"],
-        // what waits for you: updates; gone while there is nothing to do
-        "group/pending": ["custom/updates"],
-        // the system and you, always in the same place at the edge: the sync, notifications (do not
-        // disturb), keep awake, the settings (bar/SettingsPopup.qml), power
-        "group/session": ["custom/sync", "custom/notifications", "idle_inhibitor", "custom/settings", "custom/power"]
+        // the system and you, always in the same place at the edge: updates (only while some wait)
+        // and the sync, notifications (do not disturb), keep awake, the settings
+        // (bar/SettingsPopup.qml), power
+        "group/session": ["custom/updates", "custom/sync", "custom/notifications", "idle_inhibitor", "custom/settings", "custom/power"]
     },
 
     // the compact bar (narrow screens) has the same pills with fewer words; these groups lose members

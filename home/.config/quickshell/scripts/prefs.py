@@ -12,13 +12,10 @@ A change reaches Hyprland at once (hyprctl eval) and hypridle with a restart.
 Usage: prefs.py set KEY VALUE    store one ("default" forgets it) and apply it
        prefs.py input            the input options in effect now, as JSON (hyprctl)
        prefs.py render           write input.lua and idle.conf again from settings.json
-       prefs.py about            this machine for the settings (System > About), as JSON"""
+"""
 
 import json
 import os
-import platform
-import re
-import socket
 import subprocess
 import sys
 
@@ -192,34 +189,6 @@ def current_input():
     return result
 
 
-def first_match(path, pattern):
-    try:
-        with open(path) as f:
-            m = re.search(pattern, f.read(), re.M)
-        return m.group(1).strip() if m else ""
-    except OSError:
-        return ""
-
-
-def about():
-    repo = os.path.dirname(os.path.realpath(os.path.expanduser("~/.local/bin/driftless")))
-    try:
-        out = subprocess.run(["hyprctl", "-j", "version"], capture_output=True, text=True, check=True)
-        hyprland = json.loads(out.stdout).get("tag", "").lstrip("v")
-    except (OSError, subprocess.CalledProcessError, ValueError):
-        hyprland = ""
-    memory = first_match("/proc/meminfo", r"^MemTotal:\s+(\d+)")
-    return {
-        "version": first_match(f"{repo}/CHANGELOG.md", r"^## v(\S+)"),
-        "host": socket.gethostname(),
-        "os": first_match("/etc/os-release", r'^PRETTY_NAME="?([^"\n]*)'),
-        "kernel": platform.release(),
-        "hyprland": hyprland,
-        "cpu": re.sub(r"\s+", " ", first_match("/proc/cpuinfo", r"^model name\s*:\s*(.*)$")),
-        "memory": f"{round(int(memory) / 1048576)} GB" if memory else "",
-    }
-
-
 def main(argv):
     if argv[:1] == ["set"] and len(argv) == 3 and argv[1] in KEYS:
         key, raw = argv[1], argv[2]
@@ -237,9 +206,6 @@ def main(argv):
         return 0
     if argv == ["input"]:
         print(json.dumps(current_input()))
-        return 0
-    if argv == ["about"]:
-        print(json.dumps(about()))
         return 0
     if argv == ["render"]:
         data = load()

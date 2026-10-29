@@ -126,7 +126,6 @@ PanelWindow {
             "custom/ask": askSeg,
             "custom/claude": claudeSeg,
             "group/status": statusPill,
-            "group/pending": pendingPill,
             "group/session": sessionPill,
             "clock": clockSeg,
             "custom/weather": weatherSeg,
@@ -157,7 +156,6 @@ PanelWindow {
     Component { id: askSeg; AskSeg {} }
     Component { id: claudeSeg; ClaudeSeg {} }
     Component { id: statusPill; GroupPill { name: "group/status" } }
-    Component { id: pendingPill; GroupPill { name: "group/pending" } }
     Component { id: sessionPill; GroupPill { name: "group/session" } }
     Component { id: clockSeg; ClockSeg {} }
     Component { id: weatherSeg; WeatherSeg {} }

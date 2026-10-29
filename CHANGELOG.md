@@ -4,6 +4,26 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.22.0 (2026-10-29): answer from the notification
+
+### Added
+- **Answer right in the notification**: when an app offers it (a messenger that supports inline
+  replies), the card gets a field below its text; Enter or the arrow sends the answer to the app, Esc
+  leaves it, and the card waits while you type. The cards take keys only after a click into the field.
+
+### Changed
+- **A click on a notification goes to the app's window**, also after its default action: Hyprland
+  only marked the window urgent, now the shell focuses it (the urgent one first), which switches to
+  its workspace.
+- **A sign for every sender** on the cards without a picture: the driftless mark, the cog for the
+  settings, a calendar for the calendar sync, the bar's glyph for apps it knows, else the first letter
+  of the app's name, instead of the same bell everywhere.
+- **Updates sit at the edge** next to the sync, first in the session group; `group/pending` is gone.
+- **The privacy indicator follows the tray**: media and tray are the apps' parts, the system's own
+  begin with it.
+- **Settings > System > About** is one row that opens the card behind your name; `prefs.py about` is
+  gone (`scripts/about.py` has it all).
+
 ## v2.21.0 (2026-10-29): about this machine
 
 ### Added

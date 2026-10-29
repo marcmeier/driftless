@@ -84,20 +84,6 @@ Item {
         onTriggered: root.setInput("pointerSpeed", root.pendingSpeed)
     }
 
-    // this machine (prefs.py about), for System
-    property var about: ({})
-    Process {
-        running: true
-        command: [Prefs.script, "about"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    root.about = JSON.parse(text);
-                } catch (e) {}
-            }
-        }
-    }
-
     readonly property var laptop: UPower.displayDevice && UPower.displayDevice.isLaptopBattery && UPower.displayDevice.isPresent
     function minutes(s) {
         return s % 3600 === 0 ? s / 3600 + (s === 3600 ? " hour" : " hours") : Math.round(s / 60) + " minutes";
@@ -844,27 +830,16 @@ Item {
                     }
                 }
             }
-            // what this machine is, one fact per row
+            // what this machine is: the card behind your name (bar/AboutPopup.qml)
             Group {
                 title: "About"
-                Repeater {
-                    model: [["Machine", root.about.host], ["driftless", root.about.version ? "v" + root.about.version : ""],
-                            ["System", [root.about.os, root.about.kernel].filter(x => !!x).join(" · ")],
-                            ["Hyprland", root.about.hyprland], ["Processor", root.about.cpu], ["Memory", root.about.memory]]
-                            .filter(r => !!r[1])
-                    SettingRow {
-                        id: fact
-                        required property var modelData
-                        required property int index
-                        first: index === 0
-                        rowHeight: 36
-                        title: modelData[0]
-                        Label {
-                            text: fact.modelData[1]
-                            dim: true
-                            width: Math.min(implicitWidth, 300)
-                            elide: Text.ElideRight
-                        }
+                SettingRow {
+                    first: true
+                    title: "This machine"
+                    detail: "Model, versions, memory and disk"
+                    PButton {
+                        text: "Show …"
+                        onClicked: if (root.bar) root.bar.openNamed("about")
                     }
                 }
             }

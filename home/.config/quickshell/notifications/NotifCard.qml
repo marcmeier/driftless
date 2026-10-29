@@ -8,6 +8,7 @@ import "../bar"
 // text, a progress bar if it sends one, its actions. The same box pops up at the top right and sits
 // in the bell's list; `popup` adds the time that runs out (it waits while the pointer is on it).
 // Click: the app's default action (or its window) · right click or ×: dismiss · swipe right: dismiss.
+// When the app takes an answer (a messenger), a field below: type, Enter sends it, Esc leaves it.
 Rectangle {
     id: card
 
@@ -21,6 +22,7 @@ Rectangle {
     required property real progress
     required property string actions
     required property bool clickable
+    required property string reply    // the answer field's placeholder; empty: no field
     required property real time
 
     property bool popup: false
@@ -91,7 +93,7 @@ Rectangle {
         width: card.width - 2 * card.pad
         spacing: 10
 
-        // the picture it sent, else the app's icon, else a bell
+        // the picture it sent, else the app's icon, else a sign for it (below)
         Item {
             id: art
             width: 32
@@ -113,17 +115,44 @@ Rectangle {
                     mipmap: true
                 }
             }
-            Rectangle {
+            Item {
                 anchors.fill: parent
                 visible: !(art.src !== "" && pic.status === Image.Ready)
-                color: "transparent"
-                // the app's glyph from the bar (services/Apps.qml) when it has one
+                // the desktop's own senders by name, then the app's glyph from the bar
+                // (services/Apps.qml), else the first letter of the app's name
+                readonly property string own: ({ settings: "\u{F0493}", calendar: "\u{F00ED}", notifications: "\u{F009A}" })[card.app.toLowerCase()] || ""
                 readonly property var known: Apps.lookup(card.app)
+                readonly property string glyph: card.critical ? "\u{F0028}" : own || (known.glyph !== "\u{F05B2}" ? known.glyph : "")
+                readonly property color tone: card.critical ? Theme.crit : Theme.dim
+
+                DriftlessMark {
+                    visible: !card.critical && card.app.toLowerCase() === "driftless"
+                    anchors.centerIn: parent
+                    size: 20
+                    color: parent.tone
+                }
                 Icon {
+                    visible: parent.glyph !== "" && (card.critical || card.app.toLowerCase() !== "driftless")
                     anchors.centerIn: parent
                     size: 18
-                    text: card.critical ? "\u{F0028}" : parent.known.glyph !== "\u{F05B2}" ? parent.known.glyph : "\u{F009A}"
-                    color: card.critical ? Theme.crit : Theme.dim
+                    text: parent.glyph
+                    color: parent.tone
+                }
+                Rectangle {
+                    visible: parent.glyph === "" && card.app.toLowerCase() !== "driftless"
+                    anchors.centerIn: parent
+                    width: 26
+                    height: 26
+                    color: "transparent"
+                    border.width: 1
+                    border.color: Theme.border
+                    Label {
+                        anchors.centerIn: parent
+                        text: (card.app.match(/[A-Za-z0-9]/) || ["?"])[0].toUpperCase()
+                        bold: true
+                        font.pixelSize: 13
+                        color: Theme.dim
+                    }
                 }
             }
         }
@@ -212,6 +241,81 @@ Rectangle {
                     }
                 }
             }
+
+            // the answer, straight to the app
+            Item {
+                visible: card.reply !== ""
+                width: parent.width
+                height: 38
+                Rectangle {
+                    anchors.bottom: parent.bottom
+                    width: parent.width
+                    height: 30
+                    color: Theme.field
+                    border.width: 1
+                    border.color: answer.activeFocus ? Theme.accent : Theme.fieldBorder
+
+                    TextInput {
+                        id: answer
+                        anchors.left: parent.left
+                        anchors.right: send.left
+                        anchors.leftMargin: 8
+                        anchors.rightMargin: 4
+                        anchors.verticalCenter: parent.verticalCenter
+                        clip: true
+                        color: Theme.text
+                        selectionColor: Theme.accent
+                        selectedTextColor: Theme.accentInk
+                        font.family: Theme.font
+                        font.pixelSize: 13
+                        selectByMouse: true
+                        onAccepted: Notifs.reply(card.nid, text)
+                        Keys.onEscapePressed: {
+                            text = "";
+                            focus = false;
+                        }
+
+                        Label {
+                            visible: answer.text === ""
+                            anchors.verticalCenter: parent.verticalCenter
+                            text: card.reply
+                            font.pixelSize: 13
+                            color: Theme.faint
+                        }
+                    }
+                    // a click into the field: typing, not the card's action
+                    MouseArea {
+                        anchors.fill: answer
+                        cursorShape: Qt.IBeamCursor
+                        onPressed: m => {
+                            answer.forceActiveFocus();
+                            m.accepted = false;
+                        }
+                    }
+                    Rectangle {
+                        id: send
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.rightMargin: 3
+                        width: 24
+                        height: 24
+                        color: sendMouse.containsMouse ? Theme.hover : "transparent"
+                        Icon {
+                            anchors.centerIn: parent
+                            size: 14
+                            text: "\u{F048A}"
+                            color: answer.text.trim() ? Theme.accent : Theme.faint
+                        }
+                        MouseArea {
+                            id: sendMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: Notifs.reply(card.nid, answer.text)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -244,7 +348,7 @@ Rectangle {
     NumberAnimation on remaining {
         id: countdown
         running: card.popup && card.timeout > 0
-        paused: running && (card.hovered || swipe.active)
+        paused: running && (card.hovered || swipe.active || answer.activeFocus || answer.text !== "")
         from: 1
         to: 0
         duration: Math.max(1, card.timeout)

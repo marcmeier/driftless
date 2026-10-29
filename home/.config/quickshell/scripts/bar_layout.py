@@ -55,7 +55,6 @@ NAMES = {
     "idle_inhibitor": "Keep awake",
     "custom/notifications": "Notifications",
     "group/status": "Status",
-    "group/pending": "Pending",
     "group/session": "Session",
     "custom/settings": "Settings",
     "custom/power": "Power",

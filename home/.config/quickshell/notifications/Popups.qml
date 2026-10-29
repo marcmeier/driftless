@@ -64,7 +64,8 @@ Scope {
         }
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "driftless-notifications"
-        WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+        // keys only after a click into a card's answer field (OnDemand never takes them on its own)
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
         // a moment before the window goes (the list may refill at once)
         Timer {
