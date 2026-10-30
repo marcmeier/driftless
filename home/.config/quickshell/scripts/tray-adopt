@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# The tray after a restart of the shell (a sync restarts it, lib/sync.sh): the shell is the tray's
+# StatusNotifierWatcher, and a tray app has to register with it again. Most do that on their own,
+# Trayscale does not and vanishes from the bar while it keeps running. This registers every tray
+# item that is still on the bus under its well-known name (org.kde/org.freedesktop.StatusNotifierItem-*)
+# but not with the watcher, neither by that name nor by its connection. Harmless to run again.
+w=(org.kde.StatusNotifierWatcher /StatusNotifierWatcher org.kde.StatusNotifierWatcher)
+registered=$(busctl --user get-property "${w[@]}" RegisteredStatusNotifierItems 2> /dev/null |
+  grep -o '"[^"]*"' | tr -d '"' | cut -d/ -f1)
+busctl --user list --no-legend --acquired 2> /dev/null |
+  awk '$1 ~ /^org\.(kde|freedesktop)\.StatusNotifierItem-/ { print $1, $5 }' |
+  while read -r name conn; do
+    grep -qxF -e "$name" -e "$conn" <<< "$registered" && continue
+    busctl --user call "${w[@]}" RegisterStatusNotifierItem s "$name" > /dev/null 2>&1 || true
+  done

@@ -4,6 +4,14 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.23.1 (2026-10-30): the tray after a restart
+
+### Fixed
+- **Trayscale stays in the tray when the shell restarts** (a sync, a crash): it does not register
+  again with the shell's new tray watcher on its own and was gone until it was restarted itself.
+  `scripts/tray-adopt` now takes back every tray app still running but unknown to the watcher, 3 s
+  after the shell starts.
+
 ## v2.23.0 (2026-10-29): leaner and quicker
 
 ### Changed
