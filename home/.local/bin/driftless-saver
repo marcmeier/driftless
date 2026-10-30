@@ -31,6 +31,7 @@ import tty
 from pathlib import Path
 
 COLORS = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "theme" / "colors.json"
+SHELL = Path.home() / ".config/quickshell"
 PID = Path(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}") / "driftless-saver.pid"
 FALLBACK = {"faint": "#4a4a4a", "dim": "#8a8a8a", "primary": "#7aa6d9"}  # the dark plain look
 
@@ -195,10 +196,9 @@ def running():
 
 
 def locked():
-    shell = Path.home() / ".config" / "quickshell"
     try:
         answer = subprocess.run(
-            ["quickshell", "ipc", "-p", str(shell), "call", "lock", "state"], capture_output=True, text=True, timeout=5
+            ["quickshell", "ipc", "-p", str(SHELL), "call", "lock", "state"], capture_output=True, text=True, timeout=5
         ).stdout.strip()
     except (OSError, subprocess.TimeoutExpired):
         answer = ""
