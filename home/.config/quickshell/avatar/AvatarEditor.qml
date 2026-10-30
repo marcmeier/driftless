@@ -128,7 +128,6 @@ Scope {
                 Label {
                     text: "Your picture"
                     bold: true
-                    font.pixelSize: 13
                 }
 
                 // ---- the square: the image, the round cut darkened around ----

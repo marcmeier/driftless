@@ -58,14 +58,12 @@ Item {
                     elide: Text.ElideRight
                     text: root.p ? (root.p.trackTitle || root.p.identity) : ""
                     bold: true
-                    font.pixelSize: 13
                 }
                 Label {
                     width: parent.width
                     elide: Text.ElideRight
                     visible: text !== ""
                     text: root.p ? root.p.trackArtist : ""
-                    font.pixelSize: 13
                 }
                 Label {
                     width: parent.width
@@ -187,7 +185,6 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: modelData.identity + (modelData.trackTitle ? "  ·  " + modelData.trackTitle : "")
-                        font.pixelSize: 13
                     }
                     MouseArea {
                         id: pick

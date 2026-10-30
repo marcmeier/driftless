@@ -89,7 +89,6 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         width: 5
         height: 5
-        radius: 2.5
         color: seg.failed ? Theme.warn : Theme.accent
     }
     Label {

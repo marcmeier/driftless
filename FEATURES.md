@@ -115,11 +115,10 @@ without a restart. Groups from left to right:
 - **Tray**, folded away: an arrow opens all the apps' own icons in a small box (click: the app; right
   click: its menu in the same style, below the icons, which stay usable). The pin on an icon keeps it in the bar next to the arrow (per
   machine); the arrow lights up while a folded app asks for attention
-- **Privacy indicator**, right after the tray and only while it matters: an amber capsule with a symbol
+- **Privacy indicator**, right after the tray and only while it matters: an amber box with a symbol
   for each of microphone, camera and screen while an app records, films or shares it (red while the
-  screen is shared); it pulses when something new starts. Hover: which apps; click: mute the
-  microphone, wheel: its level. Sees PipeWire streams, programs that open the camera directly and
-  screen recorders that copy straight from Hyprland
+  screen is shared). Hover: which apps; click: mute the microphone, wheel: its level. Sees PipeWire
+  streams, programs that open the camera directly and screen recorders that copy straight from Hyprland
 - **Voice and Claude**: the ✨ button asks Claude by voice (click: talk, click again: send; the bubble
   opens below it), dictation next to it, then Claude's session and weekly limits; click them: both
   with their resets and the tokens per day
@@ -134,9 +133,11 @@ without a restart. Groups from left to right:
 
 Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Popups also open from a key
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,
-`media`, `claude`, `audio`, `network`, `bluetooth`, `battery`, `notifications`, `settings`).
+`media`, `claude`, `audio`, `network`, `bluetooth`, `battery`, `notifications`, `settings`, `sync`,
+`tray`, `about`). They are built alike: a first line with the sign, the name and how it stands, the
+controls on the right, "…" on a button that opens something else.
 
-<img src="docs/img/bar-popups.jpg" alt="Four popups of the bar: media, sound, Claude usage, weather" width="700"><br>
+<img src="docs/img/bar-popups.jpg" alt="Four popups of the bar: media, sound with its first line, Claude usage, weather" width="700"><br>
 <sub>Popups: what plays, sound with a level per app, Claude usage, the weather.</sub>
 
 ## Notifications, login and lock screen, power menu and password dialog
@@ -175,6 +176,20 @@ the desktop looks borrowed from another program.
   asked and the polkit action it is for. The shell is the session's polkit agent. Note: polkit counts a
   cancelled request like a wrong password, and three in a row lock `sudo` and polkit for ten minutes
   (Arch's `pam_faillock`)
+- **New packages are explained first**: when your lists name packages this machine lacks, a
+  notification and the sync icon (with the count) offer a review, a popup at the icon that never
+  takes the screen (right away after *Sync now*): each package with its description, size
+  and the machine and commit that listed it, the dependencies that come along, the download, and why
+  the next step asks for the password. *Install*, or × to leave one out on this machine only. The
+  password dialog then names the packages instead of a command line, and a notification says what
+  was installed
+
+<table>
+<tr>
+<td width="50%"><img src="docs/img/sync-popup.jpg" alt="The sync icon's popup: three new packages from the notebook in an orange frame, each with what it is, its size and its dependencies; Sync now and the mode below"><br><sub>New packages in the sync icon's popup: what waits stands out in its frame.</sub></td>
+<td width="50%"><img src="docs/img/theme-polkit.jpg" alt="The password dialog under the driftless mark: the two packages and why it asks"><br><sub>Their <i>Install</i>: the password dialog names the packages.</sub></td>
+</tr>
+</table>
 
 <table>
 <tr>
@@ -190,10 +205,7 @@ the desktop looks borrowed from another program.
 <table>
 <tr>
 <td width="50%"><img src="docs/img/theme-power.jpg" alt="The power menu: lock, log out, suspend, reboot, shut down as a list"><br><sub>The power menu.</sub></td>
-<td width="50%"><img src="docs/img/theme-polkit.jpg" alt="The password dialog: what is asked, the action, the password"><br><sub>The password dialog.</sub></td>
-</tr>
-<tr>
-<td colspan="2" align="center"><img src="docs/img/osd.jpg" alt="The on-screen display for brightness and for muted sound" width="400"><br><sub>The on-screen display.</sub></td>
+<td width="50%" align="center"><img src="docs/img/osd.jpg" alt="The on-screen display for brightness and for muted sound"><br><sub>The on-screen display.</sub></td>
 </tr>
 </table>
 
@@ -230,8 +242,8 @@ Every choice is per machine (but your picture):
   `~/.local/state/hypr/input.lua`, loaded after the host and personal layers
 - **Power**: lock the screen and turn it off after 5, 10, 15, 30 minutes or never (hypridle reads the
   times from `~/.local/state/hypr/idle.conf`), keep awake, the power profile on a notebook, the power menu
-- **Sync**: the mode (automatic, review first, off) and "Sync now" right there; "Open …" for what
-  is waiting and trusting a new machine
+- **Sync**: *Sync now*, what happens with the other machines' changes (ask first, automatic,
+  paused), whether new packages are offered here; "Show …" opens the sync icon's popup
 - **About**: a button that opens the card about this machine (the same as a click on your name)
 
 The choices beyond the look and the bar are `scripts/prefs.py`'s (`~/.local/state/driftless-shell/settings.json`,
@@ -293,7 +305,8 @@ latency) and rules that open stubborn games fullscreen on the right monitor.
 - an **hourly sync** commits what you changed and takes over what your other machines changed, but only
   commits one of your machines signed; it refuses anything that looks like a password
 - **package lists** you write (`driftless packages add NAME GROUP`), picked per machine by its hardware:
-  repo, AUR and Flathub apps (`flatpak:APP_ID`, no password needed); the update pill counts and
+  repo, AUR and Flathub apps (`flatpak:APP_ID`, no password needed), offered with a review before
+  anything is installed; the update pill counts and
   installs flatpak updates too
 - what differs per machine goes into `hosts/<host>/`, what is yours into `personal/`
 - `driftless verify` shows where a machine differs from the repository; a new machine is two scripts

@@ -166,24 +166,20 @@ Item {
             color: Theme.separator
         }
 
-        Row {
-            spacing: 6
+        ButtonRow {
             PButton {
                 icon: "\u{F0004}"
-                text: "Picture"
-                flat: true
+                text: "Picture …"
                 onClicked: root.act(() => Actions.script("settings-menu.sh", ["avatar"]))
             }
             PButton {
                 icon: "\u{F033E}"
                 text: "Lock"
-                flat: true
                 onClicked: root.act(() => Session.lock())
             }
             PButton {
                 icon: "\u{F0343}"
                 text: "Log out"
-                flat: true
                 onClicked: root.act(() => Session.logout())
             }
         }

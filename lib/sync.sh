@@ -35,14 +35,14 @@ write_status() {
   poke_bar
 }
 
-# notify_once KEY URGENCY TEXT: a notification only when TEXT differs from the last one for KEY
+# notify_once KEY URGENCY TITLE TEXT: a notification only when TEXT differs from the last one for KEY
 notify_once() {
-  [[ $3 == "$(cat "$STATE/$1.notified" 2> /dev/null)" ]] && {
-    echo "driftless: $3"
+  [[ $4 == "$(cat "$STATE/$1.notified" 2> /dev/null)" ]] && {
+    echo "driftless: $3: $4"
     return 0
   }
-  notify "$2" "$3"
-  echo "$3" > "$STATE/$1.notified"
+  notify "$2" "$3" "$4"
+  echo "$4" > "$STATE/$1.notified"
 }
 
 # commit_local: this machine's edits, as one signed commit "<host>: <what changed>"
@@ -58,7 +58,7 @@ commit_local() {
   if [[ -n $hits ]]; then
     git_ reset -q
     RESULT=secret
-    notify_once secret critical "A change looks like it contains a secret, nothing committed. Check: git -C $DRIFTLESS diff"
+    notify_once secret critical "Nothing committed" "A change looks like it contains a secret. Check: git -C $DRIFTLESS diff"
     exit 1
   fi
   rm -f "$STATE/secret.notified"
@@ -85,10 +85,10 @@ verify_incoming() {
   joining=$(awk '$2 == "U" && $4 != "-" { print $4 }' <<< "$bad" | sort -u | paste -sd' ')
   if [[ -n $joining && -z $(awk '$2 != "U" || $4 == "-"' <<< "$bad") ]]; then
     RESULT=joining
-    notify_once untrusted normal "New machine $joining: nothing taken over until you trust it (sync menu)"
+    notify_once untrusted normal "New machine" "$joining: nothing taken over until you trust it (sync icon)"
   else
     RESULT=untrusted
-    notify_once untrusted critical "$(wc -l <<< "$bad") commit(s) on GitHub are not signed by any of your machines. Nothing taken over (sync menu: Review incoming changes)"
+    notify_once untrusted critical "Unsigned changes on GitHub" "$(wc -l <<< "$bad") commit(s) not signed by any of your machines. Nothing taken over (sync icon: Log)"
   fi
   exit 0
 }
@@ -162,7 +162,7 @@ apply_changes() {
     while read -r unit; do systemctl is-enabled -q "$unit" 2> /dev/null || off+=("$unit"); done < <(manifest unit)
   fi
   ((${#off[@]} == 0)) || sysmsg+="${sysmsg:+, }not enabled here yet: ${off[*]}"
-  [[ -z $sysmsg ]] || notify_once system normal "$sysmsg: run  driftless system  in a terminal"
+  [[ -z $sysmsg ]] || notify_once system normal "System setup" "$sysmsg: run  driftless system  in a terminal"
   ((${#reload[@]} == 0)) || reload "${reload[@]}"
   # packages: cmd_sync's install_missing, after this
   return 0
@@ -205,11 +205,12 @@ metered() {
   [[ $m == "u 1" || $m == "u 3" ]] # NM_METERED_YES, NM_METERED_GUESS_YES
 }
 
-# install_missing: repo packages through a password dialog (once per new set, or on "sync now"),
-# flatpaks without one (as often, not on a metered connection), AUR packages wait in the pill for
-# "Install missing packages" in a terminal
+# install_missing: repo packages are offered, never installed in the background: a new set (or "sync
+# now") brings the shell's review of new packages (bar/PackagesSection.qml, in the sync icon's popup)
+# with what each one is and which machine listed it, and only its "Install" asks for the password.
+# Flatpaks install without one (as often, not on a metered connection), AUR packages wait for a terminal.
 install_missing() {
-  local repo aur fp msg="" urgency=normal rc x
+  local repo aur fp msg="" urgency=normal x offer=0
   if [[ $(cat "$STATE/installs" 2> /dev/null) == off ]]; then
     rm -f "$STATE/install-pending"
     return 0
@@ -218,18 +219,11 @@ install_missing() {
   mapfile -t aur < <(missing aur)
   if ((${#repo[@]})) && { ((NOW)) || [[ "${repo[*]}" != "$(cat "$STATE/install-asked" 2> /dev/null)" ]]; }; then
     echo "${repo[*]}" > "$STATE/install-asked"
-    if [[ ! -x /usr/lib/driftless/install-packages ]]; then
+    if [[ ! -x ${DRIFTLESS_INSTALL_HELPER:-/usr/lib/driftless/install-packages} ]]; then
       msg="driftless-system is not installed here, so listed packages cannot be installed (driftless system)"
       urgency=critical
     else
-      rc=0
-      timeout 300 pkexec /usr/lib/driftless/install-packages "${repo[@]}" || rc=$?
-      # 124 nobody answered, 126 dialog cancelled, 127 no polkit agent: the packages wait
-      if ((rc && rc != 124 && rc != 126 && rc != 127)); then
-        msg="Could not install: ${repo[*]} (maybe update first: sudo pacman -Syu)"
-        urgency=critical
-      fi
-      mapfile -t repo < <(missing repo)
+      offer=1
     fi
   fi
   mapfile -t fp < <(missing flatpak)
@@ -245,7 +239,7 @@ install_missing() {
     # shellcheck disable=SC2016 # expanded by the inner bash
     if systemd-run --user --quiet --collect --unit=driftless-flatpak-install -- bash -c \
       '"$1" packages install flatpak; systemctl --user start --no-block driftless-sync.service' _ "$DRIFTLESS/driftless" 2> /dev/null; then
-      notify_once flatpak normal "Installing from Flathub: ${fp[*]}"
+      notify_once flatpak normal "Installing from Flathub" "${fp[*]}"
       fp=()
     fi
   fi
@@ -255,10 +249,26 @@ install_missing() {
     for x in "${aur[@]}"; do echo "aur $x"; done
   } > "$STATE/install-pending"
   if [[ -z $msg ]] && ((${#repo[@]} + ${#fp[@]} + ${#aur[@]})); then
-    msg="$((${#repo[@]} + ${#fp[@]} + ${#aur[@]})) listed package(s) wait for install: ${repo[*]} ${fp[*]} ${aur[*]} (sync menu)"
+    msg="Listed but not here: ${repo[*]} ${fp[*]} ${aur[*]} (sync icon)"
   fi
-  [[ -n $msg ]] && notify_once install "$urgency" "$msg"
+  if ((offer)); then
+    offer_review
+    # the offer named them: no second notification about the same packages
+    echo "$msg" > "$STATE/install.notified"
+  elif [[ -n $msg ]]; then
+    notify_once install "$urgency" "New packages" "$msg"
+  fi
   return 0
+}
+
+# offer_review: the shell's review of the packages that wait (scripts/install-review.py). After "sync
+# now" you are there: it opens at once; otherwise a notification offers it. Its own unit, as the
+# notification waits for its click longer than a sync may run.
+offer_review() {
+  local review=$HOME/.config/quickshell/scripts/install-review.py
+  ((NOW)) && "$review" open > /dev/null 2>&1 && return 0
+  systemd-run --user --quiet --collect -- "$review" announce 2> /dev/null ||
+    notify normal "New packages" "Listed but not here: $(awk '{ print $2 }' "$STATE/install-pending" | paste -sd' ') (sync icon)"
 }
 
 # the optional git bundle (BUNDLE in personal/config): a full copy with history, e.g. for a USB stick
@@ -312,12 +322,12 @@ cmd_sync() {
       incoming=$(git_ rev-list --count HEAD..origin/main)
       if [[ $MODE == review ]] && ((incoming && ! NOW)); then
         RESULT=held
-        notify_once held normal "$incoming change(s) on GitHub wait for your review (sync pill in the bar)"
+        notify_once held normal "Changes from your other machines" "$incoming change(s) wait until you take them over (sync icon)"
         return 0
       fi
       if ! update; then
         RESULT=conflict
-        notify_once conflict critical "This machine and GitHub changed the same lines in: $(paste -sd' ' "$STATE/conflict"). Nothing changed. Merge by hand: cd $DRIFTLESS && git rebase origin/main"
+        notify_once conflict critical "Sync conflict" "This machine and GitHub changed the same lines in: $(paste -sd' ' "$STATE/conflict"). Nothing changed. Merge by hand: cd $DRIFTLESS && git rebase origin/main"
         return 1
       fi
       rm -f "$STATE/conflict" "$STATE/conflict.notified"
@@ -335,6 +345,6 @@ cmd_sync() {
     git_net push -q origin HEAD:main || RESULT="push failed"
   fi
   refresh_bundle || warn "bundle not written"
-  ((APPLIED)) && [[ -n $old ]] && notify normal "Taken over from GitHub: $APPLIED file(s)"
+  ((APPLIED)) && [[ -n $old ]] && notify normal "Taken over from GitHub" "$APPLIED file(s)"
   return 0
 }

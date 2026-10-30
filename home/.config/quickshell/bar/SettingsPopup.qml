@@ -30,6 +30,7 @@ Item {
     readonly property var hiddenGroups: widgets.filter(w => !w.group && w.hidden).map(w => w.id)
     readonly property bool laptopPanel: Hyprland.monitors.values.some(m => /^eDP-/.test(m.name))
     readonly property string syncMode: (syncModeFile.text() || "review").trim()
+    readonly property bool syncInstalls: (syncInstallsFile.text() || "on").trim() !== "off"
 
     readonly property var pages: [
         ["appearance", "Appearance", "\u{F03D8}", "Dark or light, the palette and your picture"],
@@ -110,10 +111,17 @@ Item {
         printErrors: false
     }
 
-    // the sync mode of this machine (sync-menu.sh writes it)
+    // the sync mode of this machine and whether it offers the listed packages (sync-menu.sh writes them)
     FileView {
         id: syncModeFile
         path: root.stateDir + "/driftless/mode"
+        watchChanges: true
+        onFileChanged: reload()
+        printErrors: false
+    }
+    FileView {
+        id: syncInstallsFile
+        path: root.stateDir + "/driftless/installs"
         watchChanges: true
         onFileChanged: reload()
         printErrors: false
@@ -386,7 +394,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     elide: Text.ElideRight
                                     text: tile.entry.label
-                                    font.pixelSize: 12
+                                    small: true
                                     color: tile.chosen ? Theme.accent : Theme.text
                                 }
                                 MouseArea {
@@ -790,30 +798,40 @@ Item {
                 title: "Sync"
                 SettingRow {
                     first: true
-                    title: "Mode"
-                    detail: root.syncMode === "auto" ? "Changes from GitHub come in by themselves"
+                    title: "Their changes"
+                    detail: root.syncMode === "auto" ? "They come in by themselves, every hour"
                             : root.syncMode === "off" ? "This machine does not sync"
-                            : "Changes from GitHub wait for “Sync now”"
+                            : "They wait at the sync icon until you take them over"
                     PSegmented {
-                        options: [["auto", "Automatic"], ["review", "Review first"], ["off", "Off"]]
+                        options: [["review", "Ask first"], ["auto", "Automatic"], ["off", "Paused"]]
                         current: root.syncMode
                         onPicked: value => root.sync([value])
                     }
                 }
                 SettingRow {
-                    title: "Sync now"
-                    detail: "Fetch, check and apply what is new"
+                    title: "Sync with your other machines"
+                    detail: "Send this machine's changes, fetch theirs"
                     PButton {
-                        text: "Start"
+                        icon: "\u{F04E6}"
+                        text: "Sync now"
                         onClicked: root.sync(["now"])
                     }
                 }
                 SettingRow {
+                    title: "New packages"
+                    detail: root.syncInstalls ? "Packages your lists name are offered here, with a review first"
+                            : "Packages your lists name are not offered on this machine"
+                    PSwitch {
+                        checked: root.syncInstalls
+                        onToggled: root.sync(["installs"])
+                    }
+                }
+                SettingRow {
                     title: "More"
-                    detail: "Installs, trusted machines, the log"
+                    detail: "New packages, changes on GitHub, trusted machines, the log"
                     PButton {
-                        text: "Open …"
-                        onClicked: root.open(["sync"])
+                        text: "Show …"
+                        onClicked: if (root.bar) root.bar.openNamed("sync")
                     }
                 }
             }

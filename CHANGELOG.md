@@ -4,6 +4,30 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.24.0 (2026-10-30): packages explained first, popups alike
+
+### Added
+- **New packages are explained before any password**: when your lists name packages this machine
+  lacks, the sync no longer opens a password dialog out of nowhere. A notification and the sync icon
+  offer them, and the icon's popup shows each one with what it is, its size, the dependencies that
+  come along and the machine that listed it. Only its *Install* asks for the password, and the dialog
+  then names the packages. × leaves a package out on this machine (`driftless packages skip NAME`,
+  `unskip` takes it back).
+- **The sync in one popup** at the driftless mark: how it stands, what waits for you in a frame of
+  its own (new packages, changes from your other machines, a new machine, a conflict), and below it
+  *Sync now* and what happens with the other machines' changes (*Ask first*, *Automatic*, *Paused*).
+  Left click opens it, right click syncs. Whether new packages are offered at all is a switch in the
+  settings.
+
+### Changed
+- **Every popup is built alike**: the same first line (the sign, the name, how it stands or its
+  switch), the buttons on the right with the confirming one last, "…" on a button that opens
+  something else, the accent only for what confirms or is on. The rules are in ARCHITECTURE.md.
+- **Notifications from driftless say what they are about** in their title ("3 new packages",
+  "Installed", "Sync conflict", ...) instead of "driftless" twice.
+- **The privacy indicator** is a plain box like the rest, without the pulse and the round shape.
+- The settings call the sync's modes as the popup does.
+
 ## v2.23.1 (2026-10-30): the tray after a restart
 
 ### Fixed

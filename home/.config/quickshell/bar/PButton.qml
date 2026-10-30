@@ -37,7 +37,7 @@ Rectangle {
             visible: btn.text !== ""
             anchors.verticalCenter: parent.verticalCenter
             text: btn.text
-            font.pixelSize: 12
+            small: true
             color: btn.accent ? Theme.accentInk : btn.checked ? Theme.accent : Theme.text
         }
     }

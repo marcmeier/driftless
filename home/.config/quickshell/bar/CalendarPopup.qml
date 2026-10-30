@@ -87,7 +87,6 @@ Item {
                 x: 4
                 text: Qt.formatDate(new Date(root.year, root.month, 1), "MMMM yyyy")
                 bold: true
-                font.pixelSize: 13
             }
             Row {
                 anchors.right: parent.right
@@ -178,7 +177,6 @@ Item {
                             anchors.centerIn: parent
                             anchors.verticalCenterOffset: day.hasEvents ? -3 : 0
                             text: day.date.getDate()
-                            font.pixelSize: 13
                             bold: day.isToday
                             color: day.isToday ? Theme.accentInk : !day.inMonth ? Theme.faint
                                  : day.index % 7 >= 5 ? Theme.dim : Theme.text
@@ -231,7 +229,6 @@ Item {
                 x: 4
                 text: root.picked ? "Nothing on this day" : "No events in the next days"
                 dim: true
-                font.pixelSize: 13
             }
 
             Repeater {
@@ -271,7 +268,6 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 elide: Text.ElideRight
                                 text: modelData.title
-                                font.pixelSize: 13
                             }
                         }
                     }
@@ -288,21 +284,19 @@ Item {
             small: true
         }
 
-        Row {
-            spacing: 8
-            PButton {
-                icon: "\u{F00ED}"
-                text: "Open calendar"
-                accent: true
-                onClicked: {
-                    Actions.script("ikhal.sh");
-                    root.popup.close();
-                }
-            }
+        ButtonRow {
             PButton {
                 icon: "\u{F0450}"
                 text: "Sync"
                 onClicked: Feeds.runThen([Actions.scripts + "/calendar-sync.sh"], "calendar")
+            }
+            PButton {
+                icon: "\u{F00ED}"
+                text: "Calendar …"
+                onClicked: {
+                    Actions.script("ikhal.sh");
+                    root.popup.close();
+                }
             }
         }
     }

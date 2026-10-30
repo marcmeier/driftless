@@ -5,9 +5,10 @@
 #   driftless status                links, packages and sync in short
 #   driftless link [--dry-run] [--adopt [TARGET...]]  make ~ match the manifest's links
 #   driftless packages [status|install [repo|flatpak|aur]|add NAME [GROUP]|remove NAME]
+#   driftless packages skip|unskip NAME...  leave listed packages out on this machine, or take them back
 #   driftless sync [--now|--adopt]  commit, fetch, check signatures, update, apply, push
 #   driftless mode review|auto|off  how the hourly sync treats changes from GitHub (this machine)
-#   driftless installs on|off       whether the sync installs listed packages (this machine)
+#   driftless installs on|off       whether the sync offers listed packages (this machine)
 #   driftless trust FINGERPRINT     take over the changes of a new machine
 #   driftless signing setup         this machine's signing key and trust list (part of setup)
 #   driftless system [--build-only] build and install driftless-system (the system drop-ins), enable

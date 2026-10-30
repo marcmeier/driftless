@@ -188,7 +188,7 @@ Scope {
                     text: root.text
                     elide: Text.ElideRight
                     color: root.off ? Theme.dim : Theme.text
-                    font.pixelSize: 12
+                    small: true
                 }
             }
         }

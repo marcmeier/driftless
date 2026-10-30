@@ -150,7 +150,6 @@ Rectangle {
                         anchors.centerIn: parent
                         text: (card.app.match(/[A-Za-z0-9]/) || ["?"])[0].toUpperCase()
                         bold: true
-                        font.pixelSize: 13
                         color: Theme.dim
                     }
                 }
@@ -205,7 +204,6 @@ Rectangle {
                 wrapMode: Text.Wrap
                 maximumLineCount: card.popup ? 4 : 6
                 elide: Text.ElideRight
-                font.pixelSize: 13
                 color: Theme.dim
                 lineHeight: 1.1
                 linkColor: Theme.accent
@@ -279,7 +277,6 @@ Rectangle {
                             visible: answer.text === ""
                             anchors.verticalCenter: parent.verticalCenter
                             text: card.reply
-                            font.pixelSize: 13
                             color: Theme.faint
                         }
                     }

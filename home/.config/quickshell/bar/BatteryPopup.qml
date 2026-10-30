@@ -39,7 +39,6 @@ Item {
                 }
                 Label {
                     text: Battery.state(root.dev)
-                    font.pixelSize: 13
                     dim: true
                 }
             }

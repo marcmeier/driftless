@@ -40,12 +40,10 @@ Item {
                         anchors.baseline: parent.children[0].baseline
                         text: "feels " + (root.w.feels ?? "") + "°"
                         dim: true
-                        font.pixelSize: 13
                     }
                 }
                 Label {
                     text: (root.w.desc || "") + (root.w.place ? "  ·  " + root.w.place : "")
-                    font.pixelSize: 13
                 }
             }
         }
@@ -95,7 +93,6 @@ Item {
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: modelData.temp + "°"
-                        font.pixelSize: 13
                     }
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -128,7 +125,6 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         width: 100
                         text: modelData.label
-                        font.pixelSize: 13
                     }
                     Icon {
                         x: 104
@@ -148,7 +144,6 @@ Item {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData.min + "°  " + modelData.max + "°"
-                        font.pixelSize: 13
                     }
                 }
             }

@@ -60,6 +60,20 @@ def ago(timestamp):
     return f"{secs // 86400}d ago"
 
 
+def pending():
+    """The packages that wait for a review: install-pending without what is here or skipped by now (an
+    "Install", a terminal); install-review.py has the same filter."""
+    rows = [row.split() for row in read("install-pending").splitlines() if len(row.split()) == 2]
+    if not rows:
+        return []
+    have = set(subprocess.run(["pacman", "-Qq"], capture_output=True, text=True).stdout.split())
+    if any(kind == "flatpak" for kind, _ in rows):
+        apps = ["flatpak", "list", "--app", "--columns=application"]
+        have |= set(subprocess.run(apps, capture_output=True, text=True).stdout.split())
+    have |= set(read("skip").split())
+    return [name for _, name in rows if name not in have]
+
+
 def running():
     try:
         with open(STATE + "/lock") as lock:
@@ -76,67 +90,40 @@ def who(host, author):
     return host.strip() or f"{author} (by hand)"
 
 
-def incoming_lines(incoming, mode):
-    """Tooltip lines about the commits on GitHub this machine has not taken over yet."""
-    lines = [
-        "",
-        f"<b>↓ {incoming} incoming</b> (not applied yet)" if mode != "auto" else f"<b>↓ {incoming} incoming</b>",
-    ]
+def incoming_data(incoming):
+    """The commits on GitHub this machine has not taken over yet: who, when, what, and in all."""
+    commits = []
     for entry in git("log", "-6", LOG, "HEAD..origin/main").splitlines():
         timestamp, author, subject, host = (entry.split("\x1f") + [""])[:4]
         short = re.sub(r"^\S+: ", "", subject) if host.strip() else subject
-        lines.append(f"  {escape(who(host, author))}  ·  {ago(int(timestamp))}  ·  {escape(short[:60])}")
-    if incoming > 6:
-        lines.append(f"  … {incoming - 6} more")
+        commits.append({"by": who(host, author), "ago": ago(int(timestamp)), "subject": short[:70]})
     files = git("diff", "--name-only", "HEAD...origin/main").splitlines()
-    if files:
-        areas = sorted({re.sub(r"^(home|personal/home)/(\.config/)?", "", path).split("/")[0] for path in files})
-        lines.append(f"  {len(files)} file(s): {escape(', '.join(areas[:8]))}" + (" …" if len(areas) > 8 else ""))
+    areas = sorted({re.sub(r"^(home|personal/home)/(\.config/)?", "", path).split("/")[0] for path in files})
     diff = git("diff", "--no-color", "-U0", "HEAD...origin/main", "--", "packages", "personal/packages")
     new_packages = [
         row[1:].removeprefix("aur:")
         for row in diff.splitlines()
         if row.startswith("+") and not row.startswith("+++") and not row.startswith("+#")
     ]
-    if new_packages:
-        lines.append(
-            f"  <font color='#ffb454'>new packages: {escape(', '.join(new_packages[:10]))}"
-            + (" …" if len(new_packages) > 10 else "")
-            + "</font>"
-        )
-    return lines
-
-
-def untrusted_lines(untrusted):
-    """Tooltip lines about incoming commits no trusted machine signed (lib/signing.sh check)."""
-    # each entry: commit, signature status (%G?), key fingerprint, host from signers/ ("-" if none)
-    joining = sorted({host for _, status, _, host in untrusted if status == "U" and host != "-"})
-    foreign = [entry for entry in untrusted if entry[1] != "U" or entry[3] == "-"]
-    lines = [""]
-    if joining:
-        lines.append(
-            f"<font color='#ffb454'><b>New machine: {escape(', '.join(joining))}</b></font> (menu: Trust new machine)"
-        )
-    if foreign:
-        lines.append(
-            f"<font color='#ff6b6b'><b>{len(foreign)} commit(s) on GitHub not signed by your machines</b></font>"
-            ", nothing taken over"
-        )
-    return lines
+    return {
+        "count": incoming,
+        "commits": commits,
+        "more": max(incoming - 6, 0),
+        "files": len(files),
+        "areas": areas[:8] + (["…"] if len(areas) > 8 else []),
+        "packages": new_packages[:10] + (["…"] if len(new_packages) > 10 else []),
+    }
 
 
 def last_change_per_machine(has_origin):
-    """Tooltip lines: when each machine last sent a change."""
+    """When each machine last sent a change, newest first."""
     last_seen = {}
     for entry in git("log", "-300", LOG, "origin/main" if has_origin else "HEAD").splitlines():
         timestamp, _, _, host = (entry.split("\x1f") + [""])[:4]
         host = host.strip()
         if host and host not in last_seen:
             last_seen[host] = int(timestamp)
-    if not last_seen:
-        return []
-    newest_first = sorted(last_seen.items(), key=lambda item: -item[1])
-    return ["", "Last change per machine:"] + [f"  {escape(host)}: {ago(ts)}" for host, ts in newest_first]
+    return [{"host": host, "ago": ago(ts)} for host, ts in sorted(last_seen.items(), key=lambda item: -item[1])]
 
 
 def main():
@@ -150,13 +137,14 @@ def main():
     incoming = int(git("rev-list", "--count", "HEAD..origin/main") or 0) if has_origin else 0
     outgoing = int(git("rev-list", "--count", "origin/main..HEAD") or 0) if has_origin else 0
     result, busy = status.get("result", ""), running()
-    waiting = [row.split()[1] for row in read("install-pending").splitlines() if len(row.split()) == 2]
+    waiting = pending()
     untrusted = [row.split() for row in read("untrusted").splitlines() if len(row.split()) == 4]
     conflict = read("conflict").split() if result == "conflict" else []
     signing = os.path.exists(STATE + "/allowed_signers")
+    # each entry: commit, signature status (%G?), key fingerprint, host from signers/ ("-" if none)
+    joining = sorted({(host, fp) for _, sig, fp, host in untrusted if sig == "U" and host != "-"})
+    foreign = len([e for e in untrusted if e[1] != "U" or e[3] == "-"])
 
-    # bar text + class
-    badge = "".join([f" ↓{incoming}" if incoming else "", f" ↑{outgoing}" if outgoing and mode != "auto" else ""])
     if busy:
         state = "running"
     elif result in ("conflict", "failed", "push failed", "untrusted", "secret"):
@@ -167,49 +155,68 @@ def main():
         state = "pending"
     else:
         state = "ok"
-    icon = ICON + MARK.get(state, "")
+    # what waits for you, as one number at the icon: packages to look at, changes to take over, machines to trust
+    needs = len(waiting) + (incoming if mode != "auto" else 0) + len(joining)
 
-    tooltip = [
-        f"<b>driftless sync</b>  ·  {MODE_NAME.get(mode, mode)}" + ("" if installs == "on" else "  ·  installs off")
-    ]
+    last = None
+    if "time" in status:
+        last = {
+            "ago": ago(int(status["time"])),
+            "result": RESULT_NAME.get(result, result),
+            "ok": result in ("ok", "held", "paused", "offline"),
+            "applied": int(status.get("applied", "0") or 0),
+        }
+    writer = git("log", "-1", LOG, "origin/main").split("\x1f") if has_origin else []
+    github = ""
+    if len(writer) >= 3:
+        timestamp, author, _, host = (writer + [""])[:4]
+        github = f"{who(host, author)}, {ago(int(timestamp))}"
+    details = {
+        "mode": mode,
+        "modeName": MODE_NAME.get(mode, mode),
+        "installs": installs == "on",
+        "running": busy,
+        "last": last,
+        "github": github,
+        "incoming": incoming_data(incoming) if incoming else None,
+        "outgoing": outgoing,
+        "packages": len(waiting),
+        "joining": [{"host": host, "fp": fp} for host, fp in joining],
+        "foreign": foreign,
+        "conflict": conflict,
+        "signing": signing,
+        "machines": last_change_per_machine(has_origin),
+        "repo": REPO,
+    }
+
+    # the tooltip: in short, the popup has the rest
+    tooltip = [f"<b>driftless sync</b>  ·  {escape(details['modeName'])}"]
     if busy:
         tooltip.append("Running right now …")
-    if "time" in status:
-        tooltip.append(
-            f"Last run {ago(int(status['time']))}: {RESULT_NAME.get(result, result)}"
-            + (f", {status['applied']} change(s) taken over" if status.get("applied", "0") != "0" else "")
-        )
-    last = git("log", "-1", LOG, "origin/main").split("\x1f") if has_origin else []
-    if len(last) >= 3:
-        timestamp, author, _, host = (last + [""])[:4]
-        tooltip.append(f"GitHub last written by <b>{escape(who(host, author))}</b>, {ago(int(timestamp))}")
-    if incoming:
-        tooltip += incoming_lines(incoming, mode)
-    if outgoing:
-        tooltip.append(f"↑ {outgoing} local commit(s) not on GitHub yet")
-    if conflict:
-        tooltip += [
-            "",
-            f"<font color='#ff6b6b'><b>Changed here and on GitHub:</b></font> {escape(', '.join(conflict))}",
-            f"  nothing taken over; by hand: cd {escape(REPO)} &amp;&amp; git rebase origin/main",
-        ]
-    if untrusted:
-        tooltip += untrusted_lines(untrusted)
-    elif not signing:
-        tooltip.append("Commit signatures not checked here (driftless setup)")
+    elif last:
+        tooltip.append(f"Last run {last['ago']}: {escape(last['result'])}")
     if waiting:
-        tooltip += [
-            "",
-            f"<font color='#ffb454'><b>{len(waiting)} listed package(s) wait for install</b></font>"
-            " (menu: Install missing packages)",
-            f"  {escape(', '.join(waiting[:10]))}" + (" …" if len(waiting) > 10 else ""),
-        ]
-    tooltip += last_change_per_machine(has_origin)
-    tooltip += ["", "Click: menu  ·  Right: sync now  ·  Middle: pause / resume"]
+        tooltip.append(f"<font color='#ffb454'>{len(waiting)} listed package(s) to look at</font>")
+    if incoming and mode != "auto":
+        tooltip.append(f"<font color='#ffb454'>{incoming} change(s) on GitHub wait for you</font>")
+    if joining:
+        tooltip.append(f"<font color='#ffb454'>New machine: {escape(', '.join(h for h, _ in joining))}</font>")
+    if conflict or foreign:
+        tooltip.append("<font color='#ff6b6b'>Needs a look: open the details</font>")
+    tooltip += ["", "Click: details  ·  Right: sync now  ·  Middle: pause / resume"]
 
-    # "badge": what the shell writes next to its own mark (bar/SyncSeg.qml)
-    extra = (MARK.get(state, "") + badge).strip()
-    print(json.dumps({"text": icon + badge, "badge": extra, "class": state, "tooltip": "\n".join(tooltip)}))
+    print(
+        json.dumps(
+            {
+                "text": ICON + MARK.get(state, "") + (f" {needs}" if needs else ""),
+                "mark": MARK.get(state, "").strip(),
+                "count": needs,
+                "class": state,
+                "tooltip": "\n".join(tooltip),
+                "details": details,
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

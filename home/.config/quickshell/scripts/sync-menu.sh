@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# Control the driftless sync of THIS machine, from the sync icon in the bar.
-# Usage: sync-menu.sh [now|toggle|auto|review|off|installs|install|trust FINGERPRINT|check|diff|log|github]  (no argument: pick in walker)
+# Control the driftless sync of THIS machine: the work behind the sync icon's popup (bar/SyncPopup.qml),
+# and without an argument the same as a walker menu (settings-menu.sh, a machine without the shell).
+# Usage: sync-menu.sh [now|toggle|auto|review|off|installs|packages|install|trust FINGERPRINT|check|diff|log|github]  (no argument: pick in walker)
 # The switches live in ~/.local/state/driftless (mode, installs) and never leave the machine.
 REPO=$(dirname "$(readlink -f ~/.local/bin/driftless)")
 STATE=${XDG_STATE_HOME:-$HOME/.local/state}/driftless
@@ -10,7 +11,7 @@ refresh() { "$(dirname "$(readlink -f "$0")")/poke" sync; }
 # the switches themselves are driftless's (it pokes the bar)
 set_mode() {
   "$REPO/driftless" mode "$1" > /dev/null
-  notify-send -a driftless "driftless sync" "$2"
+  notify-send -a driftless "Their changes" "$2"
 }
 
 action=$1
@@ -40,7 +41,7 @@ if [ -z "$action" ]; then
     *"Mode: review"*) action=review ;;
     *"Mode: off"*) action=off ;;
     *"Install pack"*) action=installs ;;
-    *"Install miss"*) action=install ;;
+    *"Install miss"*) action=packages ;;
     *"Trust new"*)
       action=trust
       fp=${choice##*(}
@@ -62,18 +63,20 @@ case $action in
     ;;
   toggle) if [ "$mode" = off ]; then
     resume=$(cat "$STATE/mode.resume" 2> /dev/null || echo review)
-    set_mode "$resume" "Sync resumed ($([ "$resume" = auto ] && echo automatic || echo review first))"
-  else set_mode off "Sync switched off on this machine"; fi ;;
-  auto) set_mode auto "Sync mode: automatic" ;;
-  review) set_mode review "Sync mode: review first. GitHub changes wait for \"Sync now\"" ;;
-  off) set_mode off "Sync switched off on this machine" ;;
+    set_mode "$resume" "$([ "$resume" = auto ] && echo "Automatic: they come in by themselves, every hour" || echo "Ask first: they wait at the sync icon until you take them over")"
+  else set_mode off "Paused: this machine does not sync"; fi ;;
+  auto) set_mode auto "Automatic: they come in by themselves, every hour" ;;
+  review) set_mode review "Ask first: they wait at the sync icon until you take them over" ;;
+  off) set_mode off "Paused: this machine does not sync" ;;
   installs)
     new=$([ "$installs" = on ] && echo off || echo on)
     "$REPO/driftless" installs "$new" > /dev/null
-    notify-send -a driftless "driftless sync" "Installing packages from the lists: $new"
+    notify-send -a driftless "New packages" "Offer to install them: $new"
     ;;
-  # what the sync left waiting: in a terminal, with the password; yay shows each AUR package's
-  # PKGBUILD diff before building it
+  # what the sync left waiting: the shell's review of them (bar/SyncPopup.qml), without the
+  # shell in a terminal
+  packages) "$(dirname "$(readlink -f "$0")")/install-review.py" open || "$0" install ;;
+  # in a terminal, with the password; yay shows each AUR package's PKGBUILD diff before building it
   install)
     # shellcheck disable=SC2016 # expanded by the inner bash
     ghostty -e bash -c '
@@ -95,8 +98,8 @@ case $action in
   check)
     if flock -n "$STATE/lock" timeout 30 git -C "$REPO" fetch -q origin main; then
       n=$(git -C "$REPO" rev-list --count HEAD..origin/main)
-      notify-send -a driftless "driftless sync" "GitHub checked: $n incoming change(s)"
-    else notify-send -a driftless "driftless sync" "Check failed (sync running or GitHub not reachable)"; fi
+      notify-send -a driftless "GitHub checked" "$n incoming change(s)"
+    else notify-send -a driftless "GitHub not checked" "A sync is running or GitHub is not reachable"; fi
     refresh
     ;;
   diff) ghostty -e bash -c "cd '$REPO' && git -c color.ui=always log --reverse --stat -p HEAD..origin/main | less -R" ;;
@@ -106,7 +109,7 @@ case $action in
     xdg-open "$url/commits/main"
     ;;
   *)
-    echo "usage: $0 [now|toggle|auto|review|off|installs|install|trust FINGERPRINT|check|diff|log|github]" >&2
+    echo "usage: $0 [now|toggle|auto|review|off|installs|packages|install|trust FINGERPRINT|check|diff|log|github]" >&2
     exit 2
     ;;
 esac

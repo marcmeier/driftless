@@ -155,15 +155,39 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
   [ -e "$T/B/state/driftless/applied-by-new-code" ]
 }
 
-@test "a new package in a list asks for the password once, AUR packages wait" {
+@test "a new package in a list is offered for review once, never installed by the sync; AUR packages wait" {
   echo "newpkg" >> "$(repo A)/packages/desktop.list"
   echo "aur:newaur" >> "$(repo A)/packages/desktop.list"
   dl A sync
-  mkdir -p "$(home B)/.."
   # driftless-system is "installed" in this test
-  mkdir -p "$T/usr-lib" && touch "$T/usr-lib/install-packages"
-  PACMAN_PKGS="$(cat "$(repo B)"/packages/*.list | grep -v '^#' | grep -v '^aur:' | grep -vx newpkg)" dl B sync
+  mkdir -p "$T/usr-lib" && touch "$T/usr-lib/install-packages" && chmod +x "$T/usr-lib/install-packages"
+  export DRIFTLESS_INSTALL_HELPER="$T/usr-lib/install-packages"
+  export PACMAN_PKGS="$(cat "$(repo B)"/packages/*.list | grep -v '^#' | grep -v '^aur:' | grep -vx newpkg)"
+  offers() { grep -cs "/B/home/.*install-review.py announce" "$T/systemd-run.log" || true; }
+  local before
+  before=$(offers)
+  dl B sync
   grep -qx "aur newaur" "$T/B/state/driftless/install-pending"
+  grep -qx "repo newpkg" "$T/B/state/driftless/install-pending"
+  refute grep -qs install-packages "$T/pkexec.log"
+  [ "$(offers)" -eq $((before + 1)) ]
+  # the same set again: no second offer; "sync now" offers it again
+  dl B sync
+  [ "$(offers)" -eq $((before + 1)) ]
+  dl B sync --now
+  [ "$(offers)" -eq $((before + 2)) ]
+}
+
+@test "a package skipped on a machine is not missing there, until it is taken back" {
+  echo "newpkg" >> "$(repo A)/packages/desktop.list"
+  dl A sync
+  export PACMAN_PKGS="$(cat "$(repo B)"/packages/*.list | grep -v '^#' | grep -v '^aur:' | grep -vx newpkg)"
+  dl B packages skip newpkg
+  dl B sync
+  refute grep -qs "repo newpkg" "$T/B/state/driftless/install-pending"
+  dl B packages | grep -q "skipped on this machine: newpkg"
+  dl B packages unskip newpkg
+  dl B sync --now
   grep -qx "repo newpkg" "$T/B/state/driftless/install-pending"
 }
 

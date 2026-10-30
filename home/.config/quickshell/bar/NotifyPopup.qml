@@ -25,28 +25,11 @@ Item {
         width: parent.width
         spacing: 12
 
-        Item {
-            width: parent.width
-            height: 32
+        PopupHeader {
+            icon: Notifs.dnd ? "\u{F009B}" : "\u{F009A}"
+            title: Notifs.count === 1 ? "1 notification" : Notifs.count > 0 ? Notifs.count + " notifications" : "Notifications"
             Row {
-                anchors.verticalCenter: parent.verticalCenter
                 spacing: 8
-                Caption {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Notifications"
-                }
-                Label {
-                    anchors.verticalCenter: parent.verticalCenter
-                    visible: Notifs.count > 0
-                    small: true
-                    color: Theme.faint
-                    text: Notifs.count
-                }
-            }
-            Row {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 6
                 PButton {
                     icon: "\u{F009B}"
                     text: "Do not disturb"

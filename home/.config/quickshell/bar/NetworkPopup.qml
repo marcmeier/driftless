@@ -27,28 +27,10 @@ Item {
         width: parent.width
         spacing: 10
 
-        Item {
-            width: parent.width
-            height: 32
-            Row {
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 10
-                Icon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: Networking.wifiEnabled ? "\u{F0928}" : "\u{F05AA}"
-                    size: 20
-                    color: Networking.wifiEnabled ? Theme.text : Theme.faint
-                }
-                Label {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Wi-Fi"
-                    bold: true
-                    font.pixelSize: 13
-                }
-            }
+        PopupHeader {
+            icon: Networking.wifiEnabled ? "\u{F0928}" : "\u{F05AA}"
+            title: "Wi-Fi"
             PSwitch {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
                 checked: Networking.wifiEnabled
                 onToggled: Networking.wifiEnabled = !Networking.wifiEnabled
             }
@@ -58,7 +40,6 @@ Item {
             visible: Networking.wifiEnabled && root.networks.length === 0
             text: "Looking for networks …"
             dim: true
-            font.pixelSize: 13
         }
 
         Column {
@@ -88,7 +69,6 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: modelData.name
-                        font.pixelSize: 13
                         bold: modelData.connected
                     }
                     Row {
@@ -131,12 +111,14 @@ Item {
             }
         }
 
-        PButton {
-            icon: "\u{F0493}"
-            text: "Network settings"
-            onClicked: {
-                Actions.launch(["nm-connection-editor"]);
-                root.popup.close();
+        ButtonRow {
+            PButton {
+                icon: "\u{F0493}"
+                text: "Network settings …"
+                onClicked: {
+                    Actions.launch(["nm-connection-editor"]);
+                    root.popup.close();
+                }
             }
         }
     }

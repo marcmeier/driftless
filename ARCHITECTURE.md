@@ -73,7 +73,10 @@ and `/etc/smartd.conf`. The one edit that is left, two keyring lines in `/etc/pa
 by the package's install script. Lists of units live in the manifest, read by bootstrap and verify.
 
 Root is reached through two polkit actions, each a single helper in `/usr/lib/driftless`. Installing
-packages asks for the password every time: it changes the system. Updating the login screen
+packages asks for the password every time: it changes the system. The sync never starts that on its
+own: it offers the packages (`scripts/install-review.py announce`), and the review, a popup at the sync
+icon (`bar/SyncPopup.qml`, `bar/PackagesSection.qml`), shows what they are and where they come from before its *Install* runs the
+helper. Updating the login screen
 (`greeter-update`) does not, so a new look (dark, light, a new picture) reaches it at once.
 That is safe because the helper reads the theme files with the caller's rights (`setpriv` to
 `PKEXEC_UID`), not root's: a program in the session can only show on the login screen what it could
@@ -201,6 +204,14 @@ the top edge, its popups hang from its line; there is no blur, shadow, gradient 
 shell nor in Hyprland. The desktop, the lock and the login screen are one colour (`wall.png` and
 `login.png` stay as files of one colour, so awww, ReGreet and `greeter-update` work as before).
 `set-wallpaper` keeps its name for `--current`: setup, sync and verify call it.
+
+Every popup is built the same way (the sync icon's popup set it): a first line with its sign, dimmed,
+its name in bold and on the right in small how it stands, or its switch (`bar/PopupHeader.qml`);
+controls on the right of their line, the buttons at the foot on the right too (`bar/ButtonRow.qml`),
+the one that confirms last and only that one in the accent; a button that opens something else (a
+window, a terminal) ends in "…"; what waits for you sits in a frame in the orange of the icon that
+announced it (`bar/SyncFold.qml`), above the dimmed switches. Popups that are their content
+(calendar, weather, media) start with it. The password dialog follows the same rules.
 
 *Considered:* keeping the wallpaper as an option next to the plain look. Two looks in every QML file
 double what has to be kept in step; the point was less.

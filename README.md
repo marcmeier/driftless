@@ -45,7 +45,7 @@ A new machine gets everything from two scripts.
 > - Read the scripts first. `install-base.sh` wipes a disk, and the sync changes files in your home.
 > - Try it in a VM before real hardware.
 > - Keep your own backup. Git history and btrfs snapshots are not a backup of your data.
-> - Keep the sync in *review first* (the default) until you trust it.
+> - Keep the sync in *Ask first* (`driftless mode review`, the default) until you trust it.
 
 ## What you get
 
@@ -154,7 +154,7 @@ everything rendered from it, the bar's widget layout (`~/.local/state/driftless-
    ```
 3. Reboot and log in. The login screen starts **Hyprland (uwsm-managed)**, the session that starts
    the bar and the helpers.
-4. On one of your other machines, the sync pill offers *Trust new machine*. Compare the fingerprint.
+4. On one of your other machines, the sync icon's popup offers *Trust …*. Compare the fingerprint.
 5. SSH logs in with keys only (no passwords, no root). Put the public keys that may log in into the
    new machine's `~/.ssh/authorized_keys`; they are not part of the repository. The firewall lets
    SSH in from every network (with a rate limit), so a notebook answers in other networks too.
@@ -174,8 +174,9 @@ driftless mode review|auto|off     # review (default): changes from GitHub wait 
 set-wallpaper --current           # render the look again (configs, login screen), on this machine only
 ```
 
-The sync icon in the bar shows the same: incoming (`↓n`) and outgoing (`↑n`) changes, who changed what,
-and a menu for everything above.
+The sync icon in the bar shows what waits for you (new packages, changes from your other machines, a
+new machine), and its popup has it unfolded, with *Sync now* and the mode (*Ask first*, *Automatic*,
+*Paused*).
 
 ### What the sync does and doesn't do
 
@@ -185,10 +186,14 @@ and a menu for everything above.
   GitHub token can push, but nothing it pushes reaches your machines.
 - It never merges on its own: if two machines changed the same lines, it stops and names the files.
   Your commits go on top of GitHub's, so the history stays linear.
-- Packages from the lists are installed after a **password dialog**, never silently. AUR packages
+- Packages from the lists are **offered, never installed silently**: a popup at the sync icon shows what each new one is,
+  its size, what comes along and which machine listed it; only its *Install* asks for the password,
+  and × leaves a package out on this machine (`driftless packages skip NAME`). AUR packages
   are only built in a terminal you open (`driftless packages install`), with the PKGBUILD diff shown.
   Flathub apps need no password (Flatpak lets the active local user install them, and they run
   sandboxed): they are installed with a notification, but not on a metered connection.
+
+  <img src="docs/img/sync-popup.jpg" alt="The sync icon's popup with three new packages from the notebook" width="480">
 - It never uninstalls anything, and it never upgrades the system. Updates, flatpaks included, are
   the update pill's click.
 - Programs that save by replacing a file (instead of writing into it) break a link. The sync notices,

@@ -43,6 +43,5 @@ Seg {
         visible: !seg.compact && !!seg.withBattery
         anchors.verticalCenter: parent.verticalCenter
         text: seg.withBattery ? Math.round(seg.withBattery.battery * 100) + "%" : ""
-        font.pixelSize: 13
     }
 }

@@ -7,7 +7,8 @@ import "../bar"
 // The password dialog when something asks for more rights (hyprpolkitagent before): installing
 // packages from the lists, a mount, an app's settings. The shell is the session's polkit agent; the
 // dialog is a plain box over the focused screen, which it covers in the desk colour: what is asked and
-// by which action, the password. Enter: authenticate · Esc or "Cancel": no.
+// by which action, the password. driftless's own request (installing listed packages, after the review in
+// bar/PackagesSection.qml) says which packages and why, instead of the raw command line. Enter: authenticate · Esc or "Cancel": no.
 // Without the shell there is no agent: polkit then says so to the program that asked.
 Scope {
     id: root
@@ -17,6 +18,13 @@ Scope {
     property string password: ""
     property bool checking: false
     property int fails: 0
+    // driftless's own request in plain words: the packages from the command line polkit puts in the message
+    readonly property var packages: {
+        if (!flow || flow.actionId !== "org.driftless.install-packages")
+            return null;
+        const m = /install-packages\s+(.+)$/.exec(flow.message);
+        return m ? m[1].trim().split(/\s+/) : null;
+    }
 
     PolkitAgent {
         id: agent
@@ -96,30 +104,24 @@ Scope {
                     width: card.width - 40
                     spacing: 10
 
-                    Row {
-                        spacing: 8
-                        Icon {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "\u{F099D}"
-                            size: 14
-                            color: Theme.dim
-                        }
-                        Label {
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: "Authentication required"
-                            bold: true
-                            font.pixelSize: 13
-                        }
+                    // driftless's own request under its mark, like the sync icon's popup it comes from
+                    PopupHeader {
+                        icon: root.packages ? "" : "\u{F099D}"
+                        title: root.packages ? "driftless" : "Authentication required"
+                        status: !root.packages ? "" : root.packages.length === 1 ? "Install 1 package"
+                                : "Install " + root.packages.length + " packages"
                     }
 
                     // what is asked, in the program's words
                     Label {
                         width: parent.width
-                        text: root.flow ? root.flow.message : ""
+                        text: root.packages
+                              ? root.packages.join(", ") + "\n\nInstalling changes the system for every user, so it needs your password."
+                                + " driftless uses it for pacman -S with exactly these names, nothing else."
+                              : root.flow ? root.flow.message : ""
                         wrapMode: Text.Wrap
-                        maximumLineCount: 4
+                        maximumLineCount: root.packages ? 8 : 4
                         elide: Text.ElideRight
-                        font.pixelSize: 13
                         color: Theme.dim
                         lineHeight: 1.1
                     }

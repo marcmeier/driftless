@@ -38,6 +38,14 @@ Item {
         width: parent.width
         spacing: 12
 
+        PopupHeader {
+            icon: "\u{F057E}"
+            title: "Sound"
+            status: [root.sink && root.sink.audio && root.sink.audio.muted ? "Output muted" : "",
+                     root.source && root.source.audio && root.source.audio.muted ? "Microphone muted" : ""]
+                    .filter(t => t).join("  ·  ")
+        }
+
         Level {
             title: "Output"
             node: root.sink
@@ -92,7 +100,7 @@ Item {
                         // an app id like io.github.celluloid_player.Celluloid: its last part
                         text: (props["application.name"] || modelData.description || modelData.nickname
                                || modelData.name).replace(/^(\w+\.)+(?=\w+$)/, "")
-                        font.pixelSize: 12
+                        small: true
                         dim: true
                     }
                     PSlider {
@@ -113,12 +121,14 @@ Item {
             }
         }
 
-        PButton {
-            icon: "\u{F062E}"
-            text: "Mixer"
-            onClicked: {
-                Actions.launch(["pwvucontrol"]);
-                root.popup.close();
+        ButtonRow {
+            PButton {
+                icon: "\u{F062E}"
+                text: "Mixer …"
+                onClicked: {
+                    Actions.launch(["pwvucontrol"]);
+                    root.popup.close();
+                }
             }
         }
     }
@@ -156,7 +166,7 @@ Item {
                     width: parent.width
                     elide: Text.ElideRight
                     text: root.name(level.node)
-                    font.pixelSize: 12
+                    small: true
                     color: level.muted ? level.muteColor : Theme.text
                 }
                 PSlider {
@@ -173,7 +183,7 @@ Item {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
                 text: level.muted ? "muted" : Math.round((level.node && level.node.audio ? level.node.audio.volume : 0) * 100) + "%"
-                font.pixelSize: 12
+                small: true
                 color: level.muted ? level.muteColor : Theme.text
             }
         }
@@ -208,7 +218,6 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     elide: Text.ElideRight
                     text: root.name(modelData)
-                    font.pixelSize: 13
                     color: parent.isCurrent ? Theme.text : Theme.dim
                 }
                 MouseArea {

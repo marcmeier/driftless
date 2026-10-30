@@ -44,10 +44,17 @@ flatpak_apps() {
   flatpak list --app --columns=application 2> /dev/null | sort -u
 }
 
-# missing KIND: wanted packages of KIND (repo|aur|flatpak) that are not installed
+# skipped: the packages a list names that this machine does without ("Not on this machine" in the
+# shell's review of new packages, or driftless packages skip NAME). Per machine, never in the repository.
+skipped() { grep -v '^\s*$' "$STATE/skip" 2> /dev/null | sort -u || true; }
+
+# missing KIND: wanted packages of KIND (repo|aur|flatpak) that are not installed nor skipped here
 missing() {
   comm -23 <(wanted | awk -v k="$1" '$1 == k { print $2 }' | sort -u) \
-    <(if [[ $1 == flatpak ]]; then flatpak_apps; else pacman -Qq | sort -u; fi)
+    <({
+      if [[ $1 == flatpak ]]; then flatpak_apps; else pacman -Qq; fi
+      skipped
+    } | sort -u)
 }
 
 # unlisted: explicitly installed packages that no group of this machine lists
@@ -119,6 +126,8 @@ cmd_packages() {
       [[ -z $repo ]] && echo "repo packages: all installed" || echo "missing (repo): $repo"
       [[ -z $aur ]] && echo "AUR packages: all installed" || echo "missing (AUR): $aur"
       [[ -z $fp ]] && echo "flatpaks: all installed" || echo "missing (flatpak): $fp"
+      [[ -z $(skipped) ]] || echo "skipped on this machine: $(skipped | paste -sd' ')
+  suggest one again:    driftless packages unskip NAME"
       [[ -z $extra ]] || echo "installed, but in no list: $extra
   keep one everywhere:  driftless packages add NAME [GROUP]
   or remove it here:    sudo pacman -Rns NAME"
@@ -165,6 +174,21 @@ cmd_packages() {
       mv "$file.new" "$file"
       echo "added $entry to $group (the next sync takes it to your other machines)"
       ;;
+    # skip / unskip NAME...: leave listed packages out on this machine, or take them back
+    skip | unskip)
+      (($#)) || die "usage: driftless packages $sub NAME..."
+      mkdir -p "$STATE"
+      if [[ $sub == skip ]]; then
+        {
+          skipped
+          printf '%s\n' "$@"
+        } | sort -u > "$STATE/skip.new"
+      else
+        skipped | grep -vxF -f <(printf '%s\n' "$@") > "$STATE/skip.new" || true
+      fi
+      mv "$STATE/skip.new" "$STATE/skip"
+      echo "skipped on this machine: $(skipped | paste -sd' ')"
+      ;;
     remove)
       local name=${1:?usage: driftless packages remove NAME} file
       for file in "$DRIFTLESS"/packages/*.list "$DRIFTLESS"/personal/packages/*.list; do
@@ -172,6 +196,6 @@ cmd_packages() {
       done
       echo "removed $name from the lists. The other machines keep it until you remove it there."
       ;;
-    *) die "usage: driftless packages [status|install [repo|flatpak|aur]|add NAME [GROUP]|remove NAME]" ;;
+    *) die "usage: driftless packages [status|install [repo|flatpak|aur]|add NAME [GROUP]|remove NAME|skip NAME...|unskip NAME...]" ;;
   esac
 }

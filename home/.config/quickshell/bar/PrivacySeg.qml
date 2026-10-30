@@ -3,12 +3,10 @@ import qs.services
 
 // The privacy indicator: a coloured capsule that is only there while an app records the microphone,
 // uses the camera or shares the screen, with one symbol for each (services/Privacy.qml). Amber, red
-// while the screen is shared; it pulses when something new starts. Click: mute the microphone ·
+// while the screen is shared. Click: mute the microphone ·
 // wheel: its level.
 Seg {
     id: seg
-
-    readonly property int count: (Privacy.mic ? 1 : 0) + (Privacy.camera ? 1 : 0) + (Privacy.screen ? 1 : 0)
 
     shown: Privacy.active
     padL: 3
@@ -34,33 +32,11 @@ Seg {
         if (Privacy.mic)
             Privacy.nudgeLevel(steps);
     }
-    onCountChanged: if (count > 0) pulse.restart()
 
     Item {
         anchors.verticalCenter: parent.verticalCenter
         implicitWidth: capsule.width
         implicitHeight: capsule.height
-
-        // the pulse: a ring that grows out of the capsule and fades, three times
-        Rectangle {
-            id: ring
-            anchors.centerIn: parent
-            width: capsule.width
-            height: capsule.height
-            radius: height / 2
-            color: "transparent"
-            border.width: 2
-            border.color: capsule.color
-            opacity: 0
-        }
-        SequentialAnimation {
-            id: pulse
-            loops: 3
-            ParallelAnimation {
-                NumberAnimation { target: ring; property: "opacity"; from: 0.9; to: 0; duration: 700; easing.type: Easing.OutQuad }
-                NumberAnimation { target: ring; property: "scale"; from: 1; to: 1.35; duration: 700; easing.type: Easing.OutQuad }
-            }
-        }
 
         Rectangle {
             id: capsule
@@ -68,11 +44,8 @@ Seg {
             // the same room around the symbols as between them (measured on their ink)
             width: icons.implicitWidth + 2 * (icons.spacing + 1)
             height: Theme.barHeight - 8
-            radius: height / 2
             color: Privacy.screen ? Theme.crit : Theme.warn
             opacity: seg.hovered && seg.interactive ? 0.85 : 1
-            Behavior on color { ColorAnimation { duration: 200 } }
-            Behavior on width { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
 
             Row {
                 id: icons

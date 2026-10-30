@@ -54,7 +54,7 @@ Rectangle {
                     Label {
                         anchors.verticalCenter: parent.verticalCenter
                         text: cell.modelData[1]
-                        font.pixelSize: 12
+                        small: true
                         color: cell.on ? Theme.accent : Theme.text
                     }
                 }

@@ -46,7 +46,6 @@ Item {
                 x: 28
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.stack.length ? root.stack[root.stack.length - 1].text.replace(/_/g, "") : ""
-                font.pixelSize: 13
                 bold: true
             }
             MouseArea {
@@ -115,7 +114,6 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: entry.modelData.text.replace(/_(?=\S)/g, "")
-                        font.pixelSize: 13
                     }
                     Icon {
                         visible: entry.modelData.hasChildren

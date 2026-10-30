@@ -27,20 +27,9 @@ Item {
         width: parent.width
         spacing: 12
 
-        Row {
-            spacing: 10
-            Icon {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "\u{F06A9}"
-                size: 22
-                color: Theme.dim
-            }
-            Label {
-                anchors.verticalCenter: parent.verticalCenter
-                text: "Claude Code usage"
-                bold: true
-                font.pixelSize: 13
-            }
+        PopupHeader {
+            icon: "\u{F06A9}"
+            title: "Claude Code usage"
         }
 
         Repeater {
@@ -54,7 +43,6 @@ Item {
                     height: 18
                     Label {
                         text: modelData[0]
-                        font.pixelSize: 13
                         bold: true
                     }
                     Label {
@@ -90,7 +78,6 @@ Item {
             text: "The usage API does not answer (login expired? start Claude Code once). Tokens today: "
                   + Usage.count(root.d.today || 0)
             color: Theme.warn
-            font.pixelSize: 13
         }
         Label {
             visible: !!root.d.stale && !!root.d.session
@@ -119,7 +106,7 @@ Item {
                     Label {
                         width: 108
                         text: modelData.label
-                        font.pixelSize: 12
+                        small: true
                         color: Theme.text
                     }
                     Repeater {
@@ -129,7 +116,7 @@ Item {
                             width: modelData[0].startsWith("cache") ? 66 : 54
                             horizontalAlignment: Text.AlignRight
                             text: parent.head ? modelData[0] : Usage.count(parent.modelData[modelData[1]])
-                            font.pixelSize: 12
+                            small: true
                             color: parent.head ? Theme.faint : Theme.text
                         }
                     }
@@ -137,12 +124,14 @@ Item {
             }
         }
 
-        PButton {
-            icon: "\u{F03CC}"
-            text: "Usage on claude.ai"
-            onClicked: {
-                Actions.launch(["xdg-open", "https://claude.ai/settings/usage"]);
-                root.popup.close();
+        ButtonRow {
+            PButton {
+                icon: "\u{F03CC}"
+                text: "Usage on claude.ai …"
+                onClicked: {
+                    Actions.launch(["xdg-open", "https://claude.ai/settings/usage"]);
+                    root.popup.close();
+                }
             }
         }
     }

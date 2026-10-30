@@ -40,28 +40,10 @@ Item {
         width: parent.width
         spacing: 10
 
-        Item {
-            width: parent.width
-            height: 32
-            Row {
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 10
-                Icon {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: root.powered ? "\u{F00AF}" : "\u{F00B2}"
-                    size: 20
-                    color: root.powered ? Theme.text : Theme.faint
-                }
-                Label {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Bluetooth"
-                    bold: true
-                    font.pixelSize: 13
-                }
-            }
+        PopupHeader {
+            icon: root.powered ? "\u{F00AF}" : "\u{F00B2}"
+            title: "Bluetooth"
             PSwitch {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
                 checked: root.powered
                 onToggled: if (root.adapter) root.adapter.enabled = !root.adapter.enabled
             }
@@ -75,7 +57,6 @@ Item {
             visible: root.powered && root.mine.length === 0
             text: "None paired yet: pick one nearby"
             dim: true
-            font.pixelSize: 13
         }
         Column {
             visible: root.powered
@@ -116,7 +97,6 @@ Item {
             visible: root.powered && root.nearby.length === 0
             text: "Looking for devices …  (put yours in pairing mode)"
             dim: true
-            font.pixelSize: 13
             width: parent.width
             wrapMode: Text.Wrap
         }
@@ -130,12 +110,14 @@ Item {
             }
         }
 
-        PButton {
-            icon: "\u{F00B3}"
-            text: "Bluetooth settings"
-            onClicked: {
-                Actions.launch(["blueman-manager"]);
-                root.popup.close();
+        ButtonRow {
+            PButton {
+                icon: "\u{F00B3}"
+                text: "Bluetooth settings …"
+                onClicked: {
+                    Actions.launch(["blueman-manager"]);
+                    root.popup.close();
+                }
             }
         }
     }
@@ -179,7 +161,6 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             elide: Text.ElideRight
             text: root.name(row.dev)
-            font.pixelSize: 13
             bold: row.dev.connected
             color: row.mine ? Theme.text : Theme.dim
         }
