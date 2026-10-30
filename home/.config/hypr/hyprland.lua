@@ -334,6 +334,15 @@ hl.window_rule({
     pin   = true,
 })
 
+-- Browsers: a request to be raised (the video's "back to tab", a link opened from another app) goes
+-- to the window and its workspace; else Hyprland only marks the window urgent
+hl.window_rule({
+    name  = "browser-focus-on-activate",
+    match = { class = "^(brave-origin|brave-browser|chromium|firefox)$" },
+
+    focus_on_activate = true,
+})
+
 -- Calendar (ikhal, started from the calendar in the bar): floating, centered
 hl.window_rule({
     name  = "calendar-float",

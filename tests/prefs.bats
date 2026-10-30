@@ -39,8 +39,10 @@ setup() {
 }
 
 @test "idle times go to idle.conf as hypridle variables, never is a week" {
+  python3 -I "$PREFS" set saverAfter 120
   python3 -I "$PREFS" set lockAfter 300
   python3 -I "$PREFS" set screenOffAfter 0
+  grep -qx '$saver_after = 120' "$HOME/.local/state/hypr/idle.conf"
   grep -qx '$lock_after = 300' "$HOME/.local/state/hypr/idle.conf"
   grep -qx '$screen_off_after = 604800' "$HOME/.local/state/hypr/idle.conf"
   grep -qx 'systemctl --user try-restart hypridle.service' "$T/calls.log"

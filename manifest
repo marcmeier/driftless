@@ -30,6 +30,7 @@ link .local/share/dbus-1/services/org.freedesktop.Notifications.service
 link .local/bin/driftless driftless
 link .local/bin/set-wallpaper home/.config/theme/set-wallpaper.sh
 link .local/bin/cfg-backup
+link .local/bin/driftless-saver
 # stable paths the configs include from: this machine's host folder and the personal layer
 link .config/driftless/host hosts/{host}
 link .config/driftless/personal personal

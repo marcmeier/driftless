@@ -4,6 +4,21 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.25.0 (2026-10-30): a screensaver, drift and sync
+
+### Added
+- **A screensaver before the lock**: a lattice of grey points fills the screen and runs out in slow
+  streams, while a sync that is not drawn crosses it again and again; every loose point it reaches
+  glides home in the accent. It runs without end in the look's colours (dark, light and the palette)
+  and ends at the next input. The time is in the settings under *Power*, *Screensaver*: 1, 3, 5 or
+  10 minutes or never, 5 to begin with (the lock stays at 10). `driftless-saver` runs it in the
+  terminal you are in.
+
+### Fixed
+- **A video's "back to tab" goes to the browser**: from a picture-in-picture video on another
+  workspace it only marked the browser urgent; now it switches to the browser's window.
+- The settings say "1 minute", not "1 minutes".
+
 ## v2.24.1 (2026-10-30): the update to v2.24 finishes
 
 ### Fixed

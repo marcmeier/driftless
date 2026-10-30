@@ -1,0 +1,274 @@
+#!/usr/bin/env python3
+"""The screensaver of the plain look: drift and sync, in a terminal, without end.
+
+A lattice of grey points is the machine as the repository says it is. Points come loose one by one
+and run off with a current that shifts slowly, brighter than the ones still in place, so the lattice
+runs out in streams. A sync crosses the screen again and again, a slow wave that is not drawn: every
+loose point it reaches glides home in the accent and is grey again where it belongs; behind it the
+lattice starts to run out again.
+
+  driftless-saver [--speed X]   run it in this terminal; any key ends it, SIGTERM too
+  driftless-saver --show        hypridle: open it fullscreen in a terminal of its own, unless it runs
+                                already or the screen is locked (the setting: Power, Screensaver)
+  driftless-saver --hide        hypridle, on input again: end it
+
+Colours: ~/.config/theme/colors.json (theme/apply.py), read again when the look changes.
+"""
+
+import argparse
+import json
+import math
+import os
+import random
+import select
+import shutil
+import signal
+import subprocess
+import sys
+import termios
+import time
+import tty
+from pathlib import Path
+
+COLORS = Path(os.environ.get("XDG_CONFIG_HOME") or Path.home() / ".config") / "theme" / "colors.json"
+PID = Path(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}") / "driftless-saver.pid"
+FALLBACK = {"faint": "#4a4a4a", "dim": "#8a8a8a", "primary": "#7aa6d9"}  # the dark plain look
+
+FPS = 15
+STEP_X, STEP_Y = 4, 2  # lattice spacing in cells (a cell is about twice as high as wide)
+LAP = 32.0  # seconds the sync takes to cross the screen; it never stops
+HOLD = 12.0  # seconds a point stays in place after the sync passed it, on average
+CURRENT = 1.4  # cells per second along x the loose points run at
+GLIDE = 7.0  # cells per second along x a point glides home at (at least a second, eased)
+
+
+def hex_rgb(value):
+    value = value.lstrip("#")
+    return tuple(int(value[i : i + 2], 16) for i in (0, 2, 4))
+
+
+class Palette:
+    def __init__(self):
+        self.mtime = None
+        self.load()
+
+    def load(self):
+        try:
+            self.mtime = COLORS.stat().st_mtime
+            colors = json.loads(COLORS.read_text())["colors"]
+        except (OSError, ValueError, KeyError):
+            colors = {}
+        self.sgr = {name: "\x1b[38;2;{};{};{}m".format(*hex_rgb(colors.get(name, FALLBACK[name]))) for name in FALLBACK}
+
+    def changed(self):
+        try:
+            return COLORS.stat().st_mtime != self.mtime
+        except OSError:
+            return False
+
+
+class Point:
+    __slots__ = ("hx", "hy", "x", "y", "lap", "free_at", "sx", "sy", "back_at", "back_for")
+
+    def __init__(self, hx, hy, lap, now):
+        self.hx, self.hy = hx, hy
+        self.lap = lap  # the sync's last pass over it
+        self.home(now)
+
+    def home(self, now):
+        self.x, self.y = float(self.hx), float(self.hy)
+        self.free_at = now + random.expovariate(1 / HOLD)  # when it comes loose
+        self.back_at = None  # when it set off home, while it glides
+
+    def glide(self, now):
+        self.sx, self.sy = self.x, self.y
+        self.back_at = now
+        self.back_for = max(1.0, math.hypot(self.hx - self.x, (self.hy - self.y) * 2) / GLIDE)
+
+    def at_home(self, now):
+        return self.back_at is None and now < self.free_at
+
+
+class Saver:
+    def __init__(self, speed):
+        self.speed = speed
+        self.palette = Palette()
+        self.layout()
+
+    def layout(self):
+        self.cols, self.rows = shutil.get_terminal_size()
+        self.width = self.cols + 20  # one lap of the sync, with room for its wave beyond the edges
+        self.start = time.monotonic()
+        self.turn = random.uniform(0, 2 * math.pi)
+        ox = (self.cols - 1) % STEP_X // 2
+        oy = (self.rows - 1) % STEP_Y // 2
+        self.points = [
+            Point(x, y, self.lap(0.0, x, y), 0.0)
+            for y in range(oy, self.rows, STEP_Y)
+            for x in range(ox, self.cols, STEP_X)
+        ]
+        self.shown = {}
+        self.clear = True
+
+    def clock(self):
+        return (time.monotonic() - self.start) * self.speed
+
+    def lap(self, t, x, y):
+        """How often the sync has passed (x, y) by the time t; its front is a slow wave, not a line."""
+        front = x + 10 + 8 * math.sin(y * 0.12 + t * 0.03)
+        return math.floor((t / LAP * self.width - front) / self.width)
+
+    def current(self, x, y, t):
+        """The direction the water runs at (x, y): a few slow waves over a heading that turns."""
+        return (
+            self.turn
+            + 0.02 * t
+            + 1.3 * math.sin(x * 0.045 + t * 0.06)
+            + 1.1 * math.sin(y * 0.13 - t * 0.045 + 1.7)
+            + 0.6 * math.sin((x + y) * 0.03 + t * 0.03)
+        )
+
+    def update(self, t, dt):
+        """Move the points to the time t."""
+        for p in self.points:
+            lap = self.lap(t, p.hx, p.hy)
+            if lap != p.lap:
+                p.lap = lap
+                if p.at_home(t):
+                    p.free_at = t + random.expovariate(1 / HOLD)
+                elif p.back_at is None:
+                    p.glide(t)
+            if p.back_at is not None:
+                k = (t - p.back_at) / p.back_for
+                if k >= 1:
+                    p.home(t)
+                else:
+                    k = k * k * (3 - 2 * k)
+                    p.x = p.sx + (p.hx - p.sx) * k
+                    p.y = p.sy + (p.hy - p.sy) * k
+            elif t >= p.free_at:
+                angle = self.current(p.x, p.y, t)
+                p.x += math.cos(angle) * CURRENT * dt
+                p.y += math.sin(angle) * CURRENT / 2 * dt
+
+    def frame(self, t):
+        """The cells to draw: (x, y) -> (character, colour name); gliding home over loose over in place."""
+        cells = {}
+        loose, gliding = [], []
+        for p in self.points:
+            if p.at_home(t):
+                cells[(p.hx, p.hy)] = ("·", "faint")
+            else:
+                (loose if p.back_at is None else gliding).append(p)
+        for group, color in ((loose, "dim"), (gliding, "primary")):
+            for p in group:
+                x, y = round(p.x), round(p.y)
+                if 0 <= x < self.cols and 0 <= y < self.rows:
+                    cells[(x, y)] = ("·", color)
+        return cells
+
+    def draw(self, cells):
+        out = []
+        if self.clear:
+            out.append("\x1b[2J")
+            self.shown = {}
+            self.clear = False
+        for pos in self.shown.keys() - cells.keys():
+            out.append(f"\x1b[{pos[1] + 1};{pos[0] + 1}H ")
+        for pos, cell in cells.items():
+            if self.shown.get(pos) != cell:
+                out.append(f"\x1b[{pos[1] + 1};{pos[0] + 1}H{self.palette.sgr[cell[1]]}{cell[0]}")
+        self.shown = cells
+        if out:
+            sys.stdout.write("".join(out))
+            sys.stdout.flush()
+
+
+def running():
+    """The pid of the screensaver that runs, or None."""
+    try:
+        pid = int(PID.read_text())
+        os.kill(pid, 0)
+        return pid
+    except (OSError, ValueError):
+        return None
+
+
+def locked():
+    shell = Path.home() / ".config" / "quickshell"
+    try:
+        answer = subprocess.run(
+            ["quickshell", "ipc", "-p", str(shell), "call", "lock", "state"], capture_output=True, text=True, timeout=5
+        ).stdout.strip()
+    except (OSError, subprocess.TimeoutExpired):
+        answer = ""
+    return answer == "locked" or subprocess.run(["pidof", "-q", "hyprlock"], check=False).returncode == 0
+
+
+def show():
+    if running() or locked():
+        return
+    subprocess.Popen(
+        ["ghostty", "--class=com.mitchellh.ghostty.saver", "--fullscreen=true", "-e", os.path.realpath(__file__)],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
+
+
+def hide():
+    pid = running()
+    if pid:
+        os.kill(pid, signal.SIGTERM)
+
+
+def main(argv):
+    parser = argparse.ArgumentParser(description="The screensaver of the plain look: drift and sync.")
+    parser.add_argument("--speed", type=float, default=1.0, help="time runs this many times as fast")
+    parser.add_argument("--show", action="store_true", help="open it fullscreen in a terminal of its own")
+    parser.add_argument("--hide", action="store_true", help="end the one that runs")
+    args = parser.parse_args(argv)
+    if args.show:
+        return show()
+    if args.hide:
+        return hide()
+
+    PID.write_text(f"{os.getpid()}\n")
+    saver = Saver(max(args.speed, 0.01))
+    resized = []
+    signal.signal(signal.SIGWINCH, lambda *_: resized.append(1))
+    signal.signal(signal.SIGTERM, lambda *_: sys.exit(0))
+    fd = sys.stdin.fileno()
+    saved = termios.tcgetattr(fd)
+    # alternate screen, no cursor, no line wrap
+    sys.stdout.write("\x1b[?1049h\x1b[?25l\x1b[?7l")
+    try:
+        tty.setcbreak(fd)
+        last = saver.clock()
+        while True:
+            if select.select([fd], [], [], 1 / FPS)[0]:
+                break
+            if resized:
+                resized.clear()
+                saver.layout()
+                last = 0.0
+            if saver.palette.changed():
+                saver.palette.load()
+                saver.clear = True
+            t = saver.clock()
+            saver.update(t, t - last)
+            saver.draw(saver.frame(t))
+            last = t
+    except KeyboardInterrupt:
+        pass
+    finally:
+        if running() == os.getpid():
+            PID.unlink(missing_ok=True)
+        termios.tcsetattr(fd, termios.TCSAFLUSH, saved)
+        sys.stdout.write("\x1b[0m\x1b[?7h\x1b[?25h\x1b[?1049l")
+        sys.stdout.flush()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

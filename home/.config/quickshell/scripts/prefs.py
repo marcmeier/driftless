@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """The settings of this machine beyond the look and the bar, for the settings popup (bar/SettingsPopup.qml):
-the clock, the night light, notifications, when the screen locks and turns off, mouse, touchpad and
+the clock, the night light, notifications, the screensaver, when the screen locks and turns off, mouse, touchpad and
 keyboard.
 
 settings.json holds only what was changed (~/.local/state/driftless-shell, per machine, outside the
@@ -77,6 +77,7 @@ KEYS = {
     "nightLight": (word("off", "sun", "on"), "shell", None),
     "nightTemp": (one_of(3000, 3500, 4000, 4500), "shell", None),
     "trayPinned": (names, "shell", None),
+    "saverAfter": (seconds, "idle", "saver_after"),
     "lockAfter": (seconds, "idle", "lock_after"),
     "screenOffAfter": (seconds, "idle", "screen_off_after"),
     "pointerSpeed": (speed, "input", "sensitivity"),
@@ -137,7 +138,7 @@ def render_input(data):
 
 def render_idle(data):
     lines = ["# Written by the settings (quickshell/scripts/prefs.py) from settings.json. Do not edit."]
-    for key in ("lockAfter", "screenOffAfter"):
+    for key in ("saverAfter", "lockAfter", "screenOffAfter"):
         if key in data:
             lines.append(f"${KEYS[key][2]} = {data[key] or NEVER}")
     write(IDLE_CONF, "\n".join(lines) + "\n")

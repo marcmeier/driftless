@@ -87,9 +87,10 @@ Item {
 
     readonly property var laptop: UPower.displayDevice && UPower.displayDevice.isLaptopBattery && UPower.displayDevice.isPresent
     function minutes(s) {
-        return s % 3600 === 0 ? s / 3600 + (s === 3600 ? " hour" : " hours") : Math.round(s / 60) + " minutes";
+        return s % 3600 === 0 ? s / 3600 + (s === 3600 ? " hour" : " hours") : Math.round(s / 60) + (s === 60 ? " minute" : " minutes");
     }
     readonly property var idleTimes: [["300", "5 min"], ["600", "10 min"], ["900", "15 min"], ["1800", "30 min"], ["0", "Never"]]
+    readonly property var saverTimes: [["60", "1 min"], ["180", "3 min"], ["300", "5 min"], ["600", "10 min"], ["0", "Never"]]
 
     // ---- what there is ----
 
@@ -725,6 +726,18 @@ Item {
                 title: "When you are away"
                 SettingRow {
                     first: true
+                    title: "Screensaver"
+                    detail: Prefs.saverAfter === 0 ? "Never by itself"
+                            : Prefs.lockAfter !== 0 && Prefs.saverAfter >= Prefs.lockAfter
+                              ? "After the lock, so it does not show: pick less than " + root.minutes(Prefs.lockAfter)
+                              : "Drift and sync after " + root.minutes(Prefs.saverAfter) + " without input, until you are back"
+                    PSegmented {
+                        options: root.saverTimes
+                        current: String(Prefs.saverAfter)
+                        onPicked: value => Prefs.set("saverAfter", Number(value))
+                    }
+                }
+                SettingRow {
                     title: "Lock the screen"
                     detail: Prefs.lockAfter === 0 ? "Only by hand (SUPER + L) and before the machine sleeps"
                                                   : "After " + root.minutes(Prefs.lockAfter) + " without input, and before sleep"

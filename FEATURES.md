@@ -169,6 +169,10 @@ the desktop looks borrowed from another program.
   click picks another one, when there is more than one) and reboot and shut down below. It runs as
   greetd's own user and shows only what `set-wallpaper` hands it: the colours and your name. If it
   ever fails to start, ReGreet takes over
+- **Screensaver** (`driftless-saver`): before the lock, a lattice of grey points fills the screen and
+  runs out in slow streams, while a sync that is not drawn crosses it again and again and every loose
+  point it reaches glides home in the accent. Without end, in the look's colours (it follows dark,
+  light and the palette); any input ends it. `driftless-saver` alone runs it in the terminal you are in
 - **Power menu** (`SUPER + SHIFT + M`, the power button): lock, log out, suspend, reboot, shut down
   as a list in the middle of the screen, with the arrows and Enter or the letter of a row. Suspend locks first
 - **Password dialog**: when a program asks for more rights (driftless installing packages, a mount, an
@@ -240,8 +244,8 @@ Every choice is per machine (but your picture):
   click, the touchpad off while typing; how soon and how fast a held key repeats; the searchable list of
   keybindings. Hyprland follows at once (`hyprctl eval`), the choices stay in
   `~/.local/state/hypr/input.lua`, loaded after the host and personal layers
-- **Power**: lock the screen and turn it off after 5, 10, 15, 30 minutes or never (hypridle reads the
-  times from `~/.local/state/hypr/idle.conf`), keep awake, the power profile on a notebook, the power menu
+- **Power**: the screensaver after 1, 3, 5, 10 minutes or never, lock the screen and turn it off after
+  5, 10, 15, 30 minutes or never (hypridle reads the times from `~/.local/state/hypr/idle.conf`), keep awake, the power profile on a notebook, the power menu
 - **Sync**: *Sync now*, what happens with the other machines' changes (ask first, automatic,
   paused), whether new packages are offered here; "Show …" opens the sync icon's popup
 - **About**: a button that opens the card about this machine (the same as a click on your name)
