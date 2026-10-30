@@ -84,6 +84,8 @@ manifest() {
 # notify URGENCY TITLE TEXT: a desktop notification when there is a desktop, the log in any case. The
 # sender is driftless already (the shell shows its mark), so TITLE says what it is about.
 notify() {
+  # URGENCY TEXT before v2.24: a sync that updates itself to here still runs such a call (reload_code)
+  (($# < 3)) && set -- "$1" driftless "$2"
   echo "driftless: $2: $3"
   notify-send -u "$1" -a driftless "$2" "$3" 2> /dev/null || true
 }

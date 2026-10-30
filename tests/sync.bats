@@ -155,6 +155,20 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
   [ -e "$T/B/state/driftless/applied-by-new-code" ]
 }
 
+@test "the running code's notification after an update still works when notify takes a title now" {
+  # B's sync runs code that calls notify as before v2.24 (no title); the libraries it loads during
+  # that run (reload_code) are the new ones
+  sed -i 's|notify normal "Taken over from GitHub" "$APPLIED file(s)"|notify normal "Taken over from GitHub: $APPLIED file(s)"|' "$(repo A)/lib/sync.sh"
+  git -C "$(repo A)" commit -qam "notify as before v2.24"
+  dl A sync
+  dl B sync
+  echo "# changed" >> "$(repo A)/lib/common.sh"
+  git -C "$(repo A)" commit -qam "a change in lib"
+  dl A sync
+  dl B sync
+  grep -qx "result=ok" "$T/B/state/driftless/status"
+}
+
 @test "a new package in a list is offered for review once, never installed by the sync; AUR packages wait" {
   echo "newpkg" >> "$(repo A)/packages/desktop.list"
   echo "aur:newaur" >> "$(repo A)/packages/desktop.list"

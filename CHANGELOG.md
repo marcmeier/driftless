@@ -4,6 +4,14 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.24.1 (2026-10-30): the update to v2.24 finishes
+
+### Fixed
+- **The sync that brings v2.24 no longer ends in an error** ("`$3`: unbound variable"): the code
+  that runs the sync still sends its last notification in the old form, which the new libraries it
+  has just loaded did not take. The files were in place, but the run counted as failed and the sync
+  icon showed it until the next run.
+
 ## v2.24.0 (2026-10-30): packages explained first, popups alike
 
 ### Added

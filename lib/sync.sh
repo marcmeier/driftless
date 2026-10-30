@@ -37,6 +37,8 @@ write_status() {
 
 # notify_once KEY URGENCY TITLE TEXT: a notification only when TEXT differs from the last one for KEY
 notify_once() {
+  # KEY URGENCY TEXT before v2.24, as for notify
+  (($# < 4)) && set -- "$1" "$2" driftless "$3"
   [[ $4 == "$(cat "$STATE/$1.notified" 2> /dev/null)" ]] && {
     echo "driftless: $3: $4"
     return 0
