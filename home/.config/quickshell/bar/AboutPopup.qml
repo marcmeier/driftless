@@ -12,7 +12,7 @@ Item {
     property var bar
     property var info: ({})
 
-    implicitWidth: 340
+    implicitWidth: 390
     implicitHeight: column.implicitHeight
 
     function gb(bytes) {
@@ -72,15 +72,18 @@ Item {
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
+                width: column.width - 44 - parent.spacing
                 spacing: 2
                 Label {
                     text: `${Apps.esc(Feeds.userName)} <font color='${Theme.dim}'>on</font> ${Apps.esc(root.info.host || "")}`
                     textFormat: Text.StyledText
                     bold: true
-                    font.pixelSize: 15
+                    font.pixelSize: 18
                 }
                 Label {
                     visible: text !== ""
+                    width: parent.width
+                    elide: Text.ElideRight
                     text: root.info.model || ""
                     small: true
                     dim: true
@@ -114,13 +117,13 @@ Item {
                     required property var modelData
                     spacing: 0
                     Label {
-                        width: 104
+                        width: 120
                         text: modelData[0]
                         small: true
                         dim: true
                     }
                     Label {
-                        width: column.width - 104
+                        width: column.width - 120
                         elide: Text.ElideRight
                         text: modelData[1]
                         textFormat: Text.StyledText

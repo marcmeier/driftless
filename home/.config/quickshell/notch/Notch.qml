@@ -183,7 +183,8 @@ Scope {
                     elide: Text.ElideRight
                     color: root.mode === "answer" ? Theme.dim : Theme.text
                     font.family: Theme.font
-                    font.pixelSize: 12
+                    font.letterSpacing: Theme.letterSpacing
+                    font.pixelSize: Theme.fontSmall
                     text: {
                         switch (root.mode) {
                         case "listening": return "Listening …";
@@ -235,7 +236,8 @@ Scope {
                 textFormat: Text.PlainText
                 color: root.mode === "error" ? Theme.crit : Theme.text
                 font.family: Theme.font
-                font.pixelSize: 13
+                font.letterSpacing: Theme.letterSpacing
+                font.pixelSize: Theme.fontSize
                 lineHeight: 1.15
                 text: root.fullText
                 visible: root.mode === "answer" || root.mode === "error"

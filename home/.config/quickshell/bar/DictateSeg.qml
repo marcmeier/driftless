@@ -22,7 +22,7 @@ Seg {
         id: icon
         anchors.verticalCenter: parent.verticalCenter
         text: seg.mode === "recording" ? "\u{F0EC2}" : seg.mode === "busy" ? "\u{F01D8}" : "\u{F147D}"
-        size: 14
+        size: 16
         color: seg.mode === "recording" ? Theme.crit : Theme.accent
 
     }

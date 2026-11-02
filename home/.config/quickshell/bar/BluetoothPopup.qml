@@ -32,7 +32,7 @@ Item {
     onPoweredChanged: scan()
     Component.onDestruction: if (adapter && adapter.discovering) adapter.discovering = false
 
-    implicitWidth: 320
+    implicitWidth: 370
     implicitHeight: column.implicitHeight
 
     Column {
@@ -152,7 +152,7 @@ Item {
             x: 8
             anchors.verticalCenter: parent.verticalCenter
             text: Glyphs.bluetoothDevice(row.dev.icon)
-            size: 16
+            size: 18
             color: row.dev.connected ? Theme.accent2 : row.mine ? Theme.text : Theme.dim
         }
         Label {

@@ -43,6 +43,6 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.offline ? "offline" : Math.round(seg.strength * 100) + "%"
         color: seg.offline ? Theme.warn : Theme.text
-        font.pixelSize: seg.compact ? 12 : 13
+        font.pixelSize: seg.compact ? Theme.fontCompact : Theme.fontSize
     }
 }

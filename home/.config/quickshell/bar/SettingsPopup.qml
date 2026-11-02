@@ -43,8 +43,8 @@ Item {
     ]
     readonly property var current: pages.find(p => p[0] === page) || pages[0]
 
-    implicitWidth: 760
-    implicitHeight: 460
+    implicitWidth: 870
+    implicitHeight: 530
 
     function run(args) {
         Actions.launch([root.menu].concat(args));
@@ -152,7 +152,7 @@ Item {
     // ---- left: who, and the pages ----
     Column {
         id: side
-        width: 184
+        width: 212
         height: parent.height
         spacing: 12
 
@@ -224,7 +224,7 @@ Item {
                         x: 12
                         anchors.verticalCenter: parent.verticalCenter
                         text: nav.modelData[2]
-                        size: 15
+                        size: 17
                         color: nav.on ? Theme.accent : Theme.dim
                     }
                     Label {
@@ -273,7 +273,7 @@ Item {
                 text: root.current[1]
                 bold: true
                 color: Theme.strong
-                font.pixelSize: 16
+                font.pixelSize: 18
             }
             Label {
                 small: true
@@ -633,7 +633,7 @@ Item {
                     readonly property real speed: root.input.pointerSpeed || 0
                     detail: speed === 0 ? "As the device moves it" : speed < 0 ? "Slower" : "Faster"
                     PSlider {
-                        implicitWidth: 160
+                        implicitWidth: 184
                         value: ((root.input.pointerSpeed || 0) + 1) / 2
                         step: 0.05
                         onMoved: v => {

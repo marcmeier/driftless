@@ -16,7 +16,7 @@ Rectangle {
     signal clicked
 
     implicitWidth: row.implicitWidth + padX * 2
-    implicitHeight: 28
+    implicitHeight: 32
     opacity: enabled ? 1 : 0.4
     color: accent ? Theme.accent : mouse.containsMouse ? Theme.hover : "transparent"
     border.width: accent || flat && !checked ? 0 : 1

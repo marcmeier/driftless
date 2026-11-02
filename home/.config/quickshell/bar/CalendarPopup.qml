@@ -256,7 +256,7 @@ Item {
                                 id: time
                                 x: 12
                                 anchors.verticalCenter: parent.verticalCenter
-                                width: 62
+                                width: 72
                                 text: modelData.allDay ? "all day" : modelData.continued ? "→ " + modelData.end : modelData.start
                                 small: true
                                 color: Theme.dim

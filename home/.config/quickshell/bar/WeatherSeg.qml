@@ -20,12 +20,12 @@ Seg {
     Icon {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.w?.icon ?? ""
-        size: 14
+        size: 16
         color: Theme.dim
     }
     Label {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.w ? seg.w.temp + "°C" : ""
-        font.pixelSize: seg.compact ? 12 : 13
+        font.pixelSize: seg.compact ? Theme.fontCompact : Theme.fontSize
     }
 }

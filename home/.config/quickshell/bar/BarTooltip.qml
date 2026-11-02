@@ -78,7 +78,8 @@ PanelWindow {
             wrapMode: Text.Wrap
             color: Theme.text
             font.family: Theme.font
-            font.pixelSize: 12
+            font.letterSpacing: Theme.letterSpacing
+            font.pixelSize: Theme.fontSmall
             lineHeight: 1.15
             renderType: Text.NativeRendering
         }

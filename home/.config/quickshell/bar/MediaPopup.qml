@@ -12,7 +12,7 @@ Item {
     property var bar
     readonly property var p: Media.player
 
-    implicitWidth: 360
+    implicitWidth: 420
     implicitHeight: column.implicitHeight
 
     Component.onCompleted: Media.watchers++
@@ -176,7 +176,7 @@ Item {
                         x: 8
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData.isPlaying ? "\u{F040A}" : "\u{F03E4}"
-                        size: 14
+                        size: 16
                         color: modelData.isPlaying ? Theme.accent2 : Theme.dim
                     }
                     Label {

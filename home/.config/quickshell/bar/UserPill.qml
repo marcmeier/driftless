@@ -54,7 +54,7 @@ Pill {
             visible: pill.showName
             anchors.verticalCenter: parent.verticalCenter
             text: Feeds.userName
-            font.pixelSize: pill.compact ? 12 : 13
+            font.pixelSize: pill.compact ? Theme.fontCompact : Theme.fontSize
         }
     }
 }

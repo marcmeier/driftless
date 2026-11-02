@@ -34,6 +34,6 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.count
         color: seg.count >= 30 ? Theme.warn : Theme.text
-        font.pixelSize: seg.compact ? 12 : 13
+        font.pixelSize: seg.compact ? Theme.fontCompact : Theme.fontSize
     }
 }

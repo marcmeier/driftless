@@ -9,7 +9,7 @@ Item {
     property var bar
     readonly property var w: Feeds.weather.value || {}
 
-    implicitWidth: 330
+    implicitWidth: 380
     implicitHeight: column.implicitHeight
 
     Column {
@@ -34,7 +34,7 @@ Item {
                     Label {
                         text: (root.w.temp ?? "") + "°"
                         bold: true
-                        font.pixelSize: 20
+                        font.pixelSize: 22
                     }
                     Label {
                         anchors.baseline: parent.children[0].baseline
@@ -123,14 +123,14 @@ Item {
                     height: 24
                     Label {
                         anchors.verticalCenter: parent.verticalCenter
-                        width: 100
+                        width: 116
                         text: modelData.label
                     }
                     Icon {
                         x: 104
                         anchors.verticalCenter: parent.verticalCenter
                         text: modelData.icon
-                        size: 16
+                        size: 18
                         color: Theme.dim
                     }
                     Label {

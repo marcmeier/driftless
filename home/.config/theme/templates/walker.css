@@ -17,7 +17,8 @@
 * {
   all: unset;
   font-family: "JetBrainsMono Nerd Font", monospace;
-  font-size: 13px;
+  font-size: 16px;
+  letter-spacing: 0.4px;
 }
 
 popover {
@@ -74,7 +75,7 @@ row:selected .item-subtext,
 child:selected .item-quick-activation,
 row:selected .item-quick-activation { color: @ink; }
 
-.item-subtext { font-size: 12px; color: @dim; }
+.item-subtext { font-size: 15px; color: @dim; }
 .providerlist .item-subtext { font-size: unset; }
 .item-image-text { font-size: 24px; }
 
@@ -95,7 +96,7 @@ row:selected .item-quick-activation { color: @ink; }
 .keybinds {
   padding-top: 6px;
   border-top: 1px solid @line;
-  font-size: 12px;
+  font-size: 15px;
   color: @dim;
 }
 .keybind-button { color: @dim; }

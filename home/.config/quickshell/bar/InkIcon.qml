@@ -7,7 +7,7 @@ Item {
     id: icon
 
     property string text: ""
-    property int size: 14
+    property int size: 16
     property color color: Theme.text
     readonly property rect ink: metrics.tightBoundingRect
 

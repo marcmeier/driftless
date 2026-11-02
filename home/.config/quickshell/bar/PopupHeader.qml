@@ -22,14 +22,14 @@ Item {
         DriftlessMark {
             visible: head.icon === ""
             anchors.verticalCenter: parent.verticalCenter
-            size: 16
+            size: 18
             color: Theme.dim
         }
         Icon {
             visible: head.icon !== ""
             anchors.verticalCenter: parent.verticalCenter
             text: head.icon
-            size: 16
+            size: 18
             color: Theme.dim
         }
         Label {

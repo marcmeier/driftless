@@ -23,7 +23,7 @@ Seg {
         id: icon
         anchors.verticalCenter: parent.verticalCenter
         text: "\u{F0674}"
-        size: 14
+        size: 16
         color: seg.listening ? Theme.crit : Voice.mode !== "idle" ? Theme.accent : Theme.dim
 
     }

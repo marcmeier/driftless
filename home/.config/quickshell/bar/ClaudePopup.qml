@@ -10,7 +10,7 @@ Item {
     property var bar
     readonly property var d: Feeds.claude.value || {}
 
-    implicitWidth: 360
+    implicitWidth: 420
     implicitHeight: column.implicitHeight
 
     // the reset countdowns move on while the popup is open
@@ -40,13 +40,13 @@ Item {
                 spacing: 6
                 Item {
                     width: parent.width
-                    height: 18
+                    height: 22
                     Label {
                         text: modelData[0]
                         bold: true
                     }
                     Label {
-                        x: 72
+                        x: 84
                         text: modelData[1]
                         small: true
                         dim: true
@@ -104,7 +104,7 @@ Item {
                     required property var modelData
                     readonly property bool head: !!modelData.head
                     Label {
-                        width: 108
+                        width: 124
                         text: modelData.label
                         small: true
                         color: Theme.text
@@ -113,7 +113,7 @@ Item {
                         model: [["in", "in"], ["out", "out"], ["cache w", "cacheWrite"], ["cache r", "cacheRead"]]
                         Label {
                             required property var modelData
-                            width: modelData[0].startsWith("cache") ? 66 : 54
+                            width: modelData[0].startsWith("cache") ? 76 : 62
                             horizontalAlignment: Text.AlignRight
                             text: parent.head ? modelData[0] : Usage.count(parent.modelData[modelData[1]])
                             small: true

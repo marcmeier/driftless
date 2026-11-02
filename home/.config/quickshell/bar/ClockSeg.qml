@@ -70,7 +70,7 @@ Seg {
         text: Qt.formatDateTime(clock.date, (Prefs.clock24 ? "HH:mm" : "h:mm") + (Prefs.clockSeconds ? ":ss" : "")
                                 + (Prefs.clock24 ? "" : " AP"))
         bold: true
-        font.pixelSize: seg.compact ? 13 : 14
+        font.pixelSize: seg.compact ? Theme.fontSmall : Theme.fontClock
         font.letterSpacing: seg.compact ? 0.5 : 1
     }
     Label {
@@ -95,7 +95,7 @@ Seg {
         visible: !seg.compact && seg.event !== ""
         anchors.verticalCenter: parent.verticalCenter
         anchors.verticalCenterOffset: 1
-        width: Math.min(implicitWidth, 240)
+        width: Math.min(implicitWidth, 270)
         elide: Text.ElideRight
         text: seg.event
         small: true

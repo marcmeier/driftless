@@ -39,7 +39,7 @@ Rectangle {
     onSummaryChanged: if (countdown.running) countdown.restart()
     onBodyChanged: if (countdown.running) countdown.restart()
 
-    implicitWidth: 380
+    implicitWidth: 440
     implicitHeight: content.implicitHeight + 2 * pad
     readonly property int pad: 10
     color: !popup && mouse.containsMouse ? Theme.hover : Theme.card
@@ -265,7 +265,8 @@ Rectangle {
                         selectionColor: Theme.accent
                         selectedTextColor: Theme.accentInk
                         font.family: Theme.font
-                        font.pixelSize: 13
+                        font.letterSpacing: Theme.letterSpacing
+                        font.pixelSize: Theme.fontSize
                         selectByMouse: true
                         onAccepted: Notifs.reply(card.nid, text)
                         Keys.onEscapePressed: {

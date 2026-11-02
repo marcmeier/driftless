@@ -109,7 +109,7 @@ Scope {
 
         Column {
             anchors.centerIn: parent
-            width: 260
+            width: 300
             spacing: 8
 
             // who, where and since when

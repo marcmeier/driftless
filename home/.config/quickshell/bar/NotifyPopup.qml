@@ -10,7 +10,7 @@ Item {
     property var popup
     property var bar
 
-    implicitWidth: 400
+    implicitWidth: 490
     implicitHeight: column.implicitHeight
 
     Component.onCompleted: {

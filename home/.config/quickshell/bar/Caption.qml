@@ -5,7 +5,7 @@ import qs.services
 Label {
     small: true
     color: Theme.faint
-    font.pixelSize: 11
+    font.pixelSize: Theme.fontCaption
     font.letterSpacing: 1.2
     font.capitalization: Font.AllUppercase
     bold: true

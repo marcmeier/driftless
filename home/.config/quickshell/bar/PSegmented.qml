@@ -12,7 +12,7 @@ Rectangle {
     signal picked(string value)
 
     implicitWidth: row.implicitWidth + 2
-    implicitHeight: 28
+    implicitHeight: 32
     color: "transparent"
     border.width: 1
     border.color: Theme.border
@@ -48,7 +48,7 @@ Rectangle {
                         visible: !!cell.modelData[2]
                         anchors.verticalCenter: parent.verticalCenter
                         text: cell.modelData[2] || ""
-                        size: 13
+                        size: 15
                         color: cell.on ? Theme.accent : Theme.dim
                     }
                     Label {

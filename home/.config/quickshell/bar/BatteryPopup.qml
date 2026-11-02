@@ -14,7 +14,7 @@ Item {
     readonly property int percent: Math.round((dev ? dev.percentage : 0) * 100)
     readonly property bool charging: !!dev && dev.state === UPowerDeviceState.Charging
 
-    implicitWidth: 350
+    implicitWidth: 400
     implicitHeight: column.implicitHeight
 
     Column {
@@ -35,7 +35,7 @@ Item {
                 Label {
                     text: root.percent + "%"
                     bold: true
-                    font.pixelSize: 18
+                    font.pixelSize: 20
                 }
                 Label {
                     text: Battery.state(root.dev)

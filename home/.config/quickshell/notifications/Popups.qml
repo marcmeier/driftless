@@ -49,7 +49,7 @@ Scope {
         }
         margins.top: Theme.barGap + Theme.barHeight + 8
         margins.right: Theme.barSide
-        implicitWidth: 380
+        implicitWidth: 440
         // tall enough for four cards; only the cards take clicks (mask), the rest lets them through
         implicitHeight: Math.round((screen ? screen.height : 1200) * 0.8)
         exclusionMode: ExclusionMode.Ignore

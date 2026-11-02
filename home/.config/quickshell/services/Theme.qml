@@ -75,8 +75,17 @@ Singleton {
 
     readonly property string font: "JetBrainsMono Nerd Font"
 
+    // text sizes, the same 16 px as GTK (12 pt, dconf.ini), Qt (qt6ct.conf), walker and ghostty
+    readonly property int fontSize: 16
+    readonly property int fontSmall: 15
+    readonly property int fontCaption: 14
+    readonly property int fontClock: 17
+    readonly property int fontCompact: 14
+    // JetBrains Mono is 9.6 px wide at 16 px: this sets it on the 10 px grid ghostty has
+    readonly property real letterSpacing: 0.4
+
     // the bar: one flat strip along the top edge, a line below it (the compact bar is a bit tighter)
-    readonly property int barHeight: 28
+    readonly property int barHeight: 32
     readonly property int barGap: 0
     readonly property int barSide: 4
 

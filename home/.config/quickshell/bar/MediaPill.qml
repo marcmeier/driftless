@@ -30,7 +30,7 @@ Pill {
         Icon {
             anchors.verticalCenter: parent.verticalCenter
             text: "\u{F04AE}"
-            size: 14
+            size: 16
             color: parent.parent.hovered ? Theme.text : Theme.dim
         }
     }
@@ -44,7 +44,7 @@ Pill {
         Icon {
             anchors.verticalCenter: parent.verticalCenter
             text: pill.playing ? "\u{F03E4}" : "\u{F040A}"
-            size: 14
+            size: 16
             color: pill.playing ? Theme.text : Theme.dim
         }
     }
@@ -59,7 +59,7 @@ Pill {
         Icon {
             anchors.verticalCenter: parent.verticalCenter
             text: "\u{F04AD}"
-            size: 14
+            size: 16
             color: parent.parent.hovered ? Theme.text : Theme.dim
         }
     }
@@ -96,7 +96,7 @@ Pill {
             // at least a few letters
             maxWidth: Math.max(60, Math.min(pill.compact ? 150 : 240, pill.titleRoom))
             font.weight: Font.DemiBold
-            font.pixelSize: pill.compact ? 12 : 13
+            font.pixelSize: pill.compact ? Theme.fontCompact : Theme.fontSize
             color: pill.playing ? Theme.text : Theme.dim
         }
         Label {
@@ -104,7 +104,7 @@ Pill {
             visible: !pill.compact && text !== ""
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: 1
-            width: Math.min(implicitWidth, 140)
+            width: Math.min(implicitWidth, 160)
             elide: Text.ElideRight
             text: Media.artist
             small: true

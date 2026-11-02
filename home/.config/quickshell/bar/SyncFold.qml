@@ -40,7 +40,7 @@ Rectangle {
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             text: fold.open ? "\u{F0143}" : "\u{F0140}"
-            size: 14
+            size: 16
             color: Theme.dim
         }
         MouseArea {

@@ -35,7 +35,7 @@ Item {
     }
     readonly property bool trouble: !!d && (d.conflict.length > 0 || d.foreign > 0 || (!!d.last && !d.last.ok))
 
-    implicitWidth: 460
+    implicitWidth: 530
     implicitHeight: content.implicitHeight
 
     // a switch or a run in the background: the icon and this popup follow when it is done

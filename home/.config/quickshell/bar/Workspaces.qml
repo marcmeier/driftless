@@ -140,7 +140,7 @@ Pill {
             anchors.centerIn: parent
             text: btn.label
             bold: btn.isActive
-            font.pixelSize: btn.compact ? 12 : 13
+            font.pixelSize: btn.compact ? Theme.fontCompact : Theme.fontSize
             color: btn.isUrgent ? Theme.crit : btn.isActive ? Theme.strong
                  : btn.occupied || mouse.containsMouse ? Theme.text : Theme.faint
         }

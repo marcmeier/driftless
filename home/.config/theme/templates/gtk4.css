@@ -4,3 +4,6 @@
 @define-color accent_fg_color @ink@;
 @define-color theme_selected_bg_color @primary@;
 @define-color theme_selected_fg_color @ink@;
+
+/* JetBrains Mono is 9.6 px wide at 16 px: this sets it on the 10 px grid ghostty has */
+* { letter-spacing: 0.4px; }

@@ -51,6 +51,6 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.count
         color: Theme.text
-        font.pixelSize: seg.compact ? 12 : 13
+        font.pixelSize: seg.compact ? Theme.fontCompact : Theme.fontSize
     }
 }

@@ -8,7 +8,8 @@ Text {
     property bool bold: false
 
     font.family: Theme.font
-    font.pixelSize: small ? 12 : 13
+    font.letterSpacing: Theme.letterSpacing
+    font.pixelSize: small ? Theme.fontSmall : Theme.fontSize
     font.weight: bold ? Font.Bold : Font.Normal
     color: dim ? Theme.dim : Theme.text
     verticalAlignment: Text.AlignVCenter

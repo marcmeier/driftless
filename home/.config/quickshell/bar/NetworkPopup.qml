@@ -19,7 +19,7 @@ Item {
     Component.onCompleted: if (wifi) wifi.scannerEnabled = true
     Component.onDestruction: if (wifi) wifi.scannerEnabled = false
 
-    implicitWidth: 320
+    implicitWidth: 370
     implicitHeight: column.implicitHeight
 
     Column {
@@ -60,7 +60,7 @@ Item {
                         x: 8
                         anchors.verticalCenter: parent.verticalCenter
                         text: Glyphs.wifi(modelData.signalStrength)
-                        size: 16
+                        size: 18
                         color: modelData.connected ? Theme.accent2 : Theme.text
                     }
                     Label {

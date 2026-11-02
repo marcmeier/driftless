@@ -15,7 +15,7 @@ Item {
     property var stack: []                     // the submenus opened on the way down
     readonly property var current: stack.length ? stack[stack.length - 1] : menu
 
-    implicitWidth: 240
+    implicitWidth: 276
     implicitHeight: column.implicitHeight
 
     onMenuChanged: stack = []
@@ -39,7 +39,7 @@ Item {
                 x: 4
                 anchors.verticalCenter: parent.verticalCenter
                 text: "\u{F0141}"
-                size: 14
+                size: 16
                 color: Theme.dim
             }
             Label {
@@ -88,7 +88,7 @@ Item {
                         Icon {
                             visible: entry.modelData.buttonType !== QsMenuButtonType.None
                             anchors.centerIn: parent
-                            size: 14
+                            size: 16
                             text: entry.modelData.checkState === Qt.Checked
                                   ? (entry.modelData.buttonType === QsMenuButtonType.RadioButton ? "\u{F0133}" : "\u{F0132}")
                                   : (entry.modelData.buttonType === QsMenuButtonType.RadioButton ? "\u{F0130}" : "\u{F0131}")
@@ -121,7 +121,7 @@ Item {
                         anchors.rightMargin: 4
                         anchors.verticalCenter: parent.verticalCenter
                         text: "\u{F0142}"
-                        size: 14
+                        size: 16
                         color: Theme.dim
                     }
                     MouseArea {

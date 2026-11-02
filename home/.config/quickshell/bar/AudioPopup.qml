@@ -30,7 +30,7 @@ Item {
         return n ? (n.description || n.nickname || n.name) : "";
     }
 
-    implicitWidth: 340
+    implicitWidth: 390
     implicitHeight: column.implicitHeight
 
     Column {
@@ -209,7 +209,7 @@ Item {
                     x: 6
                     anchors.verticalCenter: parent.verticalCenter
                     text: parent.isCurrent ? "\u{F012C}" : ""
-                    size: 14
+                    size: 16
                     color: Theme.accent2
                 }
                 Label {

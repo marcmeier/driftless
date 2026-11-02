@@ -257,7 +257,7 @@ only what you changed).
 
 One look for the whole desktop, reduced to what is needed: neutral greys and one accent (blue), a
 desktop of one colour, everything opaque, square and framed by a 1 px line, one font
-(JetBrainsMono Nerd Font) in two sizes. No blur, shadows, gradients, rounded corners or animations,
+(JetBrainsMono Nerd Font) at 16 px in the shell, GTK, Qt, walker and the terminal. No blur, shadows, gradients, rounded corners or animations,
 in the shell nor in Hyprland (windows: a 1 px border, the one with focus in the accent, small gaps).
 The accent marks only what is active, selected or focused; orange and red only what needs attention.
 

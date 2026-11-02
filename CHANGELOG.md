@@ -4,6 +4,22 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.26.0 (2026-11-02): one text size
+
+### Changed
+- **The whole desktop reads at one size, 16 px, the size the terminal already had.** It was 13 px in
+  the bar, its popups and walker, and a bit more in GTK and Qt apps. The small text moves up with it:
+  15 px for dates and units, 14 px for the titles in a popup, 17 px for the clock; the compact bar
+  stays at 14 px. The bar is 32 px high, the popups and notifications are wider. The sizes of the
+  shell are now in one place, `Theme.qml`. The login screen and the password field of the lock stay
+  as they were.
+- **A little more room between the letters**: the shell, walker and GTK apps get 0.4 px, so that
+  their characters stand on the same 10 px grid as in the terminal.
+
+### Fixed
+- **The machine's name in *About* ends in "…"** when it is too long, instead of running out of the
+  popup.
+
 ## v2.25.0 (2026-10-30): a screensaver, drift and sync
 
 ### Added
