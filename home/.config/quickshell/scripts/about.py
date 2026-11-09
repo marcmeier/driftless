@@ -41,7 +41,11 @@ def model():
     name = read("/sys/class/dmi/id/product_name")
     if not name or name.lower().startswith(("to be filled", "system product", "default string")):
         name = read("/sys/class/dmi/id/board_name")
-    return " ".join(x for x in (vendor, name) if x and not name.startswith(vendor)) or name
+    # "Gigabyte Technology Co., Ltd." -> "Gigabyte", "ASUSTeK COMPUTER INC." -> "ASUSTeK"
+    vendor = re.sub(
+        r"[ ,]+(Technology|Computers?|International|Co|Ltd|Inc|Corp|Corporation|GmbH|AG)\b.*$", "", vendor, flags=re.I
+    )
+    return " ".join(x for x in (vendor, name) if x and not name.lower().startswith(vendor.lower())) or name
 
 
 def cpu():
@@ -49,6 +53,8 @@ def cpu():
         if line.startswith("model name"):
             name = line.split(":", 1)[1]
             # "13th Gen Intel(R) Core(TM) i5-1345U" -> "13th Gen Intel Core i5-1345U"
+            # "AMD Ryzen 5 3600 6-Core Processor" -> "AMD Ryzen 5 3600"
+            name = re.sub(r"\d+-Core Processor|Processor", "", name)
             return re.sub(r"\s+", " ", re.sub(r"\((R|TM)\)|CPU|@.*", "", name)).strip()
     return ""
 

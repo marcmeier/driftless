@@ -597,6 +597,16 @@ def complete(given, light):
     return c
 
 
+def readable(c, least=4.5):
+    """Secondary text reads on every surface it sits on: dim moves toward the text until it does."""
+    surfaces = (c["bg"], c["bg_alt"])
+    dim, f = c["dim"], 0.0
+    while f < 1 and min(contrast(dim, s) for s in surfaces) < least:
+        f += 0.02
+        dim = mix(c["dim"], c["fg"], f)
+    c["dim"] = dim
+
+
 def palette_name(palette):
     return palette if palette in PALETTES else DEFAULT
 
@@ -605,6 +615,7 @@ def scheme(name, palette=DEFAULT):
     """RGB tuples for every name of the look `name` ("dark" or "light") in `palette`."""
     light = name == "light"
     colors = complete(PALETTES[palette_name(palette)]["light" if light else "dark"], light)
+    readable(colors)  # after complete(): the terminal keeps the palette's own grey
     colors["primary"] = colors["secondary"] = colors.pop("accent")
     colors["primary_dim"] = colors["secondary_dim"] = mix(colors["bg"], colors["primary"], 0.20 if light else 0.33)
     colors["on_dim"] = colors["fg_strong"]

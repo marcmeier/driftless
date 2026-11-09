@@ -41,10 +41,11 @@ import sys
 sys.path.insert(0, sys.argv[1])
 import scheme
 bad = []
-plain = (("fg", "bg", 7), ("fg", "desk", 7), ("dim", "bg", 4.5), ("primary", "bg", 4.5),
+plain = (("fg", "bg", 7), ("fg", "desk", 7), ("dim", "bg", 4.5), ("dim", "bg_alt", 4.5), ("primary", "bg", 4.5),
          ("primary", "bg_alt", 4.5), ("ink", "primary", 4.5), ("red", "bg", 4.5))
-# Solarized and Tokyo Night Day are softer by design: their text at AA, the rest readable
-named = (("fg", "bg", 4.5), ("fg", "desk", 3.5), ("dim", "bg", 3), ("primary", "bg", 3),
+# Solarized and Tokyo Night Day are softer by design: their text at AA, the rest readable;
+# secondary text (dim) reads on every palette, scheme.readable() sees to it
+named = (("fg", "bg", 4.5), ("fg", "desk", 3.5), ("dim", "bg", 4.5), ("dim", "bg_alt", 4.5), ("primary", "bg", 3),
          ("primary", "bg_alt", 3), ("ink", "primary", 3.5), ("red", "bg", 3))
 for palette in scheme.PALETTES:
     for look in ("dark", "light"):

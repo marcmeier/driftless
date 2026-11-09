@@ -27,7 +27,7 @@ Item {
     }
 
     function name(n) {
-        return n ? (n.description || n.nickname || n.name) : "";
+        return Sound.name(n);
     }
 
     implicitWidth: 390

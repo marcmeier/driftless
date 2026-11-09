@@ -20,7 +20,7 @@ Seg {
     padL: compact ? 4 : 6
     padR: compact ? 4 : 8
     spacing: 6
-    tip: sink ? `${Apps.esc(sink.description || sink.name)}<font color='${Theme.dim}'>  ·  ${muted ? "muted" : Math.round(level * 100) + "%"}</font>`
+    tip: sink ? `${Apps.esc(Sound.name(sink))}<font color='${Theme.dim}'>  ·  ${muted ? "muted" : Math.round(level * 100) + "%"}</font>`
                 + `<br><font color='${Theme.dim}'>Click: outputs  ·  Middle: mixer  ·  Right: mute</font>` : ""
 
     onClicked: button => {

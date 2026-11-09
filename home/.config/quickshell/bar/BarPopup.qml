@@ -93,6 +93,8 @@ PanelWindow {
                     item.popup = win;
                 if ("bar" in item)
                     item.bar = win.bar;
+                if ("room" in item)
+                    item.room = Qt.binding(() => win.height - card.pad * 2);
                 for (const k in props)
                     item[k] = props[k];
             }

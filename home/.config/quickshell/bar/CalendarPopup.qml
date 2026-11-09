@@ -10,6 +10,7 @@ Item {
 
     property var popup
     property var bar
+    property real room: 100000                    // the height the popup may take (BarPopup)
 
     readonly property var today: new Date()
     property int year: today.getFullYear()
@@ -31,7 +32,8 @@ Item {
         }
         return out;
     }
-    readonly property int cell: 38
+    // 42: room for a title of 20 letters next to the time, so a long word rarely breaks inside
+    readonly property int cell: 42
 
     implicitWidth: cell * 7
     implicitHeight: column.implicitHeight
@@ -77,228 +79,250 @@ Item {
         width: parent.width
         spacing: 10
 
-        // ---- month and the arrows ----
-        Item {
+        Column {
+            id: head
             width: parent.width
-            height: 32
+            spacing: 10
 
-            Label {
-                anchors.verticalCenter: parent.verticalCenter
-                x: 4
-                text: Qt.formatDate(new Date(root.year, root.month, 1), "MMMM yyyy")
-                bold: true
-            }
-            Row {
-                anchors.right: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 4
-                PButton {
-                    visible: !root.isThisMonth
-                    text: "Today"
-                    flat: true
-                    onClicked: {
-                        root.year = root.today.getFullYear();
-                        root.month = root.today.getMonth();
-                        root.picked = null;
-                    }
+            // ---- month and the arrows ----
+            Item {
+                width: parent.width
+                height: 32
+
+                Label {
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: 4
+                    text: Qt.formatDate(new Date(root.year, root.month, 1), "MMMM yyyy")
+                    bold: true
                 }
-                PButton {
-                    icon: "\u{F0141}"
-                    flat: true
-                    onClicked: root.shift(-1)
-                }
-                PButton {
-                    icon: "\u{F0142}"
-                    flat: true
-                    onClicked: root.shift(1)
-                }
-            }
-        }
-
-        // ---- the grid, Monday first ----
-        Item {
-            width: parent.width
-            height: grid.height + weekdays.height
-
-            WheelHandler {
-                onWheel: e => root.shift(e.angleDelta.y > 0 ? -1 : 1)
-            }
-
-            Row {
-                id: weekdays
-                Repeater {
-                    model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
-                    Label {
-                        required property string modelData
-                        required property int index
-                        width: root.cell
-                        height: 22
-                        horizontalAlignment: Text.AlignHCenter
-                        text: modelData
-                        small: true
-                        color: Theme.dim
-                    }
-                }
-            }
-
-            Grid {
-                id: grid
-                y: weekdays.height
-                columns: 7
-
-                Repeater {
-                    model: 42
-                    delegate: Item {
-                        id: day
-                        required property int index
-                        readonly property var first: new Date(root.year, root.month, 1)
-                        readonly property int lead: (first.getDay() + 6) % 7
-                        readonly property var date: new Date(root.year, root.month, 1 + index - lead)
-                        readonly property bool inMonth: date.getMonth() === root.month
-                        readonly property bool isToday: root.iso(date) === root.iso(root.today)
-                        readonly property bool isPicked: !!root.picked && root.picked.date === root.iso(date)
-                        readonly property bool hasEvents: inMonth && root.eventDays.includes(date.getDate())
-                        // the sixth row only when the month needs it
-                        visible: index < 35 || lead + new Date(root.year, root.month + 1, 0).getDate() > 35
-
-                        width: root.cell
-                        height: 34
-
-                        Rectangle {
-                            anchors.centerIn: parent
-                            width: 32
-                            height: 30
-                            visible: day.isToday || day.isPicked || mouse.containsMouse
-                            color: day.isToday ? Theme.accent : mouse.containsMouse && !day.isPicked ? Theme.hover : "transparent"
-                            border.width: day.isPicked && !day.isToday ? 1 : 0
-                            border.color: Theme.accent
+                Row {
+                    anchors.right: parent.right
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 4
+                    PButton {
+                        visible: !root.isThisMonth
+                        text: "Today"
+                        flat: true
+                        onClicked: {
+                            root.year = root.today.getFullYear();
+                            root.month = root.today.getMonth();
+                            root.picked = null;
                         }
+                    }
+                    PButton {
+                        icon: "\u{F0141}"
+                        flat: true
+                        onClicked: root.shift(-1)
+                    }
+                    PButton {
+                        icon: "\u{F0142}"
+                        flat: true
+                        onClicked: root.shift(1)
+                    }
+                }
+            }
+
+            // ---- the grid, Monday first ----
+            Item {
+                width: parent.width
+                height: grid.height + weekdays.height
+
+                WheelHandler {
+                    onWheel: e => root.shift(e.angleDelta.y > 0 ? -1 : 1)
+                }
+
+                Row {
+                    id: weekdays
+                    Repeater {
+                        model: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
                         Label {
-                            anchors.centerIn: parent
-                            anchors.verticalCenterOffset: day.hasEvents ? -3 : 0
-                            text: day.date.getDate()
-                            bold: day.isToday
-                            color: day.isToday ? Theme.accentInk : !day.inMonth ? Theme.faint
-                                 : day.index % 7 >= 5 ? Theme.dim : Theme.text
+                            required property string modelData
+                            required property int index
+                            width: root.cell
+                            height: 22
+                            horizontalAlignment: Text.AlignHCenter
+                            text: modelData
+                            small: true
+                            color: Theme.dim
                         }
-                        Rectangle {
-                            visible: day.hasEvents
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            y: parent.height / 2 + 6
-                            width: 3
-                            height: 3
-                            color: day.isToday ? Theme.accentInk : Theme.dim
-                        }
-                        MouseArea {
-                            id: mouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                if (day.isPicked) {
-                                    root.picked = null;
-                                    return;
+                    }
+                }
+
+                Grid {
+                    id: grid
+                    y: weekdays.height
+                    columns: 7
+
+                    Repeater {
+                        model: 42
+                        delegate: Item {
+                            id: day
+                            required property int index
+                            readonly property var first: new Date(root.year, root.month, 1)
+                            readonly property int lead: (first.getDay() + 6) % 7
+                            readonly property var date: new Date(root.year, root.month, 1 + index - lead)
+                            readonly property bool inMonth: date.getMonth() === root.month
+                            readonly property bool isToday: root.iso(date) === root.iso(root.today)
+                            readonly property bool isPicked: !!root.picked && root.picked.date === root.iso(date)
+                            readonly property bool hasEvents: inMonth && root.eventDays.includes(date.getDate())
+                            // the sixth row only when the month needs it
+                            visible: index < 35 || lead + new Date(root.year, root.month + 1, 0).getDate() > 35
+
+                            width: root.cell
+                            height: 34
+
+                            Rectangle {
+                                anchors.centerIn: parent
+                                width: 32
+                                height: 30
+                                visible: day.isToday || day.isPicked || mouse.containsMouse
+                                color: day.isToday ? Theme.accent : mouse.containsMouse && !day.isPicked ? Theme.hover : "transparent"
+                                border.width: day.isPicked && !day.isToday ? 1 : 0
+                                border.color: Theme.accent
+                            }
+                            Label {
+                                anchors.centerIn: parent
+                                anchors.verticalCenterOffset: day.hasEvents ? -3 : 0
+                                text: day.date.getDate()
+                                bold: day.isToday
+                                color: day.isToday ? Theme.accentInk : !day.inMonth ? Theme.faint
+                                     : day.index % 7 >= 5 ? Theme.dim : Theme.text
+                            }
+                            Rectangle {
+                                visible: day.hasEvents
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                y: parent.height / 2 + 6
+                                width: 3
+                                height: 3
+                                color: day.isToday ? Theme.accentInk : Theme.dim
+                            }
+                            MouseArea {
+                                id: mouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (day.isPicked) {
+                                        root.picked = null;
+                                        return;
+                                    }
+                                    dayProc.command = [Actions.scripts + "/agenda.py", "day", root.iso(day.date)];
+                                    dayProc.running = true;
                                 }
-                                dayProc.command = [Actions.scripts + "/agenda.py", "day", root.iso(day.date)];
-                                dayProc.running = true;
                             }
                         }
                     }
                 }
             }
+
+            Rectangle {
+                width: parent.width
+                height: 1
+                color: Theme.separator
+            }
+
+            // ---- a clicked day, or what comes up ----
+            Caption {
+                x: 4
+                text: root.picked ? root.picked.label + "  ·  " + root.picked.sub : "Coming up"
+            }
         }
 
-        Rectangle {
+        // the events scroll when the screen is short (a notebook), the month and the buttons stay
+        Flickable {
             width: parent.width
-            height: 1
-            color: Theme.separator
-        }
+            height: Math.min(list.implicitHeight, Math.max(90, root.room - head.height - foot.height - 2 * column.spacing))
+            contentHeight: list.implicitHeight
+            clip: true
+            boundsBehavior: Flickable.StopAtBounds
 
-        // ---- a clicked day, or what comes up ----
-        Caption {
-            x: 4
-            text: root.picked ? root.picked.label + "  ·  " + root.picked.sub : "Coming up"
+            Column {
+                id: list
+                width: parent.width
+                spacing: 8
+
+                Label {
+                    visible: root.picked ? root.picked.events.length === 0 : root.agenda.length === 0
+                    x: 4
+                    text: root.picked ? "Nothing on this day" : "No events in the next days"
+                    dim: true
+                }
+
+                Repeater {
+                    model: root.picked ? [root.picked] : root.upcoming(7)
+                    delegate: Column {
+                        required property var modelData
+                        width: parent.width
+                        spacing: 4
+
+                        Label {
+                            visible: !root.picked
+                            x: 4
+                            text: modelData.label + "  " + modelData.sub
+                            small: true
+                            dim: true
+                        }
+                        Repeater {
+                            model: modelData.events
+                            // a title gets two lines before it is cut, the time stays with the first
+                            delegate: Item {
+                                required property var modelData
+                                width: parent.width
+                                height: Math.max(30, title.implicitHeight + 10)
+                                Label {
+                                    id: time
+                                    x: 8
+                                    anchors.baseline: title.baseline
+                                    width: 74
+                                    text: modelData.allDay ? "all day" : modelData.continued ? "→ " + modelData.end : modelData.start
+                                    small: true
+                                    color: Theme.dim
+                                }
+                                Label {
+                                    id: title
+                                    anchors.left: time.right
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 10
+                                    y: 5
+                                    wrapMode: Text.Wrap
+                                    maximumLineCount: 2
+                                    elide: Text.ElideRight
+                                    text: modelData.title
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Column {
+            id: foot
             width: parent.width
-            spacing: 8
+            spacing: 10
 
             Label {
-                visible: root.picked ? root.picked.events.length === 0 : root.agenda.length === 0
-                x: 4
-                text: root.picked ? "Nothing on this day" : "No events in the next days"
-                dim: true
+                visible: !!(Feeds.calendar.value && Feeds.calendar.value.error)
+                width: parent.width
+                wrapMode: Text.Wrap
+                text: "⚠ " + (Feeds.calendar.value ? Feeds.calendar.value.error : "")
+                color: Theme.warn
+                small: true
             }
 
-            Repeater {
-                model: root.picked ? [root.picked] : root.upcoming(7)
-                delegate: Column {
-                    required property var modelData
-                    width: parent.width
-                    spacing: 4
-
-                    Label {
-                        visible: !root.picked
-                        x: 4
-                        text: modelData.label + "  " + modelData.sub
-                        small: true
-                        dim: true
-                    }
-                    Repeater {
-                        model: modelData.events
-                        // a title gets two lines before it is cut, the time stays with the first
-                        delegate: Item {
-                            required property var modelData
-                            width: parent.width
-                            height: Math.max(30, title.implicitHeight + 10)
-                            Label {
-                                id: time
-                                x: 12
-                                anchors.baseline: title.baseline
-                                width: 72
-                                text: modelData.allDay ? "all day" : modelData.continued ? "→ " + modelData.end : modelData.start
-                                small: true
-                                color: Theme.dim
-                            }
-                            Label {
-                                id: title
-                                anchors.left: time.right
-                                anchors.right: parent.right
-                                anchors.rightMargin: 10
-                                y: 5
-                                wrapMode: Text.Wrap
-                                maximumLineCount: 2
-                                elide: Text.ElideRight
-                                text: modelData.title
-                            }
-                        }
-                    }
+            ButtonRow {
+                PButton {
+                    icon: "\u{F0450}"
+                    text: "Sync"
+                    onClicked: Feeds.runThen([Actions.scripts + "/calendar-sync.sh"], "calendar")
                 }
-            }
-        }
-
-        Label {
-            visible: !!(Feeds.calendar.value && Feeds.calendar.value.error)
-            width: parent.width
-            wrapMode: Text.Wrap
-            text: "⚠ " + (Feeds.calendar.value ? Feeds.calendar.value.error : "")
-            color: Theme.warn
-            small: true
-        }
-
-        ButtonRow {
-            PButton {
-                icon: "\u{F0450}"
-                text: "Sync"
-                onClicked: Feeds.runThen([Actions.scripts + "/calendar-sync.sh"], "calendar")
-            }
-            PButton {
-                icon: "\u{F00ED}"
-                text: "Calendar …"
-                onClicked: {
-                    Actions.script("ikhal.sh");
-                    root.popup.close();
+                PButton {
+                    icon: "\u{F00ED}"
+                    text: "Calendar …"
+                    onClicked: {
+                        Actions.script("ikhal.sh");
+                        root.popup.close();
+                    }
                 }
             }
         }

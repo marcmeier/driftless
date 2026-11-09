@@ -10,10 +10,21 @@ Item {
     readonly property var w: Feeds.weather.value || {}
 
     implicitWidth: 380
-    implicitHeight: column.implicitHeight
+    implicitHeight: root.w.icon ? column.implicitHeight : none.implicitHeight
+
+    // no weather yet (wttr.in did not answer and nothing from the last hours)
+    Label {
+        id: none
+        visible: !root.w.icon
+        width: parent.width
+        wrapMode: Text.Wrap
+        text: "No weather: wttr.in does not answer. It asks again every half hour."
+        dim: true
+    }
 
     Column {
         id: column
+        visible: !!root.w.icon
         width: parent.width
         spacing: 12
 
@@ -60,6 +71,12 @@ Item {
                 Icon { text: "\u{F059D}"; size: 14; color: Theme.dim }
                 Label { anchors.verticalCenter: parent.verticalCenter; text: root.w.wind || ""; small: true }
             }
+        }
+        Label {
+            visible: !!root.w.stale
+            text: "From " + root.w.stale + ": wttr.in does not answer"
+            small: true
+            color: Theme.warn
         }
 
         Rectangle {

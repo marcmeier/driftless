@@ -175,7 +175,7 @@ Scope {
             Label {
                 small: true
                 color: Theme.dim
-                text: "↑ ↓  choose  ·  Enter  ·  Esc  back"
+                text: "↑ ↓  choose  ·  Enter  do it  ·  Esc  back"
             }
         }
     }

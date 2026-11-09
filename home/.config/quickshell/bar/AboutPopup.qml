@@ -117,13 +117,13 @@ Item {
                     required property var modelData
                     spacing: 0
                     Label {
-                        width: 120
+                        width: 132
                         text: modelData[0]
                         small: true
                         dim: true
                     }
                     Label {
-                        width: column.width - 120
+                        width: column.width - 132
                         elide: Text.ElideRight
                         text: modelData[1]
                         textFormat: Text.StyledText

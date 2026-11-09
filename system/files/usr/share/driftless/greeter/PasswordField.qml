@@ -31,7 +31,7 @@ Rectangle {
     onTextChanged: if (input.text !== text) input.text = text
 
     implicitWidth: 300
-    implicitHeight: 32
+    implicitHeight: 36
     color: theme.field
     border.width: 1
     border.color: failed ? theme.crit : input.activeFocus ? theme.primary : theme.fieldBorder
@@ -40,7 +40,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         x: 12
         font.family: field.theme.font
-        font.pixelSize: 13
+        font.pixelSize: 15            // Theme.fontSmall: no singletons here (see above)
         verticalAlignment: Text.AlignVCenter
         textFormat: Text.PlainText
         renderType: Text.NativeRendering
@@ -91,14 +91,14 @@ Rectangle {
         visible: !field.reveal && !field.checking
         anchors.verticalCenter: parent.verticalCenter
         x: 12
-        spacing: 4
+        spacing: 5
         readonly property int fit: Math.max(0, Math.floor((field.width - 60) / 12))
         Repeater {
             model: Math.min(field.text.length, dots.fit)
             Rectangle {
                 required property int index
-                width: 6
-                height: 6
+                width: 7
+                height: 7
                 color: field.theme.text
             }
         }

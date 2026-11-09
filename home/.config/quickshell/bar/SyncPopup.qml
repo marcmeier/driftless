@@ -52,7 +52,7 @@ Item {
     Column {
         id: content
         width: parent.width
-        spacing: 8
+        spacing: 10
 
         PopupHeader {
             title: "driftless"
@@ -195,10 +195,10 @@ Item {
         }
         Column {
             width: parent.width
-            spacing: 2
+            spacing: 4
             Item {
                 width: parent.width
-                height: 28
+                height: 34
                 Label {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Their changes"

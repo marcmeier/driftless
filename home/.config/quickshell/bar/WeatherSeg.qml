@@ -8,7 +8,8 @@ Seg {
     readonly property var w: Feeds.weather.value
     shown: !!(w && w.icon)
     spacing: 6
-    tip: w && w.desc ? Apps.esc(w.desc) + "<font color='" + Theme.dim + "'>  ·  feels " + w.feels + "°</font>" : ""
+    tip: w && w.desc ? Apps.esc(w.desc) + "<font color='" + Theme.dim + "'>  ·  feels " + w.feels + "°"
+                       + (w.stale ? "  ·  from " + w.stale : "") + "</font>" : ""
 
     onClicked: togglePopup()
 

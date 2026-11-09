@@ -8,6 +8,7 @@ import datetime as dt
 import json
 import os
 import subprocess
+import time
 import urllib.parse
 import urllib.request
 
@@ -74,6 +75,33 @@ def note_sun(sunrise, sunset):
         pass
 
 
+CACHE = os.path.expanduser("~/.cache/driftless/weather.json")
+
+
+def fallback():
+    """wttr.in did not answer: the last weather if it is at most 3 hours old, with the time it is from."""
+    try:
+        when = os.path.getmtime(CACHE)
+        if time.time() - when < 3 * 3600:
+            with open(CACHE) as f:
+                last = json.load(f)
+            last["stale"] = f"{dt.datetime.fromtimestamp(when):%H:%M}"
+            return last
+    except (OSError, ValueError):
+        pass
+    return {}
+
+
+def keep(weather):
+    try:
+        os.makedirs(os.path.dirname(CACHE), exist_ok=True)
+        with open(CACHE + ".tmp", "w") as out:
+            json.dump(weather, out, ensure_ascii=False)
+        os.replace(CACHE + ".tmp", CACHE)
+    except OSError:
+        pass
+
+
 def main():
     url = "https://wttr.in/" + urllib.parse.quote(location().replace(" ", "+"), safe="+,") + "?format=j1"
     try:
@@ -82,7 +110,7 @@ def main():
         now_c = data["current_condition"][0]
         days = data["weather"]
     except Exception:
-        print("{}")
+        print(json.dumps(fallback(), ensure_ascii=False))
         return
     now = dt.datetime.now()
     try:
@@ -122,22 +150,19 @@ def main():
                 "rain": max(int(h.get("chanceofrain", 0)) for h in day["hourly"]),
             }
         )
-    print(
-        json.dumps(
-            {
-                "icon": glyph(now_c["weatherCode"], night),
-                "temp": int(now_c["temp_C"]),
-                "feels": int(now_c["FeelsLikeC"]),
-                "desc": now_c["weatherDesc"][0]["value"].strip(),
-                "humidity": int(now_c["humidity"]),
-                "wind": f"{now_c['windspeedKmph']} km/h {now_c['winddir16Point']}",
-                "place": area,
-                "hours": hours,
-                "days": out_days,
-            },
-            ensure_ascii=False,
-        )
-    )
+    weather = {
+        "icon": glyph(now_c["weatherCode"], night),
+        "temp": int(now_c["temp_C"]),
+        "feels": int(now_c["FeelsLikeC"]),
+        "desc": now_c["weatherDesc"][0]["value"].strip(),
+        "humidity": int(now_c["humidity"]),
+        "wind": f"{now_c['windspeedKmph']} km/h {now_c['winddir16Point']}",
+        "place": area,
+        "hours": hours,
+        "days": out_days,
+    }
+    keep(weather)
+    print(json.dumps(weather, ensure_ascii=False))
 
 
 if __name__ == "__main__":
