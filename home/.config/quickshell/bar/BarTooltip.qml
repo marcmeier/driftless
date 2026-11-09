@@ -60,13 +60,25 @@ PanelWindow {
 
     Rectangle {
         id: card
-        readonly property string text: win.textFn ? win.textFn() : ""
+        // a line too wide for the card breaks at its "  ·  " (the click hints), not anywhere: the
+        // separator would hang at the end of a line
+        readonly property string text: (win.textFn ? win.textFn() : "").split("<br>").map(line => {
+            const plain = line.replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/&lt;/g, "<")
+                              .replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+            const wide = measure.advanceWidth(plain) + plain.length * label.font.letterSpacing;
+            return wide > 520 ? line.split("  ·  ").join("<br>") : line;
+        }).join("<br>")
         width: Math.min(label.implicitWidth, 520) + 20
         height: label.implicitHeight + 12
         x: Math.round(Math.max(Theme.barSide, Math.min(win.width - width - Theme.barSide, win.anchorX - width / 2)))
         color: Theme.card
         border.width: 1
         border.color: Theme.cardBorder
+
+        FontMetrics {
+            id: measure
+            font: label.font
+        }
 
         Text {
             id: label

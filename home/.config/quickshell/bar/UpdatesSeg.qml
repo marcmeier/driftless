@@ -13,7 +13,10 @@ Seg {
     padL: compact ? 4 : 7
     padR: compact ? 4 : 8
     spacing: 4
-    tip: d ? `${d.repo} official, ${d.aur} AUR${flatpak ? `, ${flatpak} Flatpak` : ""}<br><font color='${Theme.dim}'>Click: update  ·  Right: check again</font>` : ""
+    // offline: the last count, said to be old (scripts/updates.sh)
+    tip: d ? `${d.repo} official, ${d.aur} AUR${flatpak ? `, ${flatpak} Flatpak` : ""}`
+             + (d.stale ? `<br><font color='${Theme.dim}'>From ${Prefs.time(d.stale)}: the mirrors do not answer</font>` : "")
+             + `<br><font color='${Theme.dim}'>Click: update  ·  Right: check again</font>` : ""
 
     onClicked: button => {
         if (button === Qt.RightButton) {

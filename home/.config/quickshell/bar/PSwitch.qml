@@ -13,7 +13,7 @@ Rectangle {
     implicitHeight: 16
     color: checked ? Theme.accent : "transparent"
     border.width: 1
-    border.color: checked ? Theme.accent : Theme.fieldBorder
+    border.color: checked ? Theme.accent : Theme.dim   // off: still a control you can see (3:1)
 
     Rectangle {
         width: 10

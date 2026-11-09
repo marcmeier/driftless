@@ -49,7 +49,14 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor
         onClicked: btn.clicked()
     }
+    // for a button that moves when pressed (a list's "N more"): the focus follows it there
+    readonly property bool keyFocus: ring.activeFocus
+    function takeFocus() {
+        ring.forceActiveFocus();
+    }
+
     FocusRing {
+        id: ring
         onActivated: btn.clicked()
     }
 }

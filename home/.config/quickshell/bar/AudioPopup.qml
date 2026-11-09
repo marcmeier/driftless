@@ -9,6 +9,7 @@ Item {
 
     property var popup
     property var bar
+    property real room: 100000                    // the height the popup may take (BarPopup)
 
     readonly property var nodes: Pipewire.nodes.values
     function real(n) {
@@ -38,106 +39,135 @@ Item {
         width: parent.width
         spacing: 12
 
-        PopupHeader {
-            icon: "\u{F057E}"
-            title: "Sound"
-            status: [root.sink && root.sink.audio && root.sink.audio.muted ? "Output muted" : "",
-                     root.source && root.source.audio && root.source.audio.muted ? "Microphone muted" : ""]
-                    .filter(t => t).join("  ·  ")
-        }
-
-        Level {
-            title: "Output"
-            node: root.sink
-            icon: Glyphs.volume(root.sink && root.sink.audio ? root.sink.audio.volume : 0, root.sink && root.sink.audio && root.sink.audio.muted, false)
-        }
-        Devices {
-            visible: root.sinks.length > 1
-            list: root.sinks
-            current: root.sink
-            onPicked: n => Pipewire.preferredDefaultAudioSink = n
-        }
-
-        Rectangle {
-            width: parent.width
-            height: 1
-            color: Theme.separator
-        }
-
-        Level {
-            title: "Microphone"
-            node: root.source
-            icon: Glyphs.mic(root.source && root.source.audio && root.source.audio.muted)
-            muteColor: Theme.crit
-        }
-        Devices {
-            visible: root.sources.length > 1
-            list: root.sources
-            current: root.source
-            onPicked: n => Pipewire.preferredDefaultAudioSource = n
-        }
-
+        // the levels and devices stay; with many apps their list scrolls (a notebook), the button stays
         Column {
-            visible: root.apps.length > 0
+            id: head
             width: parent.width
-            spacing: 8
+            spacing: 12
+
+            PopupHeader {
+                icon: "\u{F057E}"
+                title: "Sound"
+                status: [root.sink && root.sink.audio && root.sink.audio.muted ? "Output muted" : "",
+                         root.source && root.source.audio && root.source.audio.muted ? "Microphone muted" : ""]
+                        .filter(t => t).join("  ·  ")
+            }
+
+            Level {
+                title: "Output"
+                node: root.sink
+                icon: Glyphs.volume(root.sink && root.sink.audio ? root.sink.audio.volume : 0, root.sink && root.sink.audio && root.sink.audio.muted, false)
+            }
+            Devices {
+                visible: root.sinks.length > 1
+                list: root.sinks
+                current: root.sink
+                onPicked: n => Pipewire.preferredDefaultAudioSink = n
+            }
+
             Rectangle {
                 width: parent.width
                 height: 1
                 color: Theme.separator
             }
-            Caption { text: "Apps" }
-            Repeater {
-                model: root.apps
-                // laid out like a device's level: mute button, name and slider, percent
-                delegate: Item {
-                    id: app
-                    required property var modelData
-                    readonly property var props: modelData.properties || {}
-                    readonly property bool muted: !!(modelData.audio && modelData.audio.muted)
-                    width: column.width
-                    height: 34
-                    PButton {
-                        id: appMute
-                        anchors.verticalCenter: parent.verticalCenter
-                        icon: app.muted ? "\u{F075F}" : "\u{F057E}"
-                        iconSize: 17
-                        implicitWidth: 36
-                        onClicked: app.modelData.audio.muted = !app.muted
-                    }
-                    Column {
-                        x: appMute.width + 10
-                        width: parent.width - x - 48
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 2
-                        Label {
-                            width: parent.width
-                            elide: Text.ElideRight
-                            // an app id like io.github.celluloid_player.Celluloid: its last part
-                            text: (app.props["application.name"] || app.modelData.description || app.modelData.nickname
-                                   || app.modelData.name).replace(/^(\w+\.)+(?=\w+$)/, "")
-                            small: true
-                            dim: app.muted
+
+            Level {
+                title: "Microphone"
+                node: root.source
+                icon: Glyphs.mic(root.source && root.source.audio && root.source.audio.muted)
+                muteColor: Theme.crit
+            }
+            Devices {
+                visible: root.sources.length > 1
+                list: root.sources
+                current: root.source
+                onPicked: n => Pipewire.preferredDefaultAudioSource = n
+            }
+        }
+
+        Column {
+            id: appsBox
+            visible: root.apps.length > 0
+            width: parent.width
+            spacing: 8
+            Rectangle {
+                id: appsLine
+                width: parent.width
+                height: 1
+                color: Theme.separator
+            }
+            Caption {
+                id: appsTitle
+                text: "Apps"
+            }
+            Flickable {
+                width: parent.width
+                // the rows reach a little past their 34 px: a margin, so the clip does not cut them
+                topMargin: 3
+                bottomMargin: 3
+                height: Math.min(appList.implicitHeight + 6, Math.max(110, root.room - head.height - foot.height
+                                 - appsLine.height - appsTitle.height - 2 * appsBox.spacing - 2 * column.spacing))
+                contentHeight: appList.implicitHeight
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                Column {
+                    id: appList
+                    width: parent.width
+                    spacing: 8
+                    Repeater {
+                        model: root.apps
+                        // laid out like a device's level: mute button, name and slider, percent
+                        delegate: Item {
+                            id: app
+                            required property var modelData
+                            readonly property var props: modelData.properties || {}
+                            readonly property bool muted: !!(modelData.audio && modelData.audio.muted)
+                            width: column.width
+                            height: 34
+                            PButton {
+                                id: appMute
+                                anchors.verticalCenter: parent.verticalCenter
+                                icon: app.muted ? "\u{F075F}" : "\u{F057E}"
+                                iconSize: 17
+                                implicitWidth: 36
+                                onClicked: app.modelData.audio.muted = !app.muted
+                            }
+                            Column {
+                                x: appMute.width + 10
+                                width: parent.width - x - 48
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 2
+                                Label {
+                                    width: parent.width
+                                    elide: Text.ElideRight
+                                    // an app id like io.github.celluloid_player.Celluloid: its last part
+                                    text: (app.props["application.name"] || app.modelData.description || app.modelData.nickname
+                                           || app.modelData.name).replace(/^(\w+\.)+(?=\w+$)/, "")
+                                    small: true
+                                    dim: app.muted
+                                }
+                                PSlider {
+                                    width: parent.width
+                                    value: app.modelData.audio ? app.modelData.audio.volume : 0
+                                    dim: app.muted
+                                    onMoved: v => app.modelData.audio.volume = v
+                                }
+                            }
+                            Label {
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: app.muted ? "muted" : Math.round((app.modelData.audio ? app.modelData.audio.volume : 0) * 100) + "%"
+                                small: true
+                                dim: app.muted
+                            }
                         }
-                        PSlider {
-                            width: parent.width
-                            value: app.modelData.audio ? app.modelData.audio.volume : 0
-                            dim: app.muted
-                            onMoved: v => app.modelData.audio.volume = v
-                        }
-                    }
-                    Label {
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: app.muted ? "muted" : Math.round((app.modelData.audio ? app.modelData.audio.volume : 0) * 100) + "%"
-                        small: true
-                        dim: app.muted
                     }
                 }
             }
         }
 
         ButtonRow {
+            id: foot
             PButton {
                 icon: "\u{F062E}"
                 text: "Mixer …"

@@ -23,7 +23,7 @@ Singleton {
         const left = (at - new Date()) / 1000;
         if (left <= 0)
             return "reset due";
-        return "resets " + Qt.formatDateTime(at, "ddd HH:mm") + "  ·  in " + delta(left);
+        return "resets " + Qt.formatDateTime(at, "ddd") + " " + Prefs.time(at) + "  ·  in " + delta(left);
     }
 
     function summary(d) {

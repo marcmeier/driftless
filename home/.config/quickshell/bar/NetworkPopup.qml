@@ -65,20 +65,23 @@ Item {
                     }
                     Label {
                         x: 38
-                        width: parent.width - 110
+                        width: parent.width - x - side.width - 18   // a long name stops before "password …"
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: modelData.name
                         bold: modelData.connected
                     }
                     Row {
+                        id: side
                         anchors.right: parent.right
                         anchors.rightMargin: 10
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 6
                         Label {
                             anchors.verticalCenter: parent.verticalCenter
-                            text: row.busy ? "…" : modelData.connected ? "connected" : modelData.known ? "known" : ""
+                            // an unknown network with a password opens a terminal for it (nmtui): say so
+                            text: row.busy ? "…" : modelData.connected ? "connected" : modelData.known ? "known"
+                                : modelData.security !== WifiSecurityType.Open ? "password …" : ""
                             small: true
                             color: modelData.connected ? Theme.accent2 : Theme.dim
                         }
@@ -86,7 +89,7 @@ Item {
                             visible: modelData.security !== WifiSecurityType.Open
                             anchors.verticalCenter: parent.verticalCenter
                             text: "\u{F033E}"
-                            size: 12
+                            size: 14
                             color: Theme.dim
                         }
                     }

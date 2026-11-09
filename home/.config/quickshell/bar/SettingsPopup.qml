@@ -281,7 +281,7 @@ Item {
                 text: root.current[1]
                 bold: true
                 color: Theme.strong
-                font.pixelSize: 18
+                font.pixelSize: Theme.fontTitle
             }
             Label {
                 small: true
@@ -330,7 +330,7 @@ Item {
                     first: true
                     title: "Appearance"
                     detail: root.look === "auto"
-                            ? "Light from sunrise (" + root.sunTimes.sunrise + ") to sunset (" + root.sunTimes.sunset + "), dark at night"
+                            ? "Light from sunrise (" + Prefs.time(root.sunTimes.sunrise) + ") to sunset (" + Prefs.time(root.sunTimes.sunset) + "), dark at night"
                             : root.paletteName !== "plain" && root.paletteNow
                             ? root.paletteNow.label + " " + root.paletteNow[root.look].name
                             : root.look === "light" ? "Light greys, dark text" : "Dark greys, light text"
@@ -450,9 +450,9 @@ Item {
                 SettingRow {
                     first: true
                     title: "Bar size"
-                    detail: BarLayout.mode === "spacious" ? "Full size on every monitor"
+                    detail: BarLayout.mode === "spacious" ? "Full size wherever it fits"
                             : BarLayout.mode === "compact" ? "Compact on every monitor"
-                            : "Compact on notebook panels, full size elsewhere"
+                            : "Compact on notebooks and small screens"
                     PSegmented {
                         options: [["auto", "Automatic"], ["spacious", "Full size"], ["compact", "Compact"]]
                         current: BarLayout.mode
@@ -532,7 +532,7 @@ Item {
                     first: true
                     title: "Warmer colours"
                     detail: Prefs.nightLight === "sun"
-                            ? "From sunset (" + NightLight.sun.sunset + ") to sunrise (" + NightLight.sun.sunrise + ")"
+                            ? "From sunset (" + Prefs.time(NightLight.sun.sunset) + ") to sunrise (" + Prefs.time(NightLight.sun.sunrise) + ")"
                               + (NightLight.active ? ", on now" : "")
                             : Prefs.nightLight === "on" ? "On until you turn it off" : "Off: the colours as they are"
                     PSegmented {
@@ -799,7 +799,7 @@ Item {
                 title: "Session"
                 SettingRow {
                     first: true
-                    title: "Lock, log out, sleep, restart, shut down"
+                    title: "Lock, log out, suspend, reboot, shut down"
                     detail: "The power menu (SUPER + SHIFT + M)"
                     PButton {
                         text: "Open …"
@@ -911,8 +911,11 @@ Item {
         property int indent: 0
         property int rowHeight: 48
         default property alias control: slot.data
+        // a wide control (five choices) goes below the text, so the text keeps its lines
+        readonly property bool stacked: slot.width > (width - 30) * 0.56
         width: parent ? parent.width : 0
-        height: visible ? Math.max(rowHeight, texts.implicitHeight + 20) : 0
+        height: !visible ? 0 : stacked ? texts.implicitHeight + slot.height + 28
+                                       : Math.max(rowHeight, texts.implicitHeight + 20)
 
         Rectangle {
             visible: !srow.first
@@ -923,8 +926,8 @@ Item {
         Column {
             id: texts
             x: 14 + srow.indent
-            width: parent.width - x - slot.width - 30
-            anchors.verticalCenter: parent.verticalCenter
+            y: srow.stacked ? 10 : Math.round((srow.height - implicitHeight) / 2)
+            width: parent.width - x - (srow.stacked ? 14 : slot.width + 30)
             spacing: 2
             Label {
                 width: parent.width
@@ -945,7 +948,7 @@ Item {
             id: slot
             anchors.right: parent.right
             anchors.rightMargin: 12
-            anchors.verticalCenter: parent.verticalCenter
+            y: srow.stacked ? texts.y + texts.implicitHeight + 8 : Math.round((srow.height - height) / 2)
             spacing: 8
         }
     }

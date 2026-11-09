@@ -132,6 +132,8 @@ Scope {
             readonly property int indent: pad
             readonly property int answerW: 520
             readonly property int textW: answerW - indent - pad
+            // room for the longest answer the prompt allows (a summary, about 100 words: 13 to 15 lines)
+            readonly property int maxTextH: 400
 
             readonly property real targetW: {
                 switch (root.mode) {
@@ -144,7 +146,7 @@ Scope {
             }
             readonly property real targetH: {
                 if (root.mode === "answer" || root.mode === "error")
-                    return headerH - 4 + Math.min(measure.implicitHeight, 240) + pad + 2;
+                    return headerH - 4 + Math.min(measure.implicitHeight, bubble.maxTextH) + pad + 2;
                 return headerH;
             }
 
@@ -230,7 +232,7 @@ Scope {
                 x: bubble.indent
                 y: bubble.headerH - 4
                 width: bubble.textW
-                height: Math.min(measure.implicitHeight, 240)
+                height: Math.min(measure.implicitHeight, bubble.maxTextH)
                 wrapMode: Text.Wrap
                 elide: Text.ElideRight
                 textFormat: Text.PlainText

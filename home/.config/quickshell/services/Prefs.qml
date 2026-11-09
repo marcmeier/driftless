@@ -21,6 +21,24 @@ Singleton {
     readonly property bool clock24: value("clock24", true)
     readonly property bool clockSeconds: value("clockSeconds", false)
     readonly property bool clockDate: value("clockDate", true)
+
+    // a time of day the way the clock shows it (24 or 12 hours): a Date, or "HH:MM" from a script.
+    // `short`: a full hour without its minutes in 12 hours ("3 PM", the weather's next hours)
+    function time(t, short) {
+        // nothing yet (a hidden line whose binding still runs): nothing, not a warning
+        if (t === undefined || t === null || t === "")
+            return "";
+        let d = t;
+        if (typeof t === "string") {
+            const m = /^(\d{1,2}):(\d{2})$/.exec(t);
+            if (!m)
+                return t;
+            d = new Date(2000, 0, 1, Number(m[1]), Number(m[2]));
+        }
+        if (clock24)
+            return Qt.formatTime(d, "HH:mm");
+        return Qt.formatTime(d, short && d.getMinutes() === 0 ? "h AP" : "h:mm AP");
+    }
     // the night light (services/NightLight.qml): off, sun (from sunset to sunrise) or on; its warmth in kelvin
     readonly property string nightLight: value("nightLight", "off")
     readonly property int nightTemp: value("nightTemp", 4000)

@@ -15,10 +15,12 @@ Pill {
     // gives way beside the centre island: the title gets what the other pills and its buttons leave,
     // the artist only what the title leaves (and goes when that is too little for a name)
     readonly property bool flexible: true
-    readonly property real titleRoom: bar
-        ? bar.sideRoom - bar.rightRigid - padding * 2 - (prevSeg.shown ? prevSeg.width : 0) - playSeg.width
-          - (nextSeg.shown ? nextSeg.width : 0) - title.padL - title.padR
-        : 400
+    readonly property real buttons: padding * 2 + (prevSeg.shown ? prevSeg.width : 0) + playSeg.width
+                                    + (nextSeg.shown ? nextSeg.width : 0) + title.padL + title.padR
+    // what does not give way: the buttons and the shortest title (the marquee's 60), so the centre
+    // makes room for them (Bar.centerRoom); the title then counts the rest of the right side only
+    readonly property real rigidPart: buttons + 60
+    readonly property real titleRoom: bar ? bar.sideRoom - (bar.rightRigid - rigidPart) - buttons : 400
     readonly property real artistRoom: Math.min(160, titleRoom - marquee.width - title.spacing)
 
     Seg {

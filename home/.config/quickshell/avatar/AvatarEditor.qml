@@ -6,7 +6,7 @@ import "../bar"
 
 // Placing your picture (settings: a click on it, or "Picture …"): the chosen image behind a round
 // mask, the way the bar, the lock and the login screen will cut it. Drag to move it, the wheel or the
-// slider to zoom; "Use this picture" hands the square to scripts/settings-menu.sh avatar-save as
+// slider to zoom; "Use picture" hands the square to scripts/settings-menu.sh avatar-save as
 // fractions of the image, which writes ~/.face and renders it. Enter: use it · Esc: cancel.
 Scope {
     id: root
@@ -249,7 +249,7 @@ Scope {
                         onClicked: root.cancel()
                     }
                     PButton {
-                        text: "Use this picture"
+                        text: "Use picture"
                         accent: true
                         enabled: root.ready
                         onClicked: root.save()

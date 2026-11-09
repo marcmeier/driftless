@@ -81,6 +81,8 @@ Singleton {
     readonly property int fontCaption: 14
     readonly property int fontClock: 17
     readonly property int fontCompact: 14
+    readonly property int fontTitle: 18     // a title of its own: a settings page, the machine in "About"
+    readonly property int fontFigure: 22    // the one big number of a popup (the temperature)
     // JetBrains Mono is 9.6 px wide at 16 px: this sets it on the 10 px grid ghostty has
     readonly property real letterSpacing: 0.4
 

@@ -25,7 +25,14 @@ Item {
         if (bar && popupComponent)
             bar.togglePopup(seg, popupComponent, popupKey);
     }
-    onBarChanged: if (bar && popupKey) bar.registerPopup(popupKey, seg)
+    onBarChanged: {
+        if (!bar)
+            return;
+        bar.registerSeg(seg);
+        if (popupKey)
+            bar.registerPopup(popupKey, seg);
+    }
+    Component.onDestruction: if (bar) bar.unregisterSeg(seg)
 
     signal clicked(int button)
     signal scrolled(int steps)         // +1 up, -1 down
@@ -39,6 +46,16 @@ Item {
         anchors.bottomMargin: 1
         color: seg.hoverColor
         visible: seg.interactive && mouse.containsMouse
+    }
+
+    // where the keyboard is (Super+B): the line of a focus, inside the part
+    Rectangle {
+        anchors.fill: parent
+        anchors.bottomMargin: 1
+        visible: !!seg.bar && seg.bar.navSeg === seg
+        color: "transparent"
+        border.width: 1
+        border.color: Theme.accent
     }
 
     Row {

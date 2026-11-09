@@ -30,6 +30,7 @@ Item {
 
         // ---- now ----
         Row {
+            width: parent.width
             spacing: 14
             Icon {
                 anchors.verticalCenter: parent.verticalCenter
@@ -39,13 +40,14 @@ Item {
             }
             Column {
                 anchors.verticalCenter: parent.verticalCenter
+                width: parent.width - x
                 spacing: 2
                 Row {
                     spacing: 8
                     Label {
                         text: (root.w.temp ?? "") + "°"
                         bold: true
-                        font.pixelSize: 22
+                        font.pixelSize: Theme.fontFigure
                     }
                     Label {
                         anchors.baseline: parent.children[0].baseline
@@ -53,7 +55,12 @@ Item {
                         dim: true
                     }
                 }
+                // a long description with a long place: two lines, then cut
                 Label {
+                    width: parent.width
+                    wrapMode: Text.Wrap
+                    maximumLineCount: 2
+                    elide: Text.ElideRight
                     text: (root.w.desc || "") + (root.w.place ? "  ·  " + root.w.place : "")
                 }
             }
@@ -74,7 +81,7 @@ Item {
         }
         Label {
             visible: !!root.w.stale
-            text: "From " + root.w.stale + ": wttr.in does not answer"
+            text: "From " + Prefs.time(root.w.stale) + ": wttr.in does not answer"
             small: true
             color: Theme.warn
         }
@@ -97,7 +104,7 @@ Item {
                     spacing: 3
                     Label {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: modelData.time
+                        text: Prefs.time(modelData.time, true)
                         small: true
                         dim: true
                     }

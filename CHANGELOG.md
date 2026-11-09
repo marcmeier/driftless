@@ -4,6 +4,61 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.27.0 (2026-11-09): the keyboard everywhere, a bar that makes room
+
+### Added
+- **The whole shell from the keyboard**: every button, switch, slider and choice in a popup is a Tab
+  stop with an accent frame; Enter or Space does what a click does, and a list that scrolls follows
+  the focus. `SUPER + B` hands the bar the keyboard: Tab goes from part to part (the pinned tray
+  icons too), Enter opens what a click opens, Esc gives the keyboard back.
+- **The tray from the keyboard**: in the tray box, Tab and Enter reach every app; the menu key or
+  `Shift + F10` opens its menu with the first entry in focus, `P` pins or unpins the focused icon.
+  A notification's × is a Tab stop too, and the focus then goes on to the next card.
+- **One app's flood no longer fills the notification list**: a group of more than three shows its
+  newest three and "N more from App", which opens the group until the popup closes.
+- **Claude Code sessions next to the usage figures**: waiting for an answer (orange), running, and
+  done in the last 15 minutes. A hook of your own writes the state files; without it nothing changes.
+- **A broken bar script says so**: when a script of the bar gives nothing usable twice in a row (a
+  traceback after an update), a notification names it with its last error line, while the bar keeps
+  the last answer.
+- `noto-fonts-cjk` in the package list: Chinese, Japanese and Korean titles no longer show as boxes.
+
+### Changed
+- **The bar makes room instead of overlapping**: the window title, the media title, the event text
+  and the date give way to the clock in the middle (an event's dot stays). *Automatic* gives screens
+  under 1280 px the compact bar; a *Full size* that does not fit falls back to compact and comes back
+  as soon as it fits again (the music stops, a screen share ends).
+- **Times of day follow the 12/24-hour setting everywhere**: the lock, events in the bar and the
+  calendar, the weather's next hours, the offline notes. Dates have no leading zero ("Mon 9 Nov"),
+  and the lock and login screen write "Monday, 9 November".
+- **Popups fit a notebook's screen**: the calendar's events, the notification list and the sound
+  popup's apps scroll in the room there is, and their buttons stay on the screen. Event titles wrap to
+  two lines before they are cut, a long weather description wraps.
+- **Secondary text reads in every palette** (at least 4.5:1); the faint grey is only for what is off.
+  The small titles in a popup are no longer set in capitals.
+- **Popups alike**: the battery popup has the header and the profile as a choice like the others; do
+  not disturb is the notification header's switch, with *Clear all* at the foot; a sound app's level
+  is laid out like a device's; the five-way choices in the settings go below their text.
+- **Plain words**: sound devices are named by where the sound comes out ("Built-in (Digital,
+  S/PDIF)", a screen's name); Bluetooth leaves out devices without a name and pairs with a button; the
+  password dialog says "Password needed", and for driftless's own request names the packages and
+  says *Install*; "Keyboard shortcuts" instead of "Keybindings"; "1 file", not "file(s)".
+- **The login screen** names the session "Hyprland" and uses the lock screen's text sizes, nothing
+  under 15 px; the password field has 15 px text. Takes effect after `driftless system`.
+- The notch's answers get room for about 100 words.
+
+### Fixed
+- **Updates while offline**: the last count, marked as old, instead of a silent 0 that read as "up to
+  date"; the weather keeps its last state with its time in the same way.
+- **Media**: a player without a title no longer shows the previous player's song, and line breaks in
+  the metadata no longer stretch the pill.
+- Tray icons and menu entries the icon theme does not know show a glyph, not magenta squares; menu
+  entries the app turned off are grey.
+- Notifications keep their line breaks; tooltips with long click hints break at their separators; the
+  sync icon's tooltip follows the theme.
+- The linker refuses a manifest target inside a linked folder instead of putting the link into the
+  repository.
+
 ## v2.26.0 (2026-11-02): one text size
 
 ### Changed

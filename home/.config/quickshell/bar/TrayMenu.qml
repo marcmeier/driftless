@@ -18,7 +18,32 @@ Item {
     implicitWidth: 276
     implicitHeight: column.implicitHeight
 
-    onMenuChanged: stack = []
+    onMenuChanged: {
+        stack = [];
+        pendingFocus = false;
+    }
+
+    // the keyboard's focus into the menu when it was opened from the keyboard, and on each step down
+    // or back: the first entry it can use. The entries come over D-Bus, maybe a moment later: until
+    // then it waits (in a submenu on the way back, so Esc and Enter still have a place).
+    property bool pendingFocus: false
+    function focusFirst() {
+        pendingFocus = true;
+        Qt.callLater(tryFocus);
+    }
+    function tryFocus() {
+        if (!pendingFocus)
+            return;
+        for (let i = 0; i < entries.count; i++) {
+            const e = entries.itemAt(i);
+            if (e && e.takeFocus()) {
+                pendingFocus = false;
+                return;
+            }
+        }
+        if (stack.length)
+            backRing.forceActiveFocus();
+    }
 
     QsMenuOpener {
         id: opener
@@ -56,18 +81,31 @@ Item {
                 onClicked: root.stack = root.stack.slice(0, -1)
             }
             FocusRing {
+                id: backRing
                 inset: true
-                onActivated: back.clicked(null)
+                onActivated: {
+                    back.clicked(null);
+                    root.focusFirst();
+                }
             }
         }
 
         Repeater {
+            id: entries
             model: opener.children
+            onItemAdded: if (root.pendingFocus) Qt.callLater(root.tryFocus)
             delegate: Item {
                 id: entry
                 required property var modelData
                 width: column.width
                 height: modelData.isSeparator ? 9 : 30
+
+                function takeFocus() {
+                    if (modelData.isSeparator || !modelData.enabled)
+                        return false;
+                    ring.forceActiveFocus();
+                    return true;
+                }
 
                 Rectangle {
                     visible: entry.modelData.isSeparator
@@ -99,10 +137,11 @@ Item {
                             color: entry.modelData.checkState === Qt.Checked ? Theme.accent2 : Theme.dim
                         }
                         IconImage {
-                            visible: entry.modelData.buttonType === QsMenuButtonType.None && entry.modelData.icon !== ""
+                            readonly property string known: Apps.knownIcon(entry.modelData.icon)
+                            visible: entry.modelData.buttonType === QsMenuButtonType.None && known !== ""
                             anchors.centerIn: parent
                             implicitSize: 16
-                            source: entry.modelData.icon
+                            source: known
                             // symbolic icons come dark: draw them in the text colour
                             layer.enabled: /symbolic/.test(entry.modelData.icon)
                             layer.effect: MultiEffect {
@@ -118,6 +157,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
                         text: entry.modelData.text.replace(/_(?=\S)/g, "")
+                        color: entry.modelData.enabled ? Theme.text : Theme.faint   // greyed out, like the app means it
                     }
                     Icon {
                         visible: entry.modelData.hasChildren
@@ -144,9 +184,16 @@ Item {
                         }
                     }
                     FocusRing {
+                        id: ring
                         inset: true
                         enabled: entry.modelData.enabled
-                        onActivated: mouse.clicked(null)
+                        onActivated: {
+                            // taken now: this entry is gone once a submenu opens
+                            const menu = root, down = entry.modelData.hasChildren;
+                            mouse.clicked(null);
+                            if (down)
+                                menu.focusFirst();
+                        }
                     }
                 }
             }

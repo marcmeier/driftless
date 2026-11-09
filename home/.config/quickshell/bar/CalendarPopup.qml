@@ -273,8 +273,9 @@ Item {
                                     id: time
                                     x: 8
                                     anchors.baseline: title.baseline
-                                    width: 74
-                                    text: modelData.allDay ? "all day" : modelData.continued ? "→ " + modelData.end : modelData.start
+                                    // "→ 14:30" or "→ 10:30 AM" (Prefs.time) and the gap to the title
+                                    width: Prefs.clock24 ? 74 : 104
+                                    text: modelData.allDay ? "all day" : modelData.continued ? "→ " + Prefs.time(modelData.end) : Prefs.time(modelData.start)
                                     small: true
                                     color: Theme.dim
                                 }

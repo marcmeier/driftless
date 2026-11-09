@@ -129,6 +129,10 @@ ShellRoot {
                     });
                 }
                 found.sort((a, b) => (b.file === "hyprland-uwsm") - (a.file === "hyprland-uwsm"));
+                // the usual one is just "Hyprland"; the one without uwsm says so, or both would read alike
+                if (found.some(x => x.file === "hyprland-uwsm"))
+                    for (const x of found)
+                        x.name = x.file === "hyprland-uwsm" ? "Hyprland" : x.file === "hyprland" ? "Hyprland without uwsm" : x.name;
                 root.sessions = found;
                 root.sessionIndex = 0;
             }
@@ -296,9 +300,9 @@ ShellRoot {
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.family: look.font
-                    font.pixelSize: 13
+                    font.pixelSize: 16
                     color: look.dim
-                    text: Qt.locale().toString(time.date, "dddd, d. MMMM")
+                    text: Qt.locale().toString(time.date, "dddd, d MMMM")
                     renderType: Text.NativeRendering
                 }
                 Item {
@@ -317,7 +321,7 @@ ShellRoot {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             font.family: look.font
-                            font.pixelSize: 13
+                            font.pixelSize: 16
                             color: nameMouse.containsMouse ? look.strong : look.text
                             text: root.user.name
                             textFormat: Text.PlainText
@@ -327,7 +331,7 @@ ShellRoot {
                             anchors.verticalCenter: parent.verticalCenter
                             visible: root.users.length > 1
                             font.family: look.font
-                            font.pixelSize: 13
+                            font.pixelSize: 16
                             color: look.dim
                             text: "\u{F0140}"
                         }
@@ -372,7 +376,7 @@ ShellRoot {
                     width: Math.min(implicitWidth, parent.width)
                     elide: Text.ElideRight
                     font.family: look.font
-                    font.pixelSize: 12
+                    font.pixelSize: 15
                     text: root.message !== "" ? root.message : root.caps ? "Caps Lock is on" : ""
                     color: root.failed ? look.crit : root.message === "" && root.caps ? look.warn : look.dim
                     textFormat: Text.PlainText

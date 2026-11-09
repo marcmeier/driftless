@@ -34,7 +34,9 @@ Singleton {
             return mode;
         const mon = Hyprland.monitors.values.find(m => m.name === screen.name);
         const desc = mon ? mon.description : "";
-        return narrow.includes(screen.name) || (desc && narrow.includes(desc)) ? "compact" : "spacious";
+        // under 1280 px (logical) the full-size bar's fixed parts do not fit beside each other (a
+        // projector, a small screen): compact there too (scripts/bar_layout.py NARROW)
+        return narrow.includes(screen.name) || (desc && narrow.includes(desc)) || screen.width < 1280 ? "compact" : "spacious";
     }
 
     // the members of a group on a variant, hidden ones included

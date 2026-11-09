@@ -20,7 +20,15 @@ Pill {
 
     shown: !!win && appId !== ""
 
+    // gives way to the centre like the media title on the right: fixed are the glyph and the shortest
+    // title (60 px), the title gets what is left up to where the centre begins (Bar.leftEnd)
+    readonly property bool flexible: true
+    readonly property real fixed: padding * 2 + seg.padL + seg.padR + glyph.width + seg.spacing
+    readonly property real rigidPart: fixed + 60
+    readonly property real titleRoom: bar ? bar.leftEnd - (bar.leftRigid - rigidPart) - fixed : 340
+
     Seg {
+        id: seg
         bar: pill.bar
         interactive: false
         padL: pill.compact ? 8 : 10
@@ -29,6 +37,7 @@ Pill {
         tip: [pill.title, pill.appId].filter(x => x).map(Apps.esc).join("<br>")
 
         Icon {
+            id: glyph
             anchors.verticalCenter: parent.verticalCenter
             text: pill.app.glyph
             size: 16
@@ -36,7 +45,7 @@ Pill {
         }
         Label {
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.min(implicitWidth, pill.compact ? 160 : 340)
+            width: Math.min(implicitWidth, pill.compact ? 160 : 340, Math.max(60, pill.titleRoom))
             elide: Text.ElideRight
             color: Theme.dim
             font.pixelSize: pill.compact ? Theme.fontCompact : Theme.fontSize

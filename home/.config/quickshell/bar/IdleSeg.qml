@@ -7,8 +7,8 @@ Seg {
 
     padL: compact ? 4 : 7
     padR: compact ? 4 : 7
-    tip: KeepAwake.on ? "Kept awake (no lock, no screen off)<br><font color='" + Theme.dim + "'>Click: allow idle again</font>"
-                      : "Idle allowed<br><font color='" + Theme.dim + "'>Click: keep awake</font>"
+    tip: KeepAwake.on ? "Kept awake: no lock, the screen stays on<br><font color='" + Theme.dim + "'>Click: back to the usual times</font>"
+                      : "Locks and turns the screen off as set<br><font color='" + Theme.dim + "'>Click: keep awake</font>"
 
     onClicked: KeepAwake.on = !KeepAwake.on
 

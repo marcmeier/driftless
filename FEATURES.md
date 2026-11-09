@@ -120,7 +120,8 @@ without a restart. Groups from left to right:
 - **Media**: play/pause, skip, the title (cut with "…" when it is long). Click it: cover, progress (click
   to jump), shuffle and repeat, and every player that runs
 - **Tray**, folded away: an arrow opens all the apps' own icons in a small box (click: the app; right
-  click: its menu in the same style, below the icons, which stay usable). The pin on an icon keeps it in the bar next to the arrow (per
+  click: its menu in the same style, below the icons, which stay usable; from the keyboard Tab, Enter,
+  and the menu key or `Shift + F10`; the pinned ones are stops of `SUPER + B`). The pin on an icon (or `P` on the focused one) keeps it in the bar next to the arrow (per
   machine); the arrow lights up while a folded app asks for attention
 - **Privacy indicator**, right after the tray and only while it matters: an amber box with a symbol
   for each of microphone, camera and screen while an app records, films or shares it (red while the
@@ -140,7 +141,9 @@ without a restart. Groups from left to right:
 
 Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Inside a popup `Tab` walks
 its controls (a line in the accent shows where), `Enter` or `Space` clicks, the arrows move a slider
-or a choice. Popups also open from a key
+or a choice. `SUPER + B` hands the bar the keyboard: the arrows walk its parts (each shows its
+tooltip), `Enter` opens a popup or does what a click does, `Esc` in the popup comes back to the bar
+and `Esc` there leaves. Popups also open from a key
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,
 `media`, `claude`, `audio`, `network`, `bluetooth`, `battery`, `notifications`, `settings`, `sync`,
 `tray`, `about`). They are built alike: a first line with the sign, the name and how it stands, the
@@ -159,7 +162,7 @@ the desktop looks borrowed from another program.
   that runs out (it waits while the pointer is on the card). Click: the app's action or its window ·
   right click, `×` or a swipe: away. A notification that replaces another one (a download, the
   calendar sync) updates the card in place
-- **The list** (the bell, `SUPER + N`): everything still there, grouped by app, with **do not disturb**
+- **The list** (the bell, `SUPER + N`): everything still there, grouped by app (an app with more than three shows its newest three and "N more from …"), with **do not disturb**
   (`SUPER + SHIFT + N`, or a right click on the bell: only critical ones pop up) and "clear". The bell
   glows while there is something you have not seen. The list outlives a restart and a new login (seven
   days, in `~/.local/state/driftless-shell` on this machine only, readable only by you); kept ones come

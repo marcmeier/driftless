@@ -114,7 +114,7 @@ cmd_verify() {
 
   sec "Sync"
   [[ $(git -C "$DRIFTLESS" config commit.gpgsign) == true && -s $ALLOWED ]] &&
-    ok "commits are signed and checked ($(grep -c . "$ALLOWED") trusted machine(s))" ||
+    ok "commits are signed and checked ($(plural "$(grep -c . "$ALLOWED")" "trusted machine" "trusted machines"))" ||
     warn_ "commit signing not set up: the sync would take over anything pushed to GitHub  ->  driftless setup"
   if systemctl --user show-environment > /dev/null 2>&1; then
     systemctl --user is-enabled -q driftless-sync.timer && ok "sync timer enabled (mode: $(cat "$STATE/mode" 2> /dev/null || echo review))" || warn_ "sync timer not enabled"

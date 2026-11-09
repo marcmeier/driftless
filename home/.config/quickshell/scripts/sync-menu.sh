@@ -98,7 +98,8 @@ case $action in
   check)
     if flock -n "$STATE/lock" timeout 30 git -C "$REPO" fetch -q origin main; then
       n=$(git -C "$REPO" rev-list --count HEAD..origin/main)
-      notify-send -a driftless "GitHub checked" "$n incoming change(s)"
+      if ((n == 1)); then t="1 incoming change"; else t="$n incoming changes"; fi
+      notify-send -a driftless "GitHub checked" "$t"
     else notify-send -a driftless "GitHub not checked" "A sync is running or GitHub is not reachable"; fi
     refresh
     ;;

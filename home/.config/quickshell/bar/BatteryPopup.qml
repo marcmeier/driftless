@@ -13,6 +13,8 @@ Item {
     readonly property var battery: UPower.devices.values.find(d => d.isLaptopBattery) || null
     readonly property int percent: Math.round((dev ? dev.percentage : 0) * 100)
     readonly property bool charging: !!dev && dev.state === UPowerDeviceState.Charging
+    readonly property bool low: percent <= 12 && !!dev && dev.state === UPowerDeviceState.Discharging
+    readonly property string words: Battery.state(dev)
 
     implicitWidth: 400
     implicitHeight: column.implicitHeight
@@ -22,26 +24,11 @@ Item {
         width: parent.width
         spacing: 12
 
-        Row {
-            spacing: 12
-            Icon {
-                anchors.verticalCenter: parent.verticalCenter
-                text: Glyphs.battery(root.percent, root.charging)
-                size: 22
-                color: Theme.dim
-            }
-            Column {
-                anchors.verticalCenter: parent.verticalCenter
-                Label {
-                    text: root.percent + "%"
-                    bold: true
-                    font.pixelSize: 20
-                }
-                Label {
-                    text: Battery.state(root.dev)
-                    dim: true
-                }
-            }
+        PopupHeader {
+            icon: Glyphs.battery(root.percent, root.charging)
+            title: "Battery"
+            status: root.percent + "%" + (root.words ? "  ·  " + root.words : "")
+            statusColor: root.low ? Theme.crit : Theme.dim
         }
 
         PMeter {
@@ -54,13 +41,13 @@ Item {
             spacing: 18
             Label {
                 visible: !!root.dev && Math.abs(root.dev.changeRate) > 0.05
-                text: (root.dev ? Math.abs(root.dev.changeRate).toFixed(1) : "") + " W"
+                text: (root.charging ? "Charging at " : "Using ") + (root.dev ? Math.abs(root.dev.changeRate).toFixed(1) : "") + " W"
                 small: true
                 dim: true
             }
             Label {
                 visible: !!root.battery && root.battery.healthSupported
-                text: "health " + (root.battery ? Math.round(root.battery.healthPercentage) : 0) + "%"
+                text: "Health " + (root.battery ? Math.round(root.battery.healthPercentage) : 0) + "%"
                 small: true
                 dim: true
             }
@@ -73,21 +60,21 @@ Item {
         }
 
         Caption { text: "Power profile" }
-        Row {
-            spacing: 6
-            Repeater {
-                model: [[PowerProfile.PowerSaver, "\u{F032A}", "Saver"], [PowerProfile.Balanced, "\u{F05D1}", "Balanced"],
-                        [PowerProfile.Performance, "\u{F0463}", "Performance"]]
-                delegate: PButton {
-                    required property var modelData
-                    visible: modelData[0] !== PowerProfile.Performance || PowerProfiles.hasPerformanceProfile
-                    icon: modelData[1]
-                    text: modelData[2]
-                    checked: PowerProfiles.profile === modelData[0]
-                    flat: !checked
-                    onClicked: PowerProfiles.profile = modelData[0]
-                }
-            }
+        // the same choice and words as in the settings (Power → Battery)
+        PSegmented {
+            options: [[String(PowerProfile.PowerSaver), "Saver"], [String(PowerProfile.Balanced), "Balanced"]]
+                     .concat(PowerProfiles.hasPerformanceProfile ? [[String(PowerProfile.Performance), "Performance"]] : [])
+            current: String(PowerProfiles.profile)
+            onPicked: value => PowerProfiles.profile = Number(value)
+        }
+        Label {
+            width: parent.width
+            wrapMode: Text.Wrap
+            small: true
+            dim: true
+            text: PowerProfiles.profile === PowerProfile.PowerSaver ? "Longer on battery, a little slower"
+                  : PowerProfiles.profile === PowerProfile.Performance ? "Fastest, the fan and battery pay for it"
+                  : "Fast when needed, quiet otherwise"
         }
     }
 }

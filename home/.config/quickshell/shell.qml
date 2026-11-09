@@ -88,5 +88,11 @@ ShellRoot {
             const bar = shell.focusedBar();
             return !!bar && bar.openNamed(name);
         }
+
+        // the bar on the focused screen takes the keyboard (Super+B): arrows, Enter, Esc
+        function keys(): bool {
+            const bar = shell.focusedBar();
+            return !!bar && bar.startKeys(null);
+        }
     }
 }

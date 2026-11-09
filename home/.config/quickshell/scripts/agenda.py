@@ -112,7 +112,7 @@ def summary():
     return {
         "next": nxt,
         "agenda": [
-            {"date": day.isoformat(), "label": label(day, today), "sub": f"{day:%d %b}", "events": events}
+            {"date": day.isoformat(), "label": label(day, today), "sub": f"{day.day} {day:%b}", "events": events}
             for day, events in sorted(agenda.items())
         ],
         "error": error,
@@ -135,7 +135,12 @@ def one_day(spec):
     except ValueError:
         day = dt.date.today()
     events = [event for d, event in listing(day, "1d") if d == day]
-    return {"date": day.isoformat(), "label": label(day, dt.date.today()), "sub": f"{day:%d %b}", "events": events}
+    return {
+        "date": day.isoformat(),
+        "label": label(day, dt.date.today()),
+        "sub": f"{day.day} {day:%b}",
+        "events": events,
+    }
 
 
 if __name__ == "__main__":

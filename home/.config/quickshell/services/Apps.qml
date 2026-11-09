@@ -41,8 +41,17 @@ Singleton {
 
     // A notification body is shown as StyledText, and Qt loads an <img> from any address: a tracking
     // pixel, or a request to a device in the local network. The tag goes, the text stays.
+    // StyledText also reads a line break as a space: the spec allows them in the body, so they
+    // become <br> (one, also where the sender wrote both).
     function safeMarkup(s) {
-        return String(s).replace(/<\s*img\b[^>]*(?:>|$)/gi, "");
+        return String(s).replace(/<\s*img\b[^>]*(?:>|$)/gi, "").trim().replace(/(?:<br\s*\/?>)?\r?\n/gi, "<br>");
+    }
+
+    // an icon of the icon theme (image://icon/NAME) that the theme does not have: "", where Qt would
+    // draw its magenta squares. Pixmaps, files and an app's own icon path (?path=) pass as they are.
+    function knownIcon(src) {
+        const m = /^image:\/\/icon\/([^?]+)$/.exec(src || "");
+        return !m || Quickshell.iconPath(m[1], true) ? String(src || "") : "";
     }
 
     // only pictures from this machine (a file, or one the shell itself provides): a web address given

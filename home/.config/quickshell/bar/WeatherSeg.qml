@@ -9,7 +9,7 @@ Seg {
     shown: !!(w && w.icon)
     spacing: 6
     tip: w && w.desc ? Apps.esc(w.desc) + "<font color='" + Theme.dim + "'>  ·  feels " + w.feels + "°"
-                       + (w.stale ? "  ·  from " + w.stale : "") + "</font>" : ""
+                       + (w.stale ? "  ·  from " + Prefs.time(w.stale) : "") + "</font>" : ""
 
     onClicked: togglePopup()
 

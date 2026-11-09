@@ -25,23 +25,27 @@ Singleton {
     // SUPER + A and the dictation keep working without the bar; the bar only shows their state
     Feed {
         id: claude
+        what: "Claude usage"
         command: [feeds.scripts + "/claude-usage.py"]
         interval: 180
     }
     // a Claude Code hook pokes on every change; the interval only ends "done" and drops dead sessions
     Feed {
         id: sessions
+        what: "Claude sessions"
         command: [feeds.scripts + "/claude-sessions.py"]
         interval: 60
     }
     // the sync pokes at the start and the end of every run: the interval only ages the "ago" texts
     Feed {
         id: sync
+        what: "sync status"
         command: [feeds.scripts + "/sync.py"]
         interval: 300
     }
     Feed {
         id: weather
+        what: "weather"
         command: [feeds.scripts + "/weather.py"]
         interval: 1800
     }
@@ -49,6 +53,7 @@ Singleton {
     // when the day changes ("tmrw" becomes today)
     Feed {
         id: calendar
+        what: "calendar"
         command: [feeds.scripts + "/agenda.py"]
         interval: 600
     }
@@ -66,12 +71,15 @@ Singleton {
     // network calls: not in the rush of the login
     Feed {
         id: updates
+        what: "update count"
         command: [feeds.scripts + "/updates.sh"]
         interval: 1800
         delay: 120
+        limit: 200      // updates.sh: three calls of up to 60 s each
     }
     Feed {
         id: dictate
+        what: "dictation status"
         command: [feeds.home + "/.config/hypr/dictate.py", "status"]
     }
 

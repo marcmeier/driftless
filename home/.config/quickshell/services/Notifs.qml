@@ -514,12 +514,12 @@ Singleton {
             return Math.floor(s / 60) + " min";
         const d = new Date(time);
         const today = new Date(now);
-        const hm = Qt.formatTime(d, "hh:mm");
+        const hm = Prefs.time(d);
         if (d.toDateString() === today.toDateString())
             return hm;
         const y = new Date(now - 86400000);
         if (d.toDateString() === y.toDateString())
             return "yesterday " + hm;
-        return Qt.formatDate(d, "dd.MM.");
+        return Qt.formatDate(d, "d MMM");
     }
 }

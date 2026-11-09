@@ -72,7 +72,7 @@ Item {
                 color: Theme.crit
                 text: !root.d ? ""
                     : root.d.conflict.length ? "Changed here and on GitHub: " + root.d.conflict.join(", ")
-                    : root.d.foreign ? root.d.foreign + " change(s) on GitHub not signed by your machines"
+                    : root.d.foreign ? (root.d.foreign === 1 ? "1 change on GitHub is" : root.d.foreign + " changes on GitHub are") + " not signed by your machines"
                     : "The last run did not finish"
             }
             PButton {

@@ -35,13 +35,14 @@ WlSessionLockSurface {
                 font.pixelSize: 72
                 font.weight: Font.Light
                 color: Theme.night.strong
-                text: Qt.formatTime(time.date, "hh:mm")
+                // 24 or 12 hours as in the bar (Bar > Clock); no seconds, the lock is looked at, not watched
+                text: Prefs.time(time.date)
                 renderType: Text.NativeRendering
             }
             Label {
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: Theme.night.dim
-                text: Qt.locale().toString(time.date, "dddd, d. MMMM")
+                text: Qt.locale().toString(time.date, "dddd, d MMMM")
             }
             Item {
                 width: 1

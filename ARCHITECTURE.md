@@ -214,7 +214,10 @@ announced it (`bar/SyncFold.qml`), above the dimmed switches. Popups that are th
 (calendar, weather, media) start with it. The password dialog follows the same rules. Text you read
 is never `faint` (under 4.5:1 in every palette), that is for what is off; every control takes the
 keyboard through `bar/FocusRing.qml`, a 1 px line in the accent a little outside, apart from the
-frame of a checked button.
+frame of a checked button; a list that scrolls follows it. What can grow (apps playing, events) scrolls
+inside the room `BarPopup` gives, the buttons stay. A tooltip ends in its click hints, one line joined
+by "  ·  " that breaks into one hint per line when it does not fit. Times of day go through
+`Prefs.time()`, so they follow the 12/24-hour setting of the bar's clock.
 
 *Considered:* keeping the wallpaper as an option next to the plain look. Two looks in every QML file
 double what has to be kept in step; the point was less.

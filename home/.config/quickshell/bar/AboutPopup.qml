@@ -32,7 +32,7 @@ Item {
         const then = new Date(t * 1000), now = new Date();
         const midnight = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
         const days = Math.round((midnight(now) - midnight(then)) / 86400000);
-        return days === 0 ? "today " + Qt.formatTime(then, "HH:mm") : days === 1 ? "yesterday" : `${days} days ago`;
+        return days === 0 ? "today " + Prefs.time(then) : days === 1 ? "yesterday" : `${days} days ago`;
     }
     function act(fn) {
         if (root.popup)
@@ -78,7 +78,7 @@ Item {
                     text: `${Apps.esc(Feeds.userName)} <font color='${Theme.dim}'>on</font> ${Apps.esc(root.info.host || "")}`
                     textFormat: Text.StyledText
                     bold: true
-                    font.pixelSize: 18
+                    font.pixelSize: Theme.fontTitle
                 }
                 Label {
                     visible: text !== ""

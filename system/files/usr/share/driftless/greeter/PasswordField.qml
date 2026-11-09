@@ -108,7 +108,7 @@ Rectangle {
     Line {
         visible: field.checking
         text: "checking …"
-        font.pixelSize: 12
+        font.pixelSize: 15
         color: field.theme.dim
     }
 

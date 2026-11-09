@@ -14,7 +14,30 @@ Seg {
     spacing: 4
     padL: compact ? 4 : 7
     padR: compact ? 4 : 8
-    tip: (d?.tooltip ?? "").replace(/\n/g, "<br>")
+    tip: syncTip()
+    // in short, the popup has the rest; built here so the colours follow the theme
+    function syncTip() {
+        const x = d?.details;
+        if (!x)
+            return "";
+        const n = (k, one, many) => k + " " + (k === 1 ? one : many);
+        const lines = [`<b>driftless sync</b>  ·  ${Apps.esc(x.modeName)}`];
+        if (x.running)
+            lines.push("Running right now …");
+        else if (x.last)
+            lines.push(`Last run ${x.last.ago}: ${Apps.esc(x.last.result)}`);
+        const warn = t => `<font color='${Theme.warn}'>${t}</font>`;
+        if (x.packages)
+            lines.push(warn(n(x.packages, "listed package", "listed packages") + " to look at"));
+        if (x.incoming && x.mode !== "auto")
+            lines.push(warn(n(x.incoming.count, "change on GitHub waits", "changes on GitHub wait") + " for you"));
+        if (x.joining.length)
+            lines.push(warn("New machine: " + Apps.esc(x.joining.map(j => j.host).join(", "))));
+        if (x.conflict.length || x.foreign)
+            lines.push(`<font color='${Theme.crit}'>Needs a look: open the details</font>`);
+        lines.push("", `<font color='${Theme.dim}'>Click: details  ·  Right: sync now  ·  Middle: pause / resume</font>`);
+        return lines.join("<br>");
+    }
     popupKey: "sync"
     popupComponent: Component {
         SyncPopup {}

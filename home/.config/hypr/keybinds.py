@@ -85,7 +85,9 @@ def main():
         print(text)
         return
     # only to look up: the chosen line does nothing
-    subprocess.run(["walker", "--dmenu", "-p", "Keybindings"], input=text, text=True, capture_output=True, check=False)
+    subprocess.run(
+        ["walker", "--dmenu", "-p", "Keyboard shortcuts"], input=text, text=True, capture_output=True, check=False
+    )
 
 
 if __name__ == "__main__":

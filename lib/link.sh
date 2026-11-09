@@ -107,7 +107,7 @@ link_one() {
         kept=$(cd "$live" && find . \( -type f -o -type l \) | while read -r f; do [[ -e $src/$f || -L $src/$f ]] || echo "$f"; done)
         if [[ -n $kept ]]; then
           cp -an "$live/." "$src/"
-          echo "kept in the repository (untracked): $(wc -l <<< "$kept") file(s) of ~/$target"
+          echo "kept in the repository (untracked): $(plural "$(wc -l <<< "$kept")" file files) of ~/$target"
         fi
       fi
       backup_live "$target"

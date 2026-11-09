@@ -158,7 +158,8 @@ hypr() { echo "$(home "$1")/.config/hypr/hyprland.lua"; }
 @test "the running code's notification after an update still works when notify takes a title now" {
   # B's sync runs code that calls notify as before v2.24 (no title); the libraries it loads during
   # that run (reload_code) are the new ones
-  sed -i 's|notify normal "Taken over from GitHub" "$APPLIED file(s)"|notify normal "Taken over from GitHub: $APPLIED file(s)"|' "$(repo A)/lib/sync.sh"
+  sed -i 's|notify normal "Taken over from GitHub" "$(plural "$APPLIED" file files)"|notify normal "Taken over from GitHub: $APPLIED files"|' "$(repo A)/lib/sync.sh"
+  grep -q 'notify normal "Taken over from GitHub: ' "$(repo A)/lib/sync.sh"
   git -C "$(repo A)" commit -qam "notify as before v2.24"
   dl A sync
   dl B sync

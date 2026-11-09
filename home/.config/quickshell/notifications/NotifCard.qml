@@ -183,11 +183,10 @@ Rectangle {
                 Label {
                     id: timeLabel
                     anchors.left: appLabel.right
-                    anchors.leftMargin: card.showApp ? 6 : 0
                     anchors.verticalCenter: parent.verticalCenter
                     small: true
                     color: Theme.dim
-                    text: (card.showApp ? "·  " : "") + Notifs.ago(card.time)
+                    text: (card.showApp ? "  ·  " : "") + Notifs.ago(card.time)
                 }
             }
 
@@ -322,7 +321,8 @@ Rectangle {
         }
     }
 
-    // ×: on hover
+    // ×: on hover, and for the keyboard on focus (hidden by opacity, not `visible`: an invisible item
+    // is no Tab stop, and without it a card without an action could not be dismissed by keyboard)
     Rectangle {
         anchors.top: parent.top
         anchors.right: parent.right
@@ -330,7 +330,7 @@ Rectangle {
         width: 22
         height: 22
         color: closeMouse.containsMouse ? Theme.hover : "transparent"
-        visible: card.hovered
+        opacity: card.hovered || closeRing.activeFocus ? 1 : 0
         Icon {
             anchors.centerIn: parent
             size: 13
@@ -345,7 +345,14 @@ Rectangle {
             onClicked: Notifs.dismiss(card.nid)
         }
         FocusRing {
-            onActivated: Notifs.dismiss(card.nid)
+            id: closeRing
+            // by keyboard the focus goes on to what comes next (the next card), not nowhere
+            onActivated: {
+                const next = closeRing.nextItemInFocusChain(true);
+                Notifs.dismiss(card.nid);
+                if (next && next !== closeRing)
+                    Qt.callLater(() => next.forceActiveFocus());
+            }
         }
     }
 

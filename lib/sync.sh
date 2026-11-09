@@ -90,7 +90,7 @@ verify_incoming() {
     notify_once untrusted normal "New machine" "$joining: nothing taken over until you trust it (sync icon)"
   else
     RESULT=untrusted
-    notify_once untrusted critical "Unsigned changes on GitHub" "$(wc -l <<< "$bad") commit(s) not signed by any of your machines. Nothing taken over (sync icon: Log)"
+    notify_once untrusted critical "Unsigned changes on GitHub" "$(plural "$(wc -l <<< "$bad")" commit commits) not signed by any of your machines. Nothing taken over (sync icon: Log)"
   fi
   exit 0
 }
@@ -324,7 +324,7 @@ cmd_sync() {
       incoming=$(git_ rev-list --count HEAD..origin/main)
       if [[ $MODE == review ]] && ((incoming && ! NOW)); then
         RESULT=held
-        notify_once held normal "Changes from your other machines" "$incoming change(s) wait until you take them over (sync icon)"
+        notify_once held normal "Changes from your other machines" "$(plural "$incoming" "change waits" "changes wait") until you take them over (sync icon)"
         return 0
       fi
       if ! update; then
@@ -347,6 +347,6 @@ cmd_sync() {
     git_net push -q origin HEAD:main || RESULT="push failed"
   fi
   refresh_bundle || warn "bundle not written"
-  ((APPLIED)) && [[ -n $old ]] && notify normal "Taken over from GitHub" "$APPLIED file(s)"
+  ((APPLIED)) && [[ -n $old ]] && notify normal "Taken over from GitHub" "$(plural "$APPLIED" file files)"
   return 0
 }

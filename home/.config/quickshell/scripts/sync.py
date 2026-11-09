@@ -11,7 +11,6 @@ import os
 import re
 import subprocess
 import time
-from html import escape
 
 HOME = os.path.expanduser("~")
 # the repository: where ~/.local/bin/driftless points (driftless setup links it)
@@ -115,20 +114,9 @@ def incoming_data(incoming):
     }
 
 
-def last_change_per_machine(has_origin):
-    """When each machine last sent a change, newest first."""
-    last_seen = {}
-    for entry in git("log", "-300", LOG, "origin/main" if has_origin else "HEAD").splitlines():
-        timestamp, _, _, host = (entry.split("\x1f") + [""])[:4]
-        host = host.strip()
-        if host and host not in last_seen:
-            last_seen[host] = int(timestamp)
-    return [{"host": host, "ago": ago(ts)} for host, ts in sorted(last_seen.items(), key=lambda item: -item[1])]
-
-
 def main():
     if not os.path.isdir(REPO + "/.git"):
-        print('{"text":"","class":"none","tooltip":false}')
+        print('{"text":"","class":"none"}')
         return
     mode = read("mode", "review")
     installs = read("installs", "on")
@@ -185,25 +173,8 @@ def main():
         "foreign": foreign,
         "conflict": conflict,
         "signing": signing,
-        "machines": last_change_per_machine(has_origin),
         "repo": REPO,
     }
-
-    # the tooltip: in short, the popup has the rest
-    tooltip = [f"<b>driftless sync</b>  ·  {escape(details['modeName'])}"]
-    if busy:
-        tooltip.append("Running right now …")
-    elif last:
-        tooltip.append(f"Last run {last['ago']}: {escape(last['result'])}")
-    if waiting:
-        tooltip.append(f"<font color='#ffb454'>{len(waiting)} listed package(s) to look at</font>")
-    if incoming and mode != "auto":
-        tooltip.append(f"<font color='#ffb454'>{incoming} change(s) on GitHub wait for you</font>")
-    if joining:
-        tooltip.append(f"<font color='#ffb454'>New machine: {escape(', '.join(h for h, _ in joining))}</font>")
-    if conflict or foreign:
-        tooltip.append("<font color='#ff6b6b'>Needs a look: open the details</font>")
-    tooltip += ["", "Click: details  ·  Right: sync now  ·  Middle: pause / resume"]
 
     print(
         json.dumps(
@@ -212,7 +183,6 @@ def main():
                 "mark": MARK.get(state, "").strip(),
                 "count": needs,
                 "class": state,
-                "tooltip": "\n".join(tooltip),
                 "details": details,
             }
         )

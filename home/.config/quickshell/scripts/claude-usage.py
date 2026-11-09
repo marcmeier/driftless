@@ -112,7 +112,7 @@ def token_rows(days, today):
     for day, counts in sorted(days.items(), reverse=True):
         if (today - day).days >= DAYS:
             continue
-        label = "Today" if day == today else "Yesterday" if (today - day).days == 1 else f"{day:%a %d %b}"
+        label = "Today" if day == today else "Yesterday" if (today - day).days == 1 else f"{day:%a} {day.day} {day:%b}"
         tokens_in, tokens_out, cache_write, cache_read = counts
         rows.append(
             {"label": label, "in": tokens_in, "out": tokens_out, "cacheWrite": cache_write, "cacheRead": cache_read}

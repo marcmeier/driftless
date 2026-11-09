@@ -16,8 +16,9 @@ if ((ok)) && grep -q 'Detected change in config file' <<< "$out"; then
 fi
 [[ -n $out ]] && printf '%s\n' "$out" >&2
 if ((ok == 0)); then
-  # recovered: replace the sticky failure notification by a short-lived one
-  [[ -e $STATE ]] && notify-send -a calendar -h "$SYNC_ID" -u normal -t 4000 "Calendar sync restored" "<small>$(date +%H:%M)</small>" 2> /dev/null
+  # recovered: replace the sticky failure notification by a short-lived one (the card says when,
+  # in the clock's 12 or 24 hours; no time of its own in the text)
+  [[ -e $STATE ]] && notify-send -a calendar -h "$SYNC_ID" -u normal -t 4000 "Calendar sync restored" 2> /dev/null
   rm -f "$STATE"
 else
   # password.fetch failed: the command that reads the keyring did not start, or it failed
@@ -27,7 +28,7 @@ else
     reason="vdirsyncer sync failed (run: vdirsyncer sync)"
   fi
   if [[ ! -e $STATE ]]; then
-    notify-send -a calendar -h "$SYNC_ID" -u critical "Calendar sync failed" "$reason"$'\n'"<small>$(date +%H:%M)</small>" 2> /dev/null || true
+    notify-send -a calendar -h "$SYNC_ID" -u critical "Calendar sync failed" "$reason" 2> /dev/null || true
   fi
   printf '%s\n' "$reason" > "$STATE"
 fi

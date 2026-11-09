@@ -30,6 +30,7 @@ HOST_CONFIG = os.path.expanduser("~/.config/driftless/host/bar.json")
 DEFAULT_COMPACT = ["eDP-1", "eDP-2"]
 SECTIONS = ("modules-left", "modules-center", "modules-right")
 MODES = ("auto", "spacious", "compact")
+NARROW = 1280  # logical px: narrower outputs get the compact bar in "auto"
 
 NAMES = {
     "group/user": "User",
@@ -117,7 +118,12 @@ def variant_for(monitor, layout, narrow):
     mode = bar_mode(layout)
     if mode != "auto":
         return mode
-    return "compact" if monitor.get("name") in narrow or monitor.get("description") in narrow else "spacious"
+    if monitor.get("name") in narrow or monitor.get("description") in narrow:
+        return "compact"
+    # as the shell (BarLayout.variantFor): under 1280 px logical the full-size bar does not fit
+    turned = monitor.get("transform", 0) % 2
+    width = monitor.get("height" if turned else "width", 0) / (monitor.get("scale") or 1)
+    return "compact" if 0 < width < NARROW else "spacious"
 
 
 def load_layout(path=LAYOUT):

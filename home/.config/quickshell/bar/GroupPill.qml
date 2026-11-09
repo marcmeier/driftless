@@ -22,6 +22,25 @@ Pill {
     }
     shown: firstShown >= 0
 
+    // a member that gives way (the clock's event text) makes the group give way: the bar counts only
+    // the part that does not (Bar.qml, Section.rigidWidth)
+    readonly property bool flexible: {
+        for (let i = 0; i < rep.count; i++)
+            if (shownAt(i) && rep.itemAt(i).widget.flexible)
+                return true;
+        return false;
+    }
+    readonly property real rigidPart: {
+        let w = padding * 2;
+        for (let i = 0; i < rep.count; i++) {
+            if (!shownAt(i))
+                continue;
+            const d = rep.itemAt(i);
+            w += (d.widget.flexible ? d.widget.rigidPart || 0 : d.widget.width) + (d.line ? 1 : 0);
+        }
+        return w;
+    }
+
     Repeater {
         id: rep
         model: group.members

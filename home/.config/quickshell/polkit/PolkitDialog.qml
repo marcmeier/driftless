@@ -8,7 +8,7 @@ import "../bar"
 // packages from the lists, a mount, an app's settings. The shell is the session's polkit agent; the
 // dialog is a plain box over the focused screen, which it covers in the desk colour: what is asked and
 // by which action, the password. driftless's own request (installing listed packages, after the review in
-// bar/PackagesSection.qml) says which packages and why, instead of the raw command line. Enter: authenticate · Esc or "Cancel": no.
+// bar/PackagesSection.qml) says which packages and why, instead of the raw command line. Enter: authenticate ("Install" for driftless's packages) · Esc or "Cancel": no.
 // Without the shell there is no agent: polkit then says so to the program that asked.
 Scope {
     id: root
@@ -107,20 +107,30 @@ Scope {
                     // driftless's own request under its mark, like the sync icon's popup it comes from
                     PopupHeader {
                         icon: root.packages ? "" : "\u{F099D}"
-                        title: root.packages ? "driftless" : "Authentication required"
+                        title: root.packages ? "driftless" : "Password needed"   // polkit's own text says what for
                         status: !root.packages ? "" : root.packages.length === 1 ? "Install 1 package"
                                 : "Install " + root.packages.length + " packages"
                     }
 
-                    // what is asked, in the program's words
+                    // driftless's request: the names first, in the text colour, they are what you agree to
+                    Label {
+                        visible: !!root.packages
+                        width: parent.width
+                        text: root.packages ? root.packages.join(", ") : ""
+                        wrapMode: Text.Wrap
+                        maximumLineCount: 4
+                        elide: Text.ElideRight
+                        lineHeight: 1.1
+                    }
+                    // what is asked, in the program's words (or why driftless asks)
                     Label {
                         width: parent.width
                         text: root.packages
-                              ? root.packages.join(", ") + "\n\nInstalling changes the system for every user, so it needs your password."
+                              ? "Installing changes the system for every user, so it needs your password."
                                 + " driftless uses it for pacman -S with exactly these names, nothing else."
                               : root.flow ? root.flow.message : ""
                         wrapMode: Text.Wrap
-                        maximumLineCount: root.packages ? 8 : 4
+                        maximumLineCount: 4
                         elide: Text.ElideRight
                         color: Theme.dim
                         lineHeight: 1.1
@@ -171,7 +181,7 @@ Scope {
                             onClicked: root.cancel()
                         }
                         PButton {
-                            text: "Authenticate"
+                            text: root.packages ? "Install" : "Authenticate"
                             accent: true
                             enabled: root.password !== "" && !root.checking
                             onClicked: root.submit()

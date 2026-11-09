@@ -14,6 +14,7 @@ PanelWindow {
     property bool open: false
     property string key: ""
     property real anchorX: 0
+    signal escaped                 // closed with Esc (the bar's keyboard mode goes on from there)
 
     screen: bar.screen
     anchors {
@@ -78,7 +79,10 @@ PanelWindow {
         border.color: Theme.cardBorder
         clip: true
         focus: true
-        Keys.onEscapePressed: win.close()
+        Keys.onEscapePressed: {
+            win.escaped();
+            win.close();
+        }
 
         Loader {
             id: loader

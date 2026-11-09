@@ -18,7 +18,7 @@ Rectangle {
         Text {
             anchors.verticalCenter: parent.verticalCenter
             font.family: chip.theme.font
-            font.pixelSize: 14
+            font.pixelSize: 16
             color: chip.clickable && chipMouse.containsMouse ? chip.theme.text : chip.theme.dim
             text: chip.icon
             renderType: Text.NativeRendering
@@ -27,7 +27,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             visible: chip.label !== ""
             font.family: chip.theme.font
-            font.pixelSize: 12
+            font.pixelSize: 15
             color: chip.clickable && chipMouse.containsMouse ? chip.theme.text : chip.theme.dim
             text: chip.label
             textFormat: Text.PlainText

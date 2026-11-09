@@ -172,6 +172,7 @@ hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal), { description = "Term
 hl.bind(mainMod .. " + W", hl.dsp.window.close(), { description = "Close window" })
 hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/quickshell call power toggle"), { description = "Power menu: lock, log out, suspend, reboot, shut down" })
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("~/.config/quickshell/scripts/lock"), { description = "Lock the screen" })
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/quickshell call bar keys"), { description = "Bar from the keyboard: arrows choose, Enter opens, Esc leaves" })
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/quickshell call bar popup notifications"), { description = "Notifications: the list" })
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("quickshell ipc -p ~/.config/quickshell call notifications dnd toggle"), { description = "Notifications: do not disturb on / off" })
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd("~/.config/quickshell/scripts/widgets.py"), { description = "Bar widgets: show, hide, move" }) -- the bar's widget manager
@@ -186,8 +187,8 @@ hl.bind("CTRL + PRINT", hl.dsp.exec_cmd('mkdir -p ~/Pictures/Screenshots && f=~/
 -- Color picker: click a pixel -> hex code in clipboard + notification (Esc cancels)
 hl.bind(mainMod .. " + K", hl.dsp.exec_cmd("pidof hyprpicker || hyprpicker -a -n -q"), { description = "Colour picker: hex code to clipboard" })
 -- Every keybinding, searchable (keybinds.py lists the descriptions of these binds)
-hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("~/.config/hypr/keybinds.py"), { description = "Keybindings: search all shortcuts" })
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { description = "Float window (toggle)" })
+hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd("~/.config/hypr/keybinds.py"), { description = "Keyboard shortcuts: search them all" })
+hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { description = "Float window: on / off" })
 hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(menu), { description = "App launcher (walker): apps, calculator, web search" })
 hl.bind(mainMod .. " + period", hl.dsp.exec_cmd("~/.config/hypr/emoji-picker.sh"), { description = "Emoji picker" })
 -- Dictation (dictate.py): tap to start and again to stop, or hold and let go; with SHIFT without the LLM
@@ -198,10 +199,10 @@ hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd("~/.config/hypr/dictate.py up
 -- Ask Claude by voice (notch/notch.py): same keys as dictation, the answer appears in a bubble at the top and is spoken
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/notch/notch.py down"), { description = "Ask Claude by voice: tap to start and stop, hold to talk" })
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd("~/.config/hypr/notch/notch.py up"), { release = true })
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { description = "Pseudo-tile window" })
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { description = "Window keeps its own size in its tile: on / off" })
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd("~/.config/hypr/display-mode.sh"), { description = "Display mode: extend, mirror, one screen" })
 hl.bind("XF86Display", hl.dsp.exec_cmd("~/.config/hypr/display-mode.sh"), { description = "Display mode: extend, mirror, one screen" })
-hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"), { description = "Toggle split direction" }) -- dwindle only
+hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"), { description = "Split side by side or one above the other" }) -- dwindle only
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left",  hl.dsp.focus({ direction = "left" }), { description = "Move focus" })
@@ -288,7 +289,7 @@ hl.window_rule({
 -- once, like everything in the plain look (no compositor fade either)
 hl.layer_rule({
     name  = "shell-popups-no-anim",
-    match = { namespace = "^(driftless-popup|driftless-tooltip|driftless-notifications|driftless-osd|driftless-power|driftless-polkit)$" },
+    match = { namespace = "^(driftless-popup|driftless-tooltip|driftless-notifications|driftless-osd|driftless-power|driftless-polkit|driftless-keys)$" },
 
     no_anim = true,
 })
