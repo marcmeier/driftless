@@ -4,6 +4,26 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.28.0 (2026-11-09): a new look
+
+### Changed
+- **Inter for words, the mono for what is fixed width**: the shell, walker, GTK and Qt apps, the login
+  and the lock screen set their text in Inter; clocks, glyphs, the calculator, code and the terminal
+  stay in JetBrains Mono Nerd Font. Figures without letters take Inter's tabular digits, so counting
+  values do not jump. The 0.4 px letter spacing goes. Run `driftless system` once for the login
+  screen.
+- **Room instead of lines**: groups in the bar and the popups part by space, not by separators; the
+  bar is 36 px high and popups have a little more room inside.
+- **A soft shadow on everything that floats**: the bar, popups, tooltips, notifications, the
+  on-screen display, the Claude bubble, the power menu, the password dialog, walker and the windows.
+  Everything stays opaque and square, there is no blur.
+- **Short, soft motion, nothing bounces**: cards fade in (popups slide 4 px from the bar), windows
+  fade in while they grow the last few percent, workspaces slide, the focus border changes colour
+  softly, levels and sliders glide to a new value, a notification that goes slides out, the lock's
+  clock and password fade in and out. Hovers and switches change in a moment.
+- **walker sets the desktop back**: while it is open, everything behind it is dimmed by 28 %, as the
+  power menu and the password dialog cover it with their scrim.
+
 ## v2.27.0 (2026-11-09): the keyboard everywhere, a bar that makes room
 
 ### Added

@@ -38,7 +38,8 @@ Item {
         anchors.fill: parent
         anchors.bottomMargin: slot.inPopup ? 0 : 1
         color: Theme.hover
-        visible: slot.hovered || slot.selected
+        opacity: slot.hovered || slot.selected ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: Theme.quick } }
     }
 
     // an icon name the icon theme does not know draws Qt's magenta squares: then the icon of the app's

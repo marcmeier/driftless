@@ -177,6 +177,7 @@ Item {
                     width: parent.width
                     height: 32
                     color: modelData === root.p ? Theme.raised : pick.containsMouse ? Theme.hover : "transparent"
+                    Behavior on color { ColorAnimation { duration: Theme.quick } }
                     Icon {
                         x: 8
                         anchors.verticalCenter: parent.verticalCenter

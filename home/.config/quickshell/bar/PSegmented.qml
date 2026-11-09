@@ -32,6 +32,7 @@ Rectangle {
                 width: cellRow.implicitWidth + 20
                 height: row.height
                 color: on ? Theme.raised : cellMouse.containsMouse ? Theme.hover : "transparent"
+                Behavior on color { ColorAnimation { duration: Theme.quick } }
 
                 // the line between two choices
                 Rectangle {

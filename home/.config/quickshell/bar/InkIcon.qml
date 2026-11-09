@@ -26,7 +26,7 @@ Item {
         x: -icon.ink.x
         y: -icon.ink.y - baselineOffset
         text: icon.text
-        font.family: Theme.font
+        font.family: Theme.mono
         font.pixelSize: icon.size
         color: icon.color
         textFormat: Text.PlainText

@@ -6,7 +6,7 @@ fit = "Cover"
 [GTK]
 application_prefer_dark_theme = true
 cursor_theme_name = "capitaine-cursors"
-font_name = "JetBrainsMono Nerd Font 13"
+font_name = "Inter 13"
 
 [appearance]
 greeting_msg = "@HOSTNAME@"

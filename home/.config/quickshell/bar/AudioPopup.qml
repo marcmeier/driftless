@@ -251,6 +251,7 @@ Item {
                 width: devices.width
                 height: 30
                 color: isCurrent ? Theme.raised : hover.containsMouse ? Theme.hover : "transparent"
+                Behavior on color { ColorAnimation { duration: Theme.quick } }
                 Icon {
                     x: 6
                     anchors.verticalCenter: parent.verticalCenter

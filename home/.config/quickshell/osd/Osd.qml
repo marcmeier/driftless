@@ -135,6 +135,17 @@ Scope {
         WlrLayershell.layer: WlrLayer.Overlay
         WlrLayershell.namespace: "driftless-osd"
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+        // it fades in when it comes; a change while it is there shows at once
+        onVisibleChanged: if (visible) enter.restart()
+        NumberAnimation {
+            id: enter
+            target: pill
+            property: "opacity"
+            from: 0
+            to: 1
+            duration: Theme.enter
+            easing.type: Easing.OutCubic
+        }
 
         Rectangle {
             id: pill
@@ -147,6 +158,8 @@ Scope {
             color: Theme.card
             border.width: 1
             border.color: Theme.cardBorder
+            layer.enabled: true
+            layer.effect: CardShadow {}
 
             Row {
                 id: row
@@ -172,6 +185,12 @@ Scope {
                         width: parent.width * root.value
                         height: parent.height
                         color: root.off ? Theme.dim : Theme.accent
+                        Behavior on width {
+                            NumberAnimation {
+                                duration: Theme.glide
+                                easing.type: Easing.OutCubic
+                            }
+                        }
                     }
                 }
 

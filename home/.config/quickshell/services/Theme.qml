@@ -6,8 +6,8 @@ import QtQuick
 
 // The shell's look in one place (the bar, the notifications, the power menu, the on-screen display, the
 // password dialog): the plain look, or one of the named palettes (Catppuccin, Nord, ...) in its place.
-// Background and one accent, everything opaque with a 1 px line around it, square corners, nothing that
-// fades, glows or blends. theme/apply.py writes ~/.config/theme/colors.json with the named colours of
+// Background and one accent, square corners with a 1 px line around them, everything opaque; the
+// cards (popups, tooltips, notifications) lift off with a soft shadow and come in with a short fade; hovers and switches change in a moment, not at once. theme/apply.py writes ~/.config/theme/colors.json with the named colours of
 // the look that is on, dark or light, in the chosen palette (theme/scheme.py); the shell follows a
 // change at once. The lock screen keeps the palette's dark look in both (`night`), like the login screen
 // it matches.
@@ -43,13 +43,13 @@ Singleton {
 
     // ---- the parts, made of the above ----
     readonly property color surface: glass                            // the bar
-    readonly property color card: glass                               // popups, tooltips, cards
+    readonly property color card: glass                              // popups, tooltips, cards
     readonly property color raised: raisedBase
     readonly property color well: Qt.alpha(overlay, 0.035)            // a box inside a card
     readonly property color hover: Qt.alpha(overlay, light ? 0.06 : 0.07)
     readonly property color border: lineColor
     readonly property color cardBorder: lineColor
-    readonly property color separator: lineColor
+    readonly property color separator: "transparent"                  // groups part by the room around them, not a line
     readonly property color track: lineColor                          // under a slider, a meter, a switch
     readonly property color faint: Qt.alpha(dim, light ? 0.72 : 0.6)  // what is off or decoration, never text to read (under 4.5:1)
     readonly property color knob: strong                              // a slider's knob, a switch's off thumb
@@ -73,21 +73,34 @@ Singleton {
         readonly property string font: theme.font
     }
 
-    readonly property string font: "JetBrainsMono Nerd Font"
+    // words in Inter, its figures all one width (Label sets tnum); the clocks and the glyphs in the mono
+    readonly property string font: "Inter"
+    readonly property string mono: "JetBrainsMono Nerd Font"
 
     // text sizes, the same 16 px as GTK (12 pt, dconf.ini), Qt (qt6ct.conf), walker and ghostty
     readonly property int fontSize: 16
     readonly property int fontSmall: 15
     readonly property int fontCaption: 14
-    readonly property int fontClock: 17
+    readonly property int fontClock: 19
     readonly property int fontCompact: 14
     readonly property int fontTitle: 18     // a title of its own: a settings page, the machine in "About"
     readonly property int fontFigure: 22    // the one big number of a popup (the temperature)
+    readonly property real letterSpacing: 0
     // JetBrains Mono is 9.6 px wide at 16 px: this sets it on the 10 px grid ghostty has
-    readonly property real letterSpacing: 0.4
+    readonly property real monoSpacing: 0.4
+
+    // ---- depth and motion ----
+    readonly property color shadow: "#000000"            // what CardShadow casts
+    readonly property real shadowOpacity: light ? 0.22 : 0.6
+    readonly property int quick: 100         // a hover, a switch, a selection
+    readonly property int enter: 120         // a card coming in (it goes at once)
+    readonly property int rise: 4            // and the way it slides while it does
+    readonly property int glide: 200         // a level moving to its new value
+    readonly property int leave: 160         // a notification sliding out, the lock fading out
+    readonly property int lockFade: 220      // the lock coming over the desk
 
     // the bar: one flat strip along the top edge, a line below it (the compact bar is a bit tighter)
-    readonly property int barHeight: 32
+    readonly property int barHeight: 36
     readonly property int barGap: 0
     readonly property int barSide: 4
 

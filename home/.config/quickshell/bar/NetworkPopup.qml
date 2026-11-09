@@ -55,6 +55,7 @@ Item {
                     width: column.width
                     height: 36
                     color: modelData.connected ? Theme.raised : mouse.containsMouse ? Theme.hover : "transparent"
+                    Behavior on color { ColorAnimation { duration: Theme.quick } }
 
                     Icon {
                         x: 8

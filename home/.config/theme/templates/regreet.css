@@ -1,7 +1,7 @@
 /* ReGreet theme (the fallback login screen), the plain look in night colours like the shell's
    greeter: no picture, no card, square, 1 px lines, the accent on focus. */
 * {
-  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-family: "Inter", sans-serif;
   font-size: 13px;
 }
 
@@ -75,6 +75,7 @@ label.error,
 
 /* Clock: the only label directly inside a frame */
 frame > label {
+  font-family: "JetBrainsMono Nerd Font", monospace;
   font-size: 72px;
   font-weight: 300;
   color: @fg_strong@;

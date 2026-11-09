@@ -43,9 +43,13 @@ Rectangle {
     implicitHeight: content.implicitHeight + 2 * pad
     readonly property int pad: 10
     color: !popup && mouse.containsMouse ? Theme.hover : Theme.card
+    Behavior on color { ColorAnimation { duration: Theme.quick } }
     border.width: 1
     border.color: critical ? Theme.crit : Theme.cardBorder
     clip: true
+    // a popup lifts off the desktop; in the list it lies in its card
+    layer.enabled: popup
+    layer.effect: CardShadow {}
 
     HoverHandler {
         id: hover
@@ -302,6 +306,7 @@ Rectangle {
                         width: 24
                         height: 24
                         color: sendMouse.containsMouse ? Theme.hover : "transparent"
+                        Behavior on color { ColorAnimation { duration: Theme.quick } }
                         Icon {
                             anchors.centerIn: parent
                             size: 14
@@ -330,7 +335,9 @@ Rectangle {
         width: 22
         height: 22
         color: closeMouse.containsMouse ? Theme.hover : "transparent"
+        Behavior on color { ColorAnimation { duration: Theme.quick } }
         opacity: card.hovered || closeRing.activeFocus ? 1 : 0
+        Behavior on opacity { NumberAnimation { duration: Theme.quick; easing.type: Easing.OutCubic } }
         Icon {
             anchors.centerIn: parent
             size: 13

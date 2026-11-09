@@ -222,6 +222,30 @@ by "  ·  " that breaks into one hint per line when it does not fit. Times of da
 *Considered:* keeping the wallpaper as an option next to the plain look. Two looks in every QML file
 double what has to be kept in step; the point was less.
 
+*Since:* a little depth and motion on top, at the owner's wish (the plain look was tidy, but every
+part spoke at the same volume). The shell's words are in Inter, its clocks and glyphs stay in the mono
+(`Theme.font` and `Theme.mono`; a `Label` without letters takes tabular figures, in words Inter's tnum
+would also widen the hyphen and the space). Groups part by room: `Theme.separator` is transparent,
+only the settings' sidebar and a menu's separators keep a line. The cards (popups, tooltips,
+notifications, the on-screen display) are `Theme.card`, opaque like everything (a see-through card
+over the blur let busy windows show through as noise, tried and dropped), with a soft shadow
+(`bar/CardShadow.qml`) and a fade of `Theme.enter` that only plays when they come, never when they
+go; only a notification that goes slides out (`Theme.leave`), with the window kept open for it.
+The same holds for the Claude bubble and, over the opaque desk colour, for the boxes of the power
+menu, the password dialog and the picture editor. walker casts the same shadow (`shadow_alpha` of
+`apply.py`), fades in and dims what is behind it (a layer rule `dim_around`, `decoration.dim_around`
+0.28), as the power menu and the password dialog cover it with their scrim. The bar casts a softer shadow into a see-through
+band below it that lets clicks through (`stripHeight` is what it reserves). Hovers and switches
+change over `Theme.quick`, levels (`PMeter`, `PSlider` unless dragged, the on-screen display) glide
+over `Theme.glide`. The lock: Hyprland shows a session lock opaque whatever its colour, so the desk
+colour comes at once and only the clock and the password fade (`Lock.qml` `shown`/`cover`, fully
+shown whenever no fade runs, also after a reload while locked); a veil fading from the desk to the
+desktop after unlocking did not show (Hyprland draws a black frame as the lock opens). Hyprland
+animates windows (fade with `popin 96%`), workspaces (`slide`) and the border colour with one soft
+curve, layers not (the shell fades its own). Windows cast a soft shadow; the windows themselves, the
+bar and the desktop stay opaque and square. What stays from above:
+one accent, one colour for the desktop, the popup rules.
+
 *Later:* named palettes (Catppuccin, Nord, ...) next to the plain greys. They change only colours, not
 the form, and fill the same names of `scheme.py` (what a scheme has no colour for is mixed from its
 background and text), so no template and no QML file knows which palette is on.

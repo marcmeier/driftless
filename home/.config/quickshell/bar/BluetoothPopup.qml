@@ -138,6 +138,7 @@ Item {
         width: column.width
         height: 36
         color: dev.connected ? Theme.raised : mouse.containsMouse ? Theme.hover : "transparent"
+        Behavior on color { ColorAnimation { duration: Theme.quick } }
 
         Connections {
             target: row.dev

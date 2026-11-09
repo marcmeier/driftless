@@ -102,14 +102,39 @@ hl.config({
     decoration = {
         rounding = 0,
 
-        -- plain: no shadow, no blur
-        shadow = { enabled = false },
-        blur   = { enabled = false },
+        -- how far the desktop steps back behind walker (the layer rule below); the power menu and
+        -- the password dialog cover it with their own scrim
+        dim_around = 0.28,
+
+        -- a soft shadow lifts the windows a little off the desktop; everything stays opaque, no blur
+        shadow = {
+            enabled      = true,
+            range        = 18,
+            render_power = 3,
+            offset       = "0 4",
+            color        = "rgba(00000055)",
+        },
+        blur = { enabled = false },
     },
 
-    -- plain: no animations, windows and workspaces are there at once
-    animations = { enabled = false },
+    animations = { enabled = true },
 })
+
+-- Motion as in the shell: short and soft, nothing that bounces (speed 1 = 100 ms). Windows fade in
+-- while they grow the last few percent, workspaces slide (the bar's workspace line glides with them),
+-- the focus border changes colour in a moment. Layers (the shell, walker) fade in by themselves.
+hl.curve("out", { type = "bezier", points = { {0.33, 1}, {0.68, 1} } })
+hl.animation({ leaf = "global",           enabled = true,  speed = 1.5, bezier = "out" })
+hl.animation({ leaf = "windowsIn",        enabled = true,  speed = 1.5, bezier = "out", style = "popin 96%" })
+hl.animation({ leaf = "windowsOut",       enabled = true,  speed = 1.2, bezier = "out", style = "popin 96%" })
+hl.animation({ leaf = "windowsMove",      enabled = true,  speed = 1.5, bezier = "out" })
+hl.animation({ leaf = "fadeIn",           enabled = true,  speed = 1.5, bezier = "out" })
+hl.animation({ leaf = "fadeOut",          enabled = true,  speed = 1.2, bezier = "out" })
+hl.animation({ leaf = "border",           enabled = true,  speed = 1,   bezier = "out" })
+hl.animation({ leaf = "borderangle",      enabled = false })
+hl.animation({ leaf = "workspaces",       enabled = true,  speed = 1.8, bezier = "out", style = "slide" })
+hl.animation({ leaf = "specialWorkspace", enabled = true,  speed = 1.8, bezier = "out", style = "slidevert" })
+hl.animation({ leaf = "layers",           enabled = false })
 
 
 -- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
@@ -285,13 +310,21 @@ hl.window_rule({
     no_focus = true,
 })
 
--- The shell's popups, tooltips, notifications, on-screen display, power menu and password dialog appear at
--- once, like everything in the plain look (no compositor fade either)
+-- The shell's popups, tooltips, notifications, on-screen display, power menu and password dialog: the shell
+-- fades them in itself, the compositor adds no animation of its own
 hl.layer_rule({
     name  = "shell-popups-no-anim",
     match = { namespace = "^(driftless-popup|driftless-tooltip|driftless-notifications|driftless-osd|driftless-power|driftless-polkit|driftless-keys)$" },
 
     no_anim = true,
+})
+
+-- walker: the desktop steps back while you look for something, as behind the power menu
+hl.layer_rule({
+    name  = "walker-dim",
+    match = { namespace = "^walker$" },
+
+    dim_around = true,
 })
 
 -- hyprpicker: no fade on the frozen overlay, so the picker appears/disappears instantly

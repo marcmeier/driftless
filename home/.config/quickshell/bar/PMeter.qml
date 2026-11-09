@@ -16,5 +16,11 @@ Rectangle {
         width: parent.width * Math.min(meter.percent, 100) / 100
         height: parent.height
         color: meter.tone
+        Behavior on width {
+            NumberAnimation {
+                duration: Theme.glide
+                easing.type: Easing.OutCubic
+            }
+        }
     }
 }

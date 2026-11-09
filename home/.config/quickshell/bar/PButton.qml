@@ -19,8 +19,10 @@ Rectangle {
     implicitHeight: 32
     opacity: enabled ? 1 : 0.4
     color: accent ? Theme.accent : mouse.containsMouse ? Theme.hover : "transparent"
+    Behavior on color { ColorAnimation { duration: Theme.quick } }
     border.width: accent || flat && !checked ? 0 : 1
     border.color: checked ? Theme.accent : Theme.border
+    Behavior on border.color { ColorAnimation { duration: Theme.quick } }
 
     Row {
         id: row

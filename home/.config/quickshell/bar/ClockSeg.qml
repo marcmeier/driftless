@@ -84,6 +84,7 @@ Seg {
         text: Qt.formatDateTime(clock.date, (Prefs.clock24 ? "HH:mm" : "h:mm") + (Prefs.clockSeconds ? ":ss" : "")
                                 + (Prefs.clock24 ? "" : " AP"))
         bold: true
+        mono: true
         font.pixelSize: seg.compact ? Theme.fontSmall : Theme.fontClock
         font.letterSpacing: seg.compact ? 0.5 : 1
     }

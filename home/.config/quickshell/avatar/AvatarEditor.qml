@@ -103,6 +103,8 @@ Scope {
             color: Theme.card
             border.width: 1
             border.color: Theme.cardBorder
+            layer.enabled: true
+            layer.effect: CardShadow {}
             focus: root.open
             Keys.onPressed: e => {
                 if (e.key === Qt.Key_Escape) {

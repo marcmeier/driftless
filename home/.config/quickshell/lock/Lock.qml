@@ -26,6 +26,11 @@ Scope {
     property bool checking: pam.active
     property bool unlocking: false      // the moment before the screens open
     readonly property bool locked: keep.locked
+    // Hyprland shows a lock opaque (a see-through colour stays opaque): the desk colour is there at
+    // once, the clock and the password fade in on it and out before it opens
+    property real shown: 0
+    // fully shown whenever no fade runs (after a reload of the shell while locked too)
+    readonly property real cover: fadeIn.running || unlocking ? shown : (keep.locked ? 1 : 0)
 
     // the lock outlives a reload of the shell (a sync brings new QML every hour): kept here, and
     // declared before the lock so it is restored before the lock looks at it
@@ -47,7 +52,17 @@ Scope {
         failed = false;
         unlocking = false;
         Quickshell.execDetached(["touch", marker]);
+        fadeIn.restart();
         keep.locked = true;
+    }
+    NumberAnimation {
+        id: fadeIn
+        target: root
+        property: "shown"
+        from: 0
+        to: 1
+        duration: Theme.lockFade
+        easing.type: Easing.OutCubic
     }
 
     function submit() {
@@ -64,17 +79,27 @@ Scope {
     }
 
     function done() {
+        shown = cover;   // 1, also when the shell was reloaded while locked
         unlocking = true;
         fadeOut.restart();
     }
-    Timer {
+    // what the lock shows fades out, then the screens open
+    SequentialAnimation {
         id: fadeOut
-        interval: 20
-        onTriggered: {
-            Quickshell.execDetached(["rm", "-f", root.marker]);
-            keep.locked = false;
-            root.unlocking = false;
-            root.password = "";
+        NumberAnimation {
+            target: root
+            property: "shown"
+            to: 0
+            duration: Theme.leave
+            easing.type: Easing.InCubic
+        }
+        ScriptAction {
+            script: {
+                Quickshell.execDetached(["rm", "-f", root.marker]);
+                keep.locked = false;
+                root.unlocking = false;
+                root.password = "";
+            }
         }
     }
 
@@ -94,7 +119,11 @@ Scope {
     FileView {
         path: root.marker
         printErrors: false
-        onLoaded: root.doLock()
+        onLoaded: {
+            root.doLock();
+            fadeIn.stop();   // back after a crash: there at once
+            root.shown = 1;
+        }
     }
 
     WlSessionLock {

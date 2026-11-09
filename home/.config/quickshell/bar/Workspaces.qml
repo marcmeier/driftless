@@ -3,8 +3,9 @@ import Quickshell.Hyprland
 import qs.services
 
 // Workspaces 1 to 5 and a "…" button for the rest, straight from Hyprland's IPC. The active one is
-// bright with an accent line below it (a grey one on a screen without focus), workspaces with windows
-// are text, empty ones faint, urgent ones red. Click: go there · wheel: next/previous.
+// bright with an accent line below it (a grey one on a screen without focus) that glides over when it
+// changes, workspaces with windows are text, empty ones faint, urgent ones red. Click: go there ·
+// wheel: next/previous.
 Pill {
     id: pill
 
@@ -97,6 +98,21 @@ Pill {
                 onSecondary: Actions.focusWorkspace("e-1")
             }
         }
+
+        // the line under the active one, one for the pill: it glides from the last to the next
+        Rectangle {
+            readonly property Item under: pill.active > pill.last ? more : rep.count >= pill.active && pill.active > 0 ? rep.itemAt(pill.active - 1) : null
+            visible: under !== null
+            x: under ? under.x : 0
+            width: under ? under.width : 0
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 1
+            height: 2
+            color: pill.focusedHere ? Theme.accent : Theme.dim
+            Behavior on x { NumberAnimation { duration: 2 * Theme.quick; easing.type: Easing.OutCubic } }
+            Behavior on width { NumberAnimation { duration: 2 * Theme.quick; easing.type: Easing.OutCubic } }
+            Behavior on color { ColorAnimation { duration: Theme.quick } }
+        }
     }
 
     component WsButton: Item {
@@ -122,17 +138,18 @@ Pill {
             anchors.fill: parent
             anchors.bottomMargin: 1
             color: Theme.hover
-            visible: mouse.containsMouse && !btn.isActive
+            opacity: mouse.containsMouse && !btn.isActive ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: Theme.quick } }
         }
-        // the line under the active (or urgent) one
+        // a red line under an urgent one (the active one's line is the pill's)
         Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 1
             height: 2
-            visible: btn.isActive || btn.isUrgent
-            color: btn.isUrgent ? Theme.crit : btn.focusedHere ? Theme.accent : Theme.dim
+            visible: btn.isUrgent
+            color: Theme.crit
         }
 
         Label {

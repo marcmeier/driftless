@@ -19,7 +19,7 @@ WlSessionLockSurface {
     Item {
         id: content
         anchors.fill: parent
-        visible: !surface.ctx.unlocking
+        opacity: surface.ctx.cover
 
         // ---- the clock, the date, your name and the password, in one column ----
         Column {
@@ -31,7 +31,7 @@ WlSessionLockSurface {
 
             Text {
                 anchors.horizontalCenter: parent.horizontalCenter
-                font.family: Theme.font
+                font.family: Theme.mono
                 font.pixelSize: 72
                 font.weight: Font.Light
                 color: Theme.night.strong

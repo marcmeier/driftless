@@ -93,6 +93,8 @@ Scope {
             color: Theme.card
             border.width: 1
             border.color: root.fails > 0 && !root.checking ? Theme.crit : Theme.cardBorder
+            layer.enabled: true
+            layer.effect: CardShadow {}
 
             Row {
                 id: content

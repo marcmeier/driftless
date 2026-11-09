@@ -161,6 +161,7 @@ Item {
             width: parent.width
             height: 52
             color: meMouse.containsMouse ? Theme.hover : "transparent"
+            Behavior on color { ColorAnimation { duration: Theme.quick } }
             Image {
                 id: face
                 x: 8
@@ -217,6 +218,7 @@ Item {
                     width: side.width
                     height: 32
                     color: on ? Theme.raised : navMouse.containsMouse ? Theme.hover : "transparent"
+                    Behavior on color { ColorAnimation { duration: Theme.quick } }
                     // the current page: a line in the accent on the left
                     Rectangle {
                         visible: nav.on
@@ -263,7 +265,7 @@ Item {
         y: -14
         width: 1
         height: parent.height + 28
-        color: Theme.separator
+        color: Theme.border
     }
 
     // ---- right: the page ----
@@ -368,6 +370,7 @@ Item {
                                 width: tiles.tileWidth
                                 height: 32
                                 color: chosen ? Theme.raised : tileMouse.containsMouse ? Theme.hover : "transparent"
+                                Behavior on color { ColorAnimation { duration: Theme.quick } }
                                 border.width: 1
                                 border.color: chosen ? Theme.accent : Theme.border
                                 // the background with the accent and three colours on it

@@ -8,7 +8,7 @@ Text {
 
     width: Math.round(size * 1.3)
     height: size + 4
-    font.family: Theme.font
+    font.family: Theme.mono
     font.pixelSize: size
     color: Theme.text
     horizontalAlignment: Text.AlignHCenter

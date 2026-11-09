@@ -16,8 +16,8 @@ Template tokens: @primary@ -> #rrggbb, @primary+88@ -> #rrggbb88 (alpha suffix),
 @primary:0.45@ -> rgba(r, g, b, 0.45), @primary~@ -> #ffrrggbb (Qt ARGB),
 @primary_hex@ -> rrggbb, @primary_rgba+ee@ -> rgba(rrggbbee) (Hyprland), @home@ -> your home.
 Names: every colour of scheme.py (fg, bg, dim, line, red, ..., primary, secondary, primary_dim)
-in the look that is on; @scheme@ -> dark|light, @gtk_theme@, @qt_style@, @shadow_alpha@, @terminal_opacity@ (first, so
-@shadow:@shadow_alpha@@ works).
+in the look that is on; @scheme@ -> dark|light, @gtk_theme@, @qt_style@, @shadow_alpha@,
+@terminal_opacity@ (first, so @shadow:@shadow_alpha@@ works).
 The login screen and the fallback lock screen stay dark in both looks (night, like the greeter): the
 palette's dark variant.
 
@@ -110,14 +110,14 @@ STRINGS = {
         "scheme": "dark",
         "gtk_theme": "adw-gtk3-dark",
         "qt_style": "Adwaita-Dark",
-        "shadow_alpha": "0.45",
+        "shadow_alpha": "0.6",  # as the shell's cards (Theme.shadowOpacity)
         "terminal_opacity": "1",
     },
     "light": {
         "scheme": "light",
         "gtk_theme": "adw-gtk3",
         "qt_style": "Adwaita",
-        "shadow_alpha": "0.16",
+        "shadow_alpha": "0.22",
         "terminal_opacity": "1",
     },
 }
@@ -173,7 +173,7 @@ def make_avatar(rgb_colors):
         image = Image.new("RGB", (size, size), rgb_colors["primary_dim"])
         letter = (os.environ.get("USER") or "?")[0].upper()
         try:
-            font = ImageFont.truetype("/usr/share/fonts/TTF/JetBrainsMonoNerdFont-Bold.ttf", 140)
+            font = ImageFont.truetype("/usr/share/fonts/inter/Inter.ttc", 140, index=14)  # Inter Bold
         except OSError:
             font = ImageFont.load_default(140)
         ImageDraw.Draw(image).text((size / 2, size / 2), letter, font=font, fill=rgb_colors["primary"], anchor="mm")

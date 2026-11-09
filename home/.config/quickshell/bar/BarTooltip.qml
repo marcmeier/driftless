@@ -4,7 +4,7 @@ import Quickshell.Wayland
 import qs.services
 
 // The tooltip below a bar: a box that appears under the item after a moment and follows it from
-// item to item. It never takes clicks (empty input region).
+// item to item, fading in the first time. It never takes clicks (empty input region).
 PanelWindow {
     id: win
 
@@ -20,7 +20,7 @@ PanelWindow {
         left: true
         right: true
     }
-    margins.top: bar.implicitHeight + 2
+    margins.top: bar.stripHeight + 2
     implicitHeight: 400
     exclusionMode: ExclusionMode.Ignore
     color: "transparent"
@@ -55,7 +55,19 @@ PanelWindow {
         onTriggered: {
             win.place();
             win.open = true;
+            enter.restart();
         }
+    }
+
+    property real shown: 1
+    NumberAnimation {
+        id: enter
+        target: win
+        property: "shown"
+        from: 0
+        to: 1
+        duration: Theme.enter
+        easing.type: Easing.OutCubic
     }
 
     Rectangle {
@@ -71,9 +83,12 @@ PanelWindow {
         width: Math.min(label.implicitWidth, 520) + 20
         height: label.implicitHeight + 12
         x: Math.round(Math.max(Theme.barSide, Math.min(win.width - width - Theme.barSide, win.anchorX - width / 2)))
+        opacity: win.shown
         color: Theme.card
         border.width: 1
         border.color: Theme.cardBorder
+        layer.enabled: true
+        layer.effect: CardShadow {}
 
         FontMetrics {
             id: measure

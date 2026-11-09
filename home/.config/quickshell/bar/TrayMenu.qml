@@ -60,6 +60,7 @@ Item {
             width: parent.width
             height: 30
             color: back.containsMouse ? Theme.hover : "transparent"
+            Behavior on color { ColorAnimation { duration: Theme.quick } }
             Icon {
                 x: 4
                 anchors.verticalCenter: parent.verticalCenter
@@ -112,13 +113,14 @@ Item {
                     anchors.centerIn: parent
                     width: parent.width - 8
                     height: 1
-                    color: Theme.separator
+                    color: Theme.border
                 }
 
                 Rectangle {
                     visible: !entry.modelData.isSeparator
                     anchors.fill: parent
                     color: mouse.containsMouse && entry.modelData.enabled ? Theme.hover : "transparent"
+                    Behavior on color { ColorAnimation { duration: Theme.quick } }
                     opacity: entry.modelData.enabled ? 1 : 0.45
 
                     // check box / radio button state, or the item's icon

@@ -32,7 +32,8 @@ ShellRoot {
         readonly property color hover: Qt.rgba(1, 1, 1, 0.07)
         property color warn: "#e0a040"
         property color crit: "#e06666"
-        readonly property string font: "JetBrainsMono Nerd Font"
+        readonly property string font: "Inter"
+        readonly property string mono: "JetBrainsMono Nerd Font"
     }
     FileView {
         path: root.dir + "/colors.json"
@@ -290,7 +291,7 @@ ShellRoot {
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    font.family: look.font
+                    font.family: look.mono
                     font.pixelSize: 72
                     font.weight: Font.Light
                     color: look.strong

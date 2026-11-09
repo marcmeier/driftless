@@ -49,8 +49,9 @@ A new machine gets everything from two scripts.
 
 ## What you get
 
-- **A complete Hyprland desktop in one plain look**: greys and one accent, a desktop of one colour,
-  everything opaque, square and framed by a 1 px line, no blur, shadows, gradients or animations.
+- **A complete Hyprland desktop in one quiet look**: greys and one accent, a desktop of one colour,
+  square and framed by a 1 px line, Inter for words and a mono for clocks; depth from soft shadows,
+  short and soft motion (cards fade in, windows and workspaces glide), all of it opaque.
   The bar, notifications, login and lock screen, power menu and password dialog (all drawn by
   Quickshell), walker, Ghostty, GTK, Qt, btop and VS Code share it, dark, light or with the sun
 - **Dictation** (`SUPER + D`): speak into any window. whisper.cpp and a small LLM tidy the text up,

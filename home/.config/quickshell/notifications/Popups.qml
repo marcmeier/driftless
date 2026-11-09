@@ -48,8 +48,9 @@ Scope {
             right: true
         }
         margins.top: Theme.barGap + Theme.barHeight + 8
-        margins.right: Theme.barSide
-        implicitWidth: 440
+        // room around the cards for their shadows; the cards keep their place under the bar's end
+        margins.right: 0
+        implicitWidth: 440 + Theme.barSide + 16
         // tall enough for four cards; only the cards take clicks (mask), the rest lets them through
         implicitHeight: Math.round((screen ? screen.height : 1200) * 0.8)
         exclusionMode: ExclusionMode.Ignore
@@ -63,19 +64,61 @@ Scope {
         // keys only after a click into a card's answer field (OnDemand never takes them on its own)
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
-        // a moment before the window goes (the list may refill at once)
+        // a moment before the window goes (the list may refill at once), and the last card slides out
         Timer {
             id: hideDelay
-            interval: 50
+            interval: Theme.leave + 50
             running: Notifs.popups.count === 0
         }
 
         ListView {
             id: list
             anchors.fill: parent
+            anchors.leftMargin: 16
+            anchors.rightMargin: Theme.barSide
             interactive: false
-            spacing: 4
+            spacing: 8
             model: Notifs.popups
+
+            // a new card fades in and slides the last few pixels from the side
+            add: Transition {
+                NumberAnimation {
+                    property: "opacity"
+                    from: 0
+                    to: 1
+                    duration: Theme.enter
+                    easing.type: Easing.OutCubic
+                }
+                NumberAnimation {
+                    property: "x"
+                    from: 2 * Theme.rise
+                    to: 0
+                    duration: Theme.enter
+                    easing.type: Easing.OutCubic
+                }
+            }
+            // and one that goes slides out to the side while it fades
+            remove: Transition {
+                NumberAnimation {
+                    property: "opacity"
+                    to: 0
+                    duration: Theme.leave
+                    easing.type: Easing.InCubic
+                }
+                NumberAnimation {
+                    property: "x"
+                    to: 12 * Theme.rise
+                    duration: Theme.leave
+                    easing.type: Easing.InCubic
+                }
+            }
+            displaced: Transition {
+                NumberAnimation {
+                    property: "y"
+                    duration: Theme.enter
+                    easing.type: Easing.OutCubic
+                }
+            }
 
             delegate: NotifCard {
                 width: ListView.view.width

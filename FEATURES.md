@@ -268,9 +268,16 @@ only what you changed).
 ## The plain look
 
 One look for the whole desktop, reduced to what is needed: neutral greys and one accent (blue), a
-desktop of one colour, everything opaque, square and framed by a 1 px line, one font
-(JetBrainsMono Nerd Font) at 16 px in the shell, GTK, Qt, walker and the terminal. No blur, shadows, gradients, rounded corners or animations,
-in the shell nor in Hyprland (windows: a 1 px border, the one with focus in the accent, small gaps).
+desktop of one colour, square and framed by a 1 px line, 16 px text. Words are in Inter everywhere
+(the shell, walker, GTK, Qt, the login screen); clocks, glyphs, the calculator, code and the terminal
+in JetBrainsMono Nerd Font (GTK's and Qt's fixed-width font). Groups part by room, not by lines. A little depth and motion, no more: whatever floats casts a soft
+shadow, the bar and the windows too. Everything stays opaque. The shell's popups, tooltips, notifications,
+on-screen display and Claude bubble, and walker, fade in (120 ms, popups sliding 4 px from the bar); the power menu and the password dialog fade in over the desk colour;
+hovers, switches and the workspace line change in a moment, levels glide to a new value, a
+notification that goes slides out to the side, the lock's clock and password fade in and out. Windows
+fade in while they grow the last few percent, workspaces slide, the focus border changes colour
+softly; nothing bounces. While walker is open the desktop behind it steps back (dimmed by 28 %). Windows have a soft shadow, no rounded corners, no gradients (a 1 px border,
+the one with focus in the accent, small gaps).
 The accent marks only what is active, selected or focused; orange and red only what needs attention.
 
 `theme/apply.py` renders it into the shell (bar, notifications, login and lock screen, power menu),

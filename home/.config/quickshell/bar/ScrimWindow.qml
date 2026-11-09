@@ -5,7 +5,7 @@ import qs.services
 
 // A window over the whole screen in the desk colour, with all the keys, for one box in the middle:
 // the power menu, the password dialog, the picture editor. A click beside the box: dismissed (left
-// unanswered where a click must not decide, the password dialog).
+// unanswered where a click must not decide, the password dialog). It fades in, it goes at once.
 PanelWindow {
     id: win
 
@@ -25,6 +25,17 @@ PanelWindow {
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.namespace: "driftless-" + name
     WlrLayershell.keyboardFocus: open ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+
+    onOpenChanged: if (open) enter.restart()
+    NumberAnimation {
+        id: enter
+        target: win.contentItem
+        property: "opacity"
+        from: 0
+        to: 1
+        duration: Theme.enter
+        easing.type: Easing.OutCubic
+    }
 
     Rectangle {
         anchors.fill: parent

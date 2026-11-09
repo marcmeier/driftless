@@ -48,9 +48,14 @@ PanelWindow {
         left: true
         right: true
     }
-    implicitHeight: Theme.barGap + Theme.barHeight
-    exclusiveZone: implicitHeight
-    color: Theme.surface
+    // the strip, and room below it for its shadow: that room is see-through and lets clicks through
+    readonly property int stripHeight: Theme.barGap + Theme.barHeight
+    implicitHeight: stripHeight + 16
+    exclusiveZone: stripHeight
+    color: "transparent"
+    mask: Region {
+        item: strip
+    }
     WlrLayershell.namespace: "driftless-bar"
     WlrLayershell.layer: WlrLayer.Top
 
@@ -68,16 +73,32 @@ PanelWindow {
     readonly property real centerRigid: centerSection.rigidWidth
 
     Rectangle {
+        id: strip
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        height: 1
-        color: Theme.border
+        height: bar.stripHeight
+        color: Theme.surface
+        layer.enabled: true
+        layer.effect: CardShadow {
+            shadowOpacity: Theme.shadowOpacity * 0.6
+            shadowVerticalOffset: 2
+        }
+
+        Rectangle {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 1
+            color: Theme.border
+        }
     }
 
     Item {
         id: content
-        anchors.fill: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.right: parent.right
+        height: Theme.barHeight
         anchors.topMargin: Theme.barGap
         anchors.leftMargin: Theme.barSide
         anchors.rightMargin: Theme.barSide
@@ -107,7 +128,7 @@ PanelWindow {
         id: section
         property string name
         height: Theme.barHeight
-        spacing: bar.compact ? 14 : 20
+        spacing: bar.compact ? 18 : 28
 
         // the width of the pills that do not give way, with the gaps; of a `flexible` one only its
         // `rigidPart` (the clock: the time) or nothing (the media title)
@@ -124,8 +145,7 @@ PanelWindow {
 
         Repeater {
             model: BarLayout.section(section.name, bar.variant)
-            // a thin line in the middle of the gap before every group but the first: the groups read
-            // as groups, the widgets in one stay close together
+            // the groups read as groups by the wide gap between them, the widgets in one stay close
             delegate: Item {
                 required property string modelData
                 readonly property alias item: loader.item
@@ -134,14 +154,6 @@ PanelWindow {
                 implicitWidth: loader.implicitWidth
                 implicitHeight: Theme.barHeight
 
-                Rectangle {
-                    visible: !parent.Positioner.isFirstItem
-                    x: -Math.round(section.spacing / 2) - 1
-                    width: 1
-                    height: 14
-                    anchors.verticalCenter: parent.verticalCenter
-                    color: Theme.separator
-                }
                 Loader {
                     id: loader
                     sourceComponent: bar.widget(parent.modelData)
@@ -327,7 +339,7 @@ PanelWindow {
             left: true
             right: true
         }
-        margins.top: bar.implicitHeight
+        margins.top: bar.stripHeight
         exclusionMode: ExclusionMode.Ignore
         color: "transparent"
         WlrLayershell.layer: WlrLayer.Overlay

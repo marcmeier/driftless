@@ -9,7 +9,17 @@ Item {
     property real value: 0
     property bool dim: false
     property real step: 0.02
-    readonly property real shown: drag.pressed ? dragValue : value
+    readonly property real shown: drag.pressed ? dragValue : drawn
+    // the level glides to a value set from outside (a key, the wheel, another program); under the
+    // pointer it follows at once
+    property real drawn: value
+    Behavior on drawn {
+        enabled: !drag.pressed
+        NumberAnimation {
+            duration: Theme.glide
+            easing.type: Easing.OutCubic
+        }
+    }
     property real dragValue: 0
     signal moved(real value)
 

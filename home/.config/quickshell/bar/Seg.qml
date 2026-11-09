@@ -45,6 +45,7 @@ Item {
         anchors.fill: parent
         anchors.bottomMargin: 1
         color: seg.hoverColor
+        Behavior on color { ColorAnimation { duration: Theme.quick } }
         visible: seg.interactive && mouse.containsMouse
     }
 

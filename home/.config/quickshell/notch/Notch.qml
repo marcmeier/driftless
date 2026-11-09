@@ -3,6 +3,7 @@ import Quickshell.Wayland
 import Quickshell.Io
 import QtQuick
 import qs.services
+import "../bar"
 
 // The box of hypr/notch/notch.py (ask Claude by voice). It hangs below the ask button in the bar
 // (bar/AskSeg.qml) on the focused screen, or at the top centre when the bar has none: what it does in
@@ -160,6 +161,20 @@ Scope {
             border.width: 1
             border.color: root.mode === "error" ? Theme.crit : Theme.cardBorder
             clip: true
+            layer.enabled: true
+            layer.effect: CardShadow {}
+            Behavior on width { NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic } }
+            Behavior on height { NumberAnimation { duration: Theme.enter; easing.type: Easing.OutCubic } }
+            onVisibleChanged: if (visible) enter.restart()
+            NumberAnimation {
+                id: enter
+                target: bubble
+                property: "opacity"
+                from: 0
+                to: 1
+                duration: Theme.enter
+                easing.type: Easing.OutCubic
+            }
 
             HoverHandler { id: hover }
             // click: close, and stop the recording, Claude or the voice

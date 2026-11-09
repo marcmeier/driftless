@@ -12,15 +12,19 @@ Rectangle {
     implicitWidth: 32
     implicitHeight: 16
     color: checked ? Theme.accent : "transparent"
+    Behavior on color { ColorAnimation { duration: Theme.quick } }
     border.width: 1
     border.color: checked ? Theme.accent : Theme.dim   // off: still a control you can see (3:1)
+    Behavior on border.color { ColorAnimation { duration: Theme.quick } }
 
     Rectangle {
         width: 10
         height: 10
         y: 3
         x: sw.checked ? parent.width - width - 3 : 3
+        Behavior on x { NumberAnimation { duration: Theme.quick; easing.type: Easing.OutCubic } }
         color: sw.checked ? Theme.accentInk : Theme.dim
+        Behavior on color { ColorAnimation { duration: Theme.quick } }
     }
     MouseArea {
         anchors.fill: parent

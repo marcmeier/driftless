@@ -177,6 +177,7 @@ Item {
                                 height: 30
                                 visible: day.isToday || day.isPicked || mouse.containsMouse
                                 color: day.isToday ? Theme.accent : mouse.containsMouse && !day.isPicked ? Theme.hover : "transparent"
+                                Behavior on color { ColorAnimation { duration: Theme.quick } }
                                 border.width: day.isPicked && !day.isToday ? 1 : 0
                                 border.color: Theme.accent
                             }
