@@ -1,5 +1,5 @@
 [Unit]
-Description=Desktop background (awww, ~/.config/wall.png: one colour, the plain look)
+Description=Desktop background (awww, ~/.config/wall.png: one colour, or the image of the palette "Wallpaper")
 PartOf=graphical-session.target
 After=graphical-session.target
 Requisite=graphical-session.target

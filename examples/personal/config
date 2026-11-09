@@ -26,6 +26,10 @@ NOTCH_VOICE=""
 NOTCH_NOTES=""
 NOTCH_WEBFETCH=off
 
+# the palette "Wallpaper" (settings, Appearance): the folder of images to choose from
+# (empty: ~/Pictures/Wallpapers)
+WALLPAPER_DIR=""
+
 # where Claude Code starts (SUPER + SHIFT + C)
 CLAUDE_WORKDIR="$HOME"
 

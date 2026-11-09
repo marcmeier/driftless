@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The settings of this machine beyond the look and the bar, for the settings popup (bar/SettingsPopup.qml):
 the clock, the night light, notifications, the screensaver, when the screen locks and turns off, mouse, touchpad and
-keyboard.
+keyboard, the notebook's lid.
 
 settings.json holds only what was changed (~/.local/state/driftless-shell, per machine, outside the
 repository); a setting that is not in it is whatever the configuration says. From it come
@@ -74,6 +74,7 @@ KEYS = {
     "clockSeconds": (boolean, "shell", None),
     "clockDate": (boolean, "shell", None),
     "holdInFullscreen": (boolean, "shell", None),
+    "lidStaysOn": (boolean, "shell", None),
     "nightLight": (word("off", "sun", "on"), "shell", None),
     "nightTemp": (one_of(3000, 3500, 4000, 4500), "shell", None),
     "trayPinned": (names, "shell", None),

@@ -26,6 +26,8 @@ Item {
     property string pendingPalette: ""  // the same for the palette
     readonly property string paletteName: pendingPalette || Theme.paletteName
     readonly property var paletteNow: Theme.palettes[paletteName] || null
+    property string pendingWallpaper: ""  // the same for the image of the palette "Wallpaper"
+    readonly property string wallpaperNow: pendingWallpaper || Theme.wallpaper
     property var widgets: []        // bar_layout.py --widgets
     readonly property var hiddenGroups: widgets.filter(w => !w.group && w.hidden).map(w => w.id)
     readonly property bool laptopPanel: Hyprland.monitors.values.some(m => /^eDP-/.test(m.name))
@@ -103,7 +105,34 @@ Item {
                 root.pendingLook = "";
             if (root.pendingPalette === Theme.paletteName)
                 root.pendingPalette = "";
+            if (root.pendingWallpaper === Theme.wallpaper)
+                root.pendingWallpaper = "";
         }
+    }
+
+    // the wallpaper folder's images with a preview each (theme/wallpaper.py makes the previews once);
+    // read while the appearance page shows the palette "Wallpaper"
+    property var wallpapers: ({ folder: "", images: [] })
+    property bool wallpapersRead: false
+    readonly property bool wantWallpapers: page === "appearance" && paletteName === "wallpaper"
+    onWantWallpapersChanged: if (wantWallpapers) wallpaperList.running = true
+    Process {
+        id: wallpaperList
+        running: root.wantWallpapers
+        command: ["python3", Quickshell.env("HOME") + "/.config/theme/wallpaper.py", "thumbs"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    root.wallpapers = JSON.parse(text);
+                } catch (e) {}
+                root.wallpapersRead = true;
+            }
+        }
+    }
+    // "alpine-lake_house.jpg" -> "Alpine lake house"
+    function imageName(path) {
+        const name = (path.split("/").pop() || "").replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").trim();
+        return name.charAt(0).toUpperCase() + name.slice(1);
     }
 
     FileView {
@@ -423,6 +452,79 @@ Item {
                                 }
                                 FocusRing {
                                     onActivated: tileMouse.clicked(null)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // the palette "Wallpaper": which image, its colours follow
+            Group {
+                visible: root.paletteName === "wallpaper"
+                title: "Wallpaper"
+                SettingRow {
+                    first: true
+                    title: root.wallpaperNow ? root.imageName(root.wallpaperNow) : "No image yet"
+                    detail: !root.wallpapersRead && wallpaperList.running ? "Making the previews …"
+                            : root.wallpapers.images.length === 0 ? "No images in " + root.wallpapers.folder.replace(Quickshell.env("HOME"), "~")
+                            : "The colours come from the image · " + root.wallpapers.images.length + " in " + root.wallpapers.folder.replace(Quickshell.env("HOME"), "~")
+                    PButton {
+                        visible: root.wallpapers.images.length > 1
+                        icon: "\u{F049D}"
+                        text: "Shuffle"
+                        onClicked: root.run(["wallpaper", "--random"])
+                    }
+                }
+                Item {
+                    visible: root.wallpapers.images.length > 0
+                    width: parent.width
+                    height: visible ? thumbGrid.implicitHeight + 12 : 0
+                    Grid {
+                        id: thumbGrid
+                        x: 12
+                        columns: 4
+                        spacing: 8
+                        readonly property real tileWidth: Math.floor((parent.width - 24 - spacing * (columns - 1)) / columns)
+                        Repeater {
+                            model: root.wallpapers.images
+                            Item {
+                                id: thumb
+                                required property var modelData
+                                readonly property bool chosen: root.wallpaperNow === modelData.image
+                                width: thumbGrid.tileWidth
+                                height: Math.round(width * 9 / 16)
+                                Image {
+                                    anchors.fill: parent
+                                    anchors.margins: 1
+                                    source: "file://" + thumb.modelData.thumb
+                                    sourceSize.width: 256
+                                    sourceSize.height: 144
+                                    fillMode: Image.PreserveAspectCrop
+                                    asynchronous: true
+                                    cache: false
+                                }
+                                // the chosen one in the accent (two lines, it has to show on any image)
+                                Rectangle {
+                                    anchors.fill: parent
+                                    color: thumbMouse.containsMouse && !thumb.chosen ? Qt.alpha(Theme.overlay, 0.1) : "transparent"
+                                    Behavior on color { ColorAnimation { duration: Theme.quick } }
+                                    border.width: thumb.chosen ? 2 : 1
+                                    border.color: thumb.chosen ? Theme.accent : Theme.border
+                                }
+                                MouseArea {
+                                    id: thumbMouse
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: thumb.chosen ? Qt.ArrowCursor : Qt.PointingHandCursor
+                                    onClicked: {
+                                        if (thumb.chosen)
+                                            return;
+                                        root.pendingWallpaper = thumb.modelData.image;
+                                        root.run(["wallpaper", thumb.modelData.image]);
+                                    }
+                                }
+                                FocusRing {
+                                    onActivated: thumbMouse.clicked(null)
                                 }
                             }
                         }
@@ -795,6 +897,15 @@ Item {
                                  .concat(PowerProfiles.hasPerformanceProfile ? [[String(PowerProfile.Performance), "Performance"]] : [])
                         current: String(PowerProfiles.profile)
                         onPicked: value => PowerProfiles.profile = Number(value)
+                    }
+                }
+                SettingRow {
+                    title: "Stay on with the lid closed"
+                    detail: Prefs.lidStaysOn ? "On: closing the lid does not suspend; the lock and the screen follow the usual times"
+                                             : "Closing the lid suspends the notebook"
+                    PSwitch {
+                        checked: Prefs.lidStaysOn
+                        onToggled: Prefs.set("lidStaysOn", !Prefs.lidStaysOn)
                     }
                 }
             }

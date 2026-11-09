@@ -37,6 +37,8 @@ ShellRoot {
 
     // the night light runs from the start, not only once the settings are open
     readonly property bool nightLight: NightLight.active
+    // so does the lid lock (a notebook that stays on with its lid closed)
+    readonly property bool lidStaysOn: KeepAwake.lid
 
     Notch {}
     Popups {}

@@ -94,7 +94,7 @@ sys.path.insert(0, sys.argv[1])
 import apply, scheme
 apply.gtk_look = lambda name: None
 apply.vscode_theme = lambda colors, name: None
-apply.reload_programs = lambda: None
+apply.reload_programs = lambda *transition: None
 apply.login_screen = lambda: None            # no pkexec here
 apply.main(["--appearance", "light"])
 apply.main(["--palette", "nord"])
@@ -106,6 +106,75 @@ ok = (c["palette"] == "nord" and c["scheme"] == "light" and c["night"] == night 
 apply.PALETTE.write_text("gone\n")  # a palette that is no more: the plain look
 print(c["palette"], c["scheme"], apply.palette())
 sys.exit(0 if ok and apply.palette() == "plain" else 1)
+PY
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
+@test "the palette Wallpaper reads like the plain look for any image, and is the plain look for a grey one" {
+  run python3 -I - "$THEME" "$T" << 'PY'
+import sys
+from pathlib import Path
+from PIL import Image
+sys.path.insert(0, sys.argv[1])
+import scheme, wallpaper
+bad = []
+images = {"grey": (128, 128, 128), "red": (200, 30, 40), "yellow": (240, 220, 40), "green": (30, 160, 60),
+          "blue": (20, 60, 220), "violet": (140, 40, 200), "dark": (20, 10, 40)}
+plain = (("fg", "bg", 7), ("fg", "desk", 7), ("dim", "bg", 4.5), ("dim", "bg_alt", 4.5), ("primary", "bg", 4.5),
+         ("primary", "bg_alt", 4.5), ("ink", "primary", 4.5), ("red", "bg", 4.5))
+for name, color in list(images.items()) + [("missing", None)]:
+    path = Path(sys.argv[2]) / f"{name}.png"
+    if color:
+        image = Image.new("RGB", (64, 36), color)
+        image.paste((240, 240, 240), (0, 0, 16, 36))  # some light that is not the image's colour
+        image.save(path)
+    scheme.PALETTES["wallpaper"] = wallpaper.palette(path)
+    for look in ("dark", "light"):
+        c = scheme.scheme(look, "wallpaper")
+        if set(c) != set(scheme.scheme(look)):
+            bad.append(f"{name} {look}: not the plain look's names")
+        for fg, bg, least in plain:
+            if (ratio := scheme.contrast(c[fg], c[bg])) < least:
+                bad.append(f"{name} {look}: {fg} on {bg} {ratio:.2f} < {least}")
+        if name in ("grey", "missing") and c != scheme.scheme(look):
+            bad.append(f"{name} {look}: not the plain look")
+print("\n".join(bad))
+sys.exit(1 if bad else 0)
+PY
+  echo "$output"
+  [ "$status" -eq 0 ]
+}
+
+@test "apply.py --wallpaper puts the image up with its palette, --palette plain takes it down again" {
+  mkdir -p "$T/walls"
+  HOME=$T/home XDG_STATE_HOME=$T/home/.local/state WALLPAPER_DIR=$T/walls run python3 -I - "$THEME" "$T/walls" << 'PY'
+import json, sys
+from pathlib import Path
+from PIL import Image
+sys.path.insert(0, sys.argv[1])
+import apply, scheme
+apply.gtk_look = lambda name: None
+apply.vscode_theme = lambda colors, name: None
+apply.reload_programs = lambda *transition: None
+apply.grow_from_pointer = lambda: ()
+apply.make_previews = lambda: None
+apply.login_screen = lambda: None
+walls = Path(sys.argv[2])
+for name, color in (("green-hills.jpg", (40, 150, 60)), ("red-dunes.png", (190, 50, 30))):
+    Image.new("RGB", (320, 180), color).save(walls / name)
+apply.main(["--wallpaper", str(walls / "red-dunes.png")])
+c = json.loads((apply.THEME / "colors.json").read_text())
+wall = Image.open(apply.CONFIG / "wall.png")
+ok = c["palette"] == "wallpaper" and c["wallpaper"] == str(walls / "red-dunes.png") and wall.size == (320, 180)
+ok = ok and list(c["palettes"])[:2] == ["plain", "wallpaper"] and c["primary"] != scheme.DARK["accent"]
+apply.main(["--wallpaper", "--random"])  # the other one
+ok = ok and json.loads((apply.THEME / "colors.json").read_text())["wallpaper"].endswith("green-hills.jpg")
+apply.main(["--palette", "plain"])
+c = json.loads((apply.THEME / "colors.json").read_text())
+ok = ok and c["wallpaper"] == "" and Image.open(apply.CONFIG / "wall.png").size == (16, 16)
+print(c["palette"], c["wallpaper"])
+sys.exit(0 if ok else 1)
 PY
   echo "$output"
   [ "$status" -eq 0 ]

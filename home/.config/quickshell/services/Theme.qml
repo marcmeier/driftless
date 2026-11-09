@@ -5,7 +5,8 @@ import Quickshell.Io
 import QtQuick
 
 // The shell's look in one place (the bar, the notifications, the power menu, the on-screen display, the
-// password dialog): the plain look, or one of the named palettes (Catppuccin, Nord, ...) in its place.
+// password dialog): the plain look, or one of the named palettes (Catppuccin, Nord, ...) or the one
+// drawn from the wallpaper in its place.
 // Background and one accent, square corners with a 1 px line around them, everything opaque; the
 // cards (popups, tooltips, notifications) lift off with a soft shadow and come in with a short fade; hovers and switches change in a moment, not at once. theme/apply.py writes ~/.config/theme/colors.json with the named colours of
 // the look that is on, dark or light, in the chosen palette (theme/scheme.py); the shell follows a
@@ -20,6 +21,7 @@ Singleton {
     readonly property bool light: scheme === "light"
     property string paletteName: "plain"    // theme/scheme.py's PALETTES
     property var palettes: ({})             // every palette in brief: label, dark and light (name, swatches)
+    property string wallpaper: ""           // the image on the desktop (the palette "Wallpaper"), else ""
     property int renders: 0                 // bumps whenever apply.py rendered (a new look)
 
     property color primary: "#7aa6d9"
@@ -149,6 +151,7 @@ Singleton {
         }
         theme.paletteName = c.palette || "plain";
         theme.palettes = c.palettes || {};
+        theme.wallpaper = c.wallpaper || "";
         theme.renders++;
     }
 

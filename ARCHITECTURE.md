@@ -250,6 +250,13 @@ one accent, one colour for the desktop, the popup rules.
 the form, and fill the same names of `scheme.py` (what a scheme has no colour for is mixed from its
 background and text), so no template and no QML file knows which palette is on.
 
+*Later still:* the wallpaper came back, as one of these palettes ("Wallpaper", `theme/wallpaper.py`),
+not as a second look. The image gives one hue and how colourful it is; the plain greys keep their
+lightness and take a trace of the hue (OKLCH), the accent is the hue made light or deep until it
+reads as the plain one does (the same contrast test as the plain look, `tests/theme.bats`). Status
+colours stay the plain ones. Only `wall.png` changes: the image instead of one colour; the lock and
+the login screen keep their desk colour, everything else is the palette mechanism above.
+
 ## What stayed
 
 Hardware detection from sysfs. Review mode as the default for incoming changes. Signed commits with

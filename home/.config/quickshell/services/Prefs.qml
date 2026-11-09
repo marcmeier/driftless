@@ -50,6 +50,8 @@ Singleton {
     readonly property int saverAfter: value("saverAfter", 300)
     readonly property int lockAfter: value("lockAfter", 600)
     readonly property int screenOffAfter: value("screenOffAfter", 900)
+    // a notebook does not sleep when its lid closes (services/KeepAwake.qml)
+    readonly property bool lidStaysOn: value("lidStaysOn", false)
 
     // stored at once here, so the switch follows the click; the file confirms it
     function set(key, v) {

@@ -82,3 +82,13 @@ setup() {
   run python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))["trayPinned"])' "$XDG_STATE_HOME/driftless-shell/settings.json"
   [ "$output" = "[]" ]
 }
+
+@test "stay on with the lid closed: a switch for the shell, Hyprland and hypridle are left alone" {
+  run python3 -I "$PREFS" set lidStaysOn true
+  [ "$status" -eq 0 ]
+  run python3 -I "$PREFS" set lidStaysOn sometimes
+  [ "$status" -eq 2 ]
+  run python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1])))' "$XDG_STATE_HOME/driftless-shell/settings.json"
+  [ "$output" = "{'lidStaysOn': True}" ]
+  [ ! -e "$T/calls.log" ]
+}

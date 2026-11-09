@@ -4,6 +4,18 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.29.0 (2026-11-09): the wallpaper palette
+
+### Added
+- **The palette "Wallpaper"**: next to Plain, Catppuccin and the others, a palette drawn from an image
+  on the desktop. Its hue becomes the accent and tints the greys a little; status colours keep their
+  meaning and every combination reads as in the plain look. In the settings the folder's images show
+  as previews below the palettes: a click puts one up (it grows from the mouse pointer), "Shuffle"
+  picks another. The folder is `WALLPAPER_DIR` in `personal/config` (else `~/Pictures/Wallpapers`).
+- **A notebook stays on with its lid closed, if you like**: a switch in the settings under Power
+  (only on a notebook). The shell holds logind's lid switch while it is on, no root needed; locking and
+  the screen still follow the idle times.
+
 ## v2.28.0 (2026-11-09): a new look
 
 ### Changed

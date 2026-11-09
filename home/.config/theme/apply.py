@@ -10,6 +10,9 @@ plain look: greys and one accent).
   apply.py --palette NAME              choose the palette (plain, catppuccin, ...) and render it,
                                        the login screen too (its dark look)
   apply.py --palettes                  list the palettes (name, a tab, the label)
+  apply.py --wallpaper IMAGE|--random  put an image of the wallpaper folder (or any) on the desktop and
+                                       choose the palette "Wallpaper", its colours drawn from the
+                                       image (wallpaper.py); the new image grows from the pointer
   apply.py --follow-sun                with auto: render again when the sun has risen or set since
 
 Template tokens: @primary@ -> #rrggbb, @primary+88@ -> #rrggbb88 (alpha suffix),
@@ -21,8 +24,9 @@ in the look that is on; @scheme@ -> dark|light, @gtk_theme@, @qt_style@, @shadow
 The login screen and the fallback lock screen stay dark in both looks (night, like the greeter): the
 palette's dark variant.
 
-Everything written here is per machine and not in the repository (.gitignore): the desktop's plain
-background ~/.config/wall.png (one colour, shown by awww), the rendered configs, the round avatar from
+Everything written here is per machine and not in the repository (.gitignore): the desktop's
+background ~/.config/wall.png (one colour, shown by awww; with the palette "Wallpaper" the image), the
+rendered configs, the round avatar from
 ~/.face and the login screen files in ~/.cache/theme (login_screen() installs those as root; login.png
 is the night desk colour, the shell's lock screen draws the same colour itself).
 The shell (bar, notifications, lock screen, power menu) reads colors.json itself and follows it live.
@@ -39,6 +43,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import scheme  # noqa: E402
+import wallpaper  # noqa: E402
 
 HOME = Path.home()
 CONFIG = HOME / ".config"
@@ -74,6 +79,12 @@ def appearance():
     except OSError:
         return "dark"
     return chosen if chosen in ("dark", "light", "auto") else "dark"
+
+
+def register_wallpaper():
+    """The palette "Wallpaper" from the image that is on, second after the plain look."""
+    rest = {key: entry for key, entry in scheme.PALETTES.items() if key not in ("plain", "wallpaper")}
+    scheme.PALETTES = {"plain": scheme.PALETTES["plain"], "wallpaper": wallpaper.palette(wallpaper.chosen())} | rest
 
 
 def palette():
@@ -193,6 +204,20 @@ def plain(dest, color):
     dest.parent.mkdir(parents=True, exist_ok=True)
     Image.new("RGB", (16, 16), color).save(dest.with_name(dest.name + ".tmp"), "PNG")
     os.replace(dest.with_name(dest.name + ".tmp"), dest)
+
+
+def picture(dest, image):
+    """The wallpaper as ~/.config/wall.png (awww scales it to each screen); only when it changed."""
+    from PIL import Image
+
+    stamp = HOME / ".cache" / "theme" / "wall.source"
+    key = f"{image}\t{image.stat().st_mtime_ns}"
+    if dest.exists() and stamp.is_file() and stamp.read_text() == key:
+        return
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    Image.open(image).convert("RGB").save(dest.with_name(dest.name + ".tmp"), "PNG", compress_level=1)
+    os.replace(dest.with_name(dest.name + ".tmp"), dest)
+    write(stamp, key)
 
 
 def btop_use_theme():
@@ -318,11 +343,37 @@ def gtk_look(name):
         )
 
 
-def reload_programs():
-    """What does not follow the files by itself: the desktop's colour, Hyprland's borders, the terminals
-    and btop (USR2: both read their colours again). The shell follows colors.json itself."""
+def grow_from_pointer():
+    """awww's arguments for a new image that grows as a circle from the mouse pointer: its place on the
+    focused monitor (y from the top, --invert-y) and that monitor's refresh rate."""
+    try:
+        cursor = json.loads(subprocess.run(["hyprctl", "-j", "cursorpos"], capture_output=True, check=True).stdout)
+        monitors = json.loads(subprocess.run(["hyprctl", "-j", "monitors"], capture_output=True, check=True).stdout)
+        m = next(m for m in monitors if m["focused"])
+        w, h = m["width"] / m["scale"], m["height"] / m["scale"]
+        x = min(max((cursor["x"] - m["x"]) / w, 0), 1)
+        y = min(max((cursor["y"] - m["y"]) / h, 0), 1)
+        position, fps = f"{x:.3f},{y:.3f}", round(m["refreshRate"])
+    except (OSError, ValueError, KeyError, StopIteration, subprocess.CalledProcessError):
+        position, fps = "center", 60
+    return [
+        "--transition-type",
+        "grow",
+        "--transition-pos",
+        position,
+        "--invert-y",
+        "--transition-duration",
+        "1.4",
+        "--transition-fps",
+        str(fps),
+    ]
+
+
+def reload_programs(transition=("--transition-type", "none")):
+    """What does not follow the files by itself: the desktop's colour or image, Hyprland's borders, the
+    terminals and btop (USR2: both read their colours again). The shell follows colors.json itself."""
     quiet = {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL, "check": False}
-    if subprocess.run(["awww", "img", "--transition-type", "none", str(CONFIG / "wall.png")], **quiet).returncode:
+    if subprocess.run(["awww", "img", *transition, str(CONFIG / "wall.png")], **quiet).returncode:
         subprocess.run(["systemctl", "--user", "restart", "driftless-wallpaper.service"], **quiet)
     for command in (
         ["hyprctl", "reload"],
@@ -330,6 +381,18 @@ def reload_programs():
         ["pkill", "-USR2", "-x", "btop"],
     ):
         subprocess.run(command, **quiet)
+
+
+def make_previews():
+    """The wallpaper folder's previews for the settings, made in the background (the first time takes a
+    while), so the list is ready when it opens."""
+    subprocess.Popen(
+        [sys.executable, str(HERE / "wallpaper.py"), "thumbs"],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        start_new_session=True,
+    )
 
 
 def login_screen():
@@ -360,7 +423,9 @@ def palettes_in_brief():
 
 def render_all(name):
     """Render every target in the look `name`, the desktop's colour and the login screen's files."""
+    register_wallpaper()
     chosen = palette()
+    image = wallpaper.chosen() if chosen == "wallpaper" else None
     rgb_colors = scheme.scheme(name, chosen)
     night_colors = scheme.scheme("dark", chosen)
     accents = {key: scheme.to_hex(night_colors[key]) for key in ("primary", "secondary")}
@@ -374,6 +439,7 @@ def render_all(name):
                 "scheme": name,
                 "palette": chosen,
                 "palettes": palettes_in_brief(),
+                "wallpaper": str(image or ""),
                 "accents": accents,
                 "colors": scheme.describe(rgb_colors),
                 "night": scheme.describe(night_colors),
@@ -390,7 +456,11 @@ def render_all(name):
     btop_use_theme()
     vscode_theme(rgb_colors, name)
     make_avatar(rgb_colors)
-    plain(CONFIG / "wall.png", rgb_colors["desk"])
+    if image:
+        picture(CONFIG / "wall.png", image)
+    else:
+        plain(CONFIG / "wall.png", rgb_colors["desk"])
+        (HOME / ".cache" / "theme" / "wall.source").unlink(missing_ok=True)
     # login screen (root-owned): rendered here, installed by set-wallpaper.sh; always the dark look
     cache = HOME / ".cache" / "theme"
     cache.mkdir(parents=True, exist_ok=True)
@@ -416,16 +486,43 @@ def main(argv):
         render_all(look(argv[1]))
         reload_programs()
         return
+    if argv and argv[0] == "--wallpaper":
+        image = wallpaper.another() if argv[1:] == ["--random"] else Path(argv[1]) if len(argv) > 1 else None
+        if image is None:
+            sys.exit(f"usage: apply.py --wallpaper IMAGE|--random (no other image in {wallpaper.folder()})")
+        from PIL import Image
+
+        try:
+            Image.open(image).verify()
+        except (OSError, SyntaxError) as error:
+            sys.exit(f"not an image: {image} ({error})")
+        STATE.mkdir(parents=True, exist_ok=True)
+        write(wallpaper.CHOSEN, str(Path(image).resolve()) + "\n")
+        write(PALETTE, "wallpaper\n")
+        render_all(look())
+        reload_programs(grow_from_pointer())
+        make_previews()
+        login_screen()
+        return
     if argv and argv[0] == "--palette":
+        register_wallpaper()
         if len(argv) < 2 or argv[1] not in scheme.PALETTES:
             sys.exit("usage: apply.py --palette " + "|".join(scheme.PALETTES))
+        before = palette()
         STATE.mkdir(parents=True, exist_ok=True)
         write(PALETTE, argv[1] + "\n")
         render_all(look())
-        reload_programs()
+        # the image comes or goes: it grows from the pointer, a colour alone changes at once
+        if "wallpaper" in (before, argv[1]):
+            reload_programs(grow_from_pointer())
+        else:
+            reload_programs()
+        if argv[1] == "wallpaper":
+            make_previews()
         login_screen()
         return
     if argv and argv[0] == "--palettes":
+        register_wallpaper()
         for key, entry in scheme.PALETTES.items():
             print(f"{key}\t{entry['label']}")
         return

@@ -240,8 +240,10 @@ Every choice is per machine (but your picture):
   behind a round mask: drag to move, wheel or slider to zoom. The settings, fastfetch and the notifications use it.
   It is `~/.face`; linked into `personal/` (as `examples/personal/manifest` suggests), the sync takes it
   to your other machines, which render it too
-- **Appearance**: dark, light, or auto (light from sunrise to sunset), and the palette (plain, Catppuccin,
-  Dracula, ...: a grid of tiles, each shows a few of its colours); a click switches everything at once
+- **Appearance**: dark, light, or auto (light from sunrise to sunset), and the palette (plain, Wallpaper,
+  Catppuccin, Dracula, ...: a grid of tiles, each shows a few of its colours); a click switches everything
+  at once. With "Wallpaper" the images of your wallpaper folder follow as previews: a click puts one on
+  the desktop, "Shuffle" picks another
 - **Bar size**: automatic, always full size, always compact
 - **Clock**: 24 or 12 hours, seconds, the date next to the time
 - **Widgets**: a switch per widget, the bar follows at once (a group that is off takes its members
@@ -257,7 +259,8 @@ Every choice is per machine (but your picture):
   keybindings. Hyprland follows at once (`hyprctl eval`), the choices stay in
   `~/.local/state/hypr/input.lua`, loaded after the host and personal layers
 - **Power**: the screensaver after 1, 3, 5, 10 minutes or never, lock the screen and turn it off after
-  5, 10, 15, 30 minutes or never (hypridle reads the times from `~/.local/state/hypr/idle.conf`), keep awake, the power profile on a notebook, the power menu
+  5, 10, 15, 30 minutes or never (hypridle reads the times from `~/.local/state/hypr/idle.conf`), keep awake; on a notebook the power profile and *Stay on with the lid closed* (a logind lid lock: closing
+  the lid does not suspend); the power menu
 - **Sync**: *Sync now*, what happens with the other machines' changes (ask first, automatic,
   paused), whether new packages are offered here; "Show …" opens the sync icon's popup
 - **About**: a button that opens the card about this machine (the same as a click on your name)
@@ -292,6 +295,12 @@ accent). The calendar, fastfetch, bat and fzf use the terminal's accent slots, s
   Storm), Rosé Pine (Rosé Pine, Dawn), Solarized and Tokyo Night (Night, Day). They keep the plain look's
   form (opaque, square, one accent) and bring their own background, text, accent and terminal colours,
   in the originals' contrast. Per machine in the settings, or `theme/apply.py --palette NAME`
+- **Wallpaper**: an image on the desktop, and a palette drawn from it. The image gives one hue: the
+  accent takes it, made light or deep until it reads like the plain accent, and the greys take a trace
+  of it; red, orange, yellow and green keep their meaning, a grey image gives the plain look. Dark and
+  light both, the lock and login screen in its dark desk colour. The images come from `WALLPAPER_DIR`
+  (`personal/config`, else `~/Pictures/Wallpapers`), a new one grows from the mouse pointer. Per
+  machine in the settings, or `theme/apply.py --wallpaper IMAGE|--random`
 - `set-wallpaper --current` renders it all again (it keeps its name from the days of wallpaper images)
 
 <table>

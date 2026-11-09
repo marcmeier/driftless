@@ -6,6 +6,8 @@
 #        settings-menu.sh avatar               your picture (~/.face) for the bar, the lock and login screen
 #        settings-menu.sh appearance dark|light|auto   the look (auto: light from sunrise to sunset)
 #        settings-menu.sh palette NAME         the palette (plain, catppuccin, ...: theme/apply.py --palettes)
+#        settings-menu.sh wallpaper IMAGE|--random   an image of the wallpaper folder on the desktop, the
+#                                              palette "Wallpaper" drawn from it
 #        settings-menu.sh avatar-save IMAGE [X Y SIZE]   the square the picture editor chose
 # Per machine choices: widget layout, bar size, monitor layout and the look (~/.local/state), and the
 # files rendered from the look (not in the repository). None of them travels to your other machines.
@@ -108,6 +110,12 @@ case ${1:-} in
     python3 "$HOME/.config/theme/apply.py" --palette "$2" > "$STATE/set-wallpaper.log" 2>&1 ||
       notify-send -a settings -u critical "Palette" "Failed, see $STATE/set-wallpaper.log"
     ;;
+  wallpaper)
+    mkdir -p "$STATE"
+    [[ -f ${2:-} || ${2:-} == --random ]] || exit 2
+    python3 "$HOME/.config/theme/apply.py" --wallpaper "$2" > "$STATE/set-wallpaper.log" 2>&1 ||
+      notify-send -a settings -u critical "Wallpaper" "Failed, see $STATE/set-wallpaper.log"
+    ;;
   avatar-save)
     mkdir -p "$STATE"
     [[ -f ${2:-} ]] || exit 2
@@ -116,7 +124,7 @@ case ${1:-} in
   sync) exec "$SCRIPTS/sync-menu.sh" ;;
   keys) exec "$HOME/.config/hypr/keybinds.py" ;;
   *)
-    echo "usage: $0 [widgets|sync|keys|monitors-arrange|monitors-reset|display-mode|avatar|appearance|palette|avatar-save]" >&2
+    echo "usage: $0 [widgets|sync|keys|monitors-arrange|monitors-reset|display-mode|avatar|appearance|palette|wallpaper|avatar-save]" >&2
     exit 2
     ;;
 esac
