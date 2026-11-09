@@ -14,6 +14,7 @@ Singleton {
     readonly property string home: Quickshell.env("HOME")
 
     property alias claude: claude
+    property alias sessions: sessions
     property alias sync: sync
     property alias weather: weather
     property alias calendar: calendar
@@ -26,6 +27,12 @@ Singleton {
         id: claude
         command: [feeds.scripts + "/claude-usage.py"]
         interval: 180
+    }
+    // a Claude Code hook pokes on every change; the interval only ends "done" and drops dead sessions
+    Feed {
+        id: sessions
+        command: [feeds.scripts + "/claude-sessions.py"]
+        interval: 60
     }
     // the sync pokes at the start and the end of every run: the interval only ages the "ago" texts
     Feed {
@@ -83,7 +90,7 @@ Singleton {
 
     function refresh(name) {
         const feed = {
-            claude: claude, sync: sync, weather: weather, calendar: calendar, updates: updates,
+            claude: claude, sessions: sessions, sync: sync, weather: weather, calendar: calendar, updates: updates,
             dictate: dictate
         }[name];
         if (feed)

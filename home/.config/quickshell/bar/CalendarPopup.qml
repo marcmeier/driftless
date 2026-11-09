@@ -136,7 +136,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         text: modelData
                         small: true
-                        color: Theme.faint
+                        color: Theme.dim
                     }
                 }
             }
@@ -247,25 +247,28 @@ Item {
                     }
                     Repeater {
                         model: modelData.events
-                        delegate: Rectangle {
+                        // a title gets two lines before it is cut, the time stays with the first
+                        delegate: Item {
                             required property var modelData
                             width: parent.width
-                            height: 30
-                            color: "transparent"
+                            height: Math.max(30, title.implicitHeight + 10)
                             Label {
                                 id: time
                                 x: 12
-                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.baseline: title.baseline
                                 width: 72
                                 text: modelData.allDay ? "all day" : modelData.continued ? "→ " + modelData.end : modelData.start
                                 small: true
                                 color: Theme.dim
                             }
                             Label {
+                                id: title
                                 anchors.left: time.right
                                 anchors.right: parent.right
                                 anchors.rightMargin: 10
-                                anchors.verticalCenter: parent.verticalCenter
+                                y: 5
+                                wrapMode: Text.Wrap
+                                maximumLineCount: 2
                                 elide: Text.ElideRight
                                 text: modelData.title
                             }

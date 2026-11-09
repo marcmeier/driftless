@@ -27,4 +27,11 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor
         onClicked: sw.toggled()
     }
+    FocusRing {
+        onActivated: sw.toggled()
+        onStepped: by => {
+            if ((by > 0) !== sw.checked)
+                sw.toggled();
+        }
+    }
 }

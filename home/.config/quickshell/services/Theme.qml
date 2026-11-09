@@ -51,7 +51,7 @@ Singleton {
     readonly property color cardBorder: lineColor
     readonly property color separator: lineColor
     readonly property color track: lineColor                          // under a slider, a meter, a switch
-    readonly property color faint: Qt.alpha(dim, light ? 0.72 : 0.6)
+    readonly property color faint: Qt.alpha(dim, light ? 0.72 : 0.6)  // what is off or decoration, never text to read (under 4.5:1)
     readonly property color knob: strong                              // a slider's knob, a switch's off thumb
     readonly property color field: fieldColor
     readonly property color fieldBorder: lineColor

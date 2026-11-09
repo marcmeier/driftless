@@ -53,27 +53,32 @@ Item {
                 width: parent.width - 98
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
+                // the title on up to two lines: it is what you know the track by
                 Label {
                     width: parent.width
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    maximumLineCount: 2
                     elide: Text.ElideRight
-                    text: root.p ? (root.p.trackTitle || root.p.identity) : ""
+                    text: root.p ? (Media.line(root.p.trackTitle) || root.p.identity) : ""
                     bold: true
                 }
                 Label {
                     width: parent.width
                     elide: Text.ElideRight
                     visible: text !== ""
-                    text: root.p ? root.p.trackArtist : ""
+                    text: root.p ? Media.line(root.p.trackArtist) : ""
                 }
                 Label {
                     width: parent.width
                     elide: Text.ElideRight
                     visible: text !== ""
-                    text: root.p ? root.p.trackAlbum : ""
+                    text: root.p ? Media.line(root.p.trackAlbum) : ""
                     small: true
                     dim: true
                 }
+                // the player, unless it already stands in for the missing title
                 Label {
+                    visible: !!root.p && Media.line(root.p.trackTitle) !== ""
                     text: root.p ? root.p.identity : ""
                     small: true
                     color: Theme.dim
@@ -184,7 +189,7 @@ Item {
                         width: parent.width - 42
                         anchors.verticalCenter: parent.verticalCenter
                         elide: Text.ElideRight
-                        text: modelData.identity + (modelData.trackTitle ? "  ·  " + modelData.trackTitle : "")
+                        text: modelData.identity + (modelData.trackTitle ? "  ·  " + Media.line(modelData.trackTitle) : "")
                     }
                     MouseArea {
                         id: pick
@@ -192,6 +197,10 @@ Item {
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
                         onClicked: Media.chosen = modelData
+                    }
+                    FocusRing {
+                        inset: true
+                        onActivated: pick.clicked(null)
                     }
                 }
             }

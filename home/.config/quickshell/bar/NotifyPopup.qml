@@ -28,21 +28,20 @@ Item {
         PopupHeader {
             icon: Notifs.dnd ? "\u{F009B}" : "\u{F009A}"
             title: Notifs.count === 1 ? "1 notification" : Notifs.count > 0 ? Notifs.count + " notifications" : "Notifications"
-            Row {
-                spacing: 8
-                PButton {
-                    icon: "\u{F009B}"
-                    text: "Do not disturb"
-                    checked: Notifs.dnd
-                    onClicked: Notifs.setDnd(!Notifs.dnd)
-                }
-                PButton {
-                    visible: Notifs.count > 0
-                    icon: "\u{F039F}"
-                    text: "Clear"
-                    onClicked: Notifs.clear()
-                }
+            // on: they pop up; off: do not disturb (the switch the other popups have in this place)
+            PSwitch {
+                checked: !Notifs.dnd
+                onToggled: Notifs.setDnd(!Notifs.dnd)
             }
+        }
+
+        Label {
+            visible: Notifs.dnd
+            width: parent.width
+            wrapMode: Text.Wrap
+            small: true
+            dim: true
+            text: "Do not disturb: only critical ones pop up"
         }
 
         // nothing there
@@ -62,13 +61,6 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: "All caught up"
                 color: Theme.dim
-            }
-            Label {
-                anchors.horizontalCenter: parent.horizontalCenter
-                visible: Notifs.dnd
-                small: true
-                color: Theme.faint
-                text: "Do not disturb: only critical ones pop up"
             }
         }
 
@@ -115,6 +107,15 @@ Item {
                 showApp: false
             }
 
+        }
+
+        ButtonRow {
+            visible: Notifs.count > 0
+            PButton {
+                icon: "\u{F039F}"
+                text: "Clear all"
+                onClicked: Notifs.clear()
+            }
         }
     }
 }

@@ -73,6 +73,15 @@ link_one() {
   if [[ -L $live && $(readlink "$live") == "$src" ]]; then
     return 0
   fi
+  # a target inside a folder that is itself linked would land in the repository (untracked, and in
+  # home/ even for a personal link): such a line needs a target outside the linked folders
+  local parent repo
+  parent=$(realpath -m -- "$(dirname "$live")")
+  repo=$(realpath -m -- "$DRIFTLESS")
+  if [[ $parent == "$repo" || $parent == "$repo"/* ]]; then
+    warn "not linked: ~/$target lies in a linked folder (the link would land in the repository)"
+    return 1
+  fi
   if ((dry)); then
     if [[ -L $live ]]; then
       echo "relink: ~/$target"

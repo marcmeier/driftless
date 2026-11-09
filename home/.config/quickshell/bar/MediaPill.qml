@@ -12,12 +12,14 @@ Pill {
     shown: Media.shown
     implicitWidth: Media.shown ? row.implicitWidth + padding * 2 : 0
 
-    // gives way beside the centre island: the title gets what the other pills and its buttons leave
+    // gives way beside the centre island: the title gets what the other pills and its buttons leave,
+    // the artist only what the title leaves (and goes when that is too little for a name)
     readonly property bool flexible: true
     readonly property real titleRoom: bar
         ? bar.sideRoom - bar.rightRigid - padding * 2 - (prevSeg.shown ? prevSeg.width : 0) - playSeg.width
-          - (nextSeg.shown ? nextSeg.width : 0) - title.padL - title.padR - (artist.visible ? title.spacing + artist.width : 0)
-        : 240
+          - (nextSeg.shown ? nextSeg.width : 0) - title.padL - title.padR
+        : 400
+    readonly property real artistRoom: Math.min(160, titleRoom - marquee.width - title.spacing)
 
     Seg {
         id: prevSeg
@@ -91,6 +93,7 @@ Pill {
         }
 
         Marquee {
+            id: marquee
             anchors.verticalCenter: parent.verticalCenter
             text: Media.title
             // at least a few letters
@@ -101,10 +104,10 @@ Pill {
         }
         Label {
             id: artist
-            visible: !pill.compact && text !== ""
+            visible: !pill.compact && text !== "" && pill.artistRoom >= 48
             anchors.verticalCenter: parent.verticalCenter
             anchors.verticalCenterOffset: 1
-            width: Math.min(implicitWidth, 160)
+            width: Math.min(implicitWidth, pill.artistRoom)
             elide: Text.ElideRight
             text: Media.artist
             small: true

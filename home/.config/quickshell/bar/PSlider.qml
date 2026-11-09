@@ -61,4 +61,8 @@ Item {
         }
         onWheel: w => slider.set(slider.value + (w.angleDelta.y > 0 ? slider.step : -slider.step))
     }
+    // the arrows move it in steps of 5 %
+    FocusRing {
+        onStepped: by => slider.set(slider.value + by * 0.05)
+    }
 }

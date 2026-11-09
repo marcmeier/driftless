@@ -199,6 +199,10 @@ Item {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.open(["avatar"])
             }
+            FocusRing {
+                inset: true
+                onActivated: meMouse.clicked(null)
+            }
         }
 
         Column {
@@ -243,6 +247,10 @@ Item {
                             root.page = nav.modelData[0];
                             flick.contentY = 0;
                         }
+                    }
+                    FocusRing {
+                        inset: true
+                        onActivated: navMouse.clicked(null)
                     }
                 }
             }
@@ -409,6 +417,9 @@ Item {
                                         root.pendingPalette = tile.modelData;
                                         root.run(["palette", tile.modelData]);
                                     }
+                                }
+                                FocusRing {
+                                    onActivated: tileMouse.clicked(null)
                                 }
                             }
                         }

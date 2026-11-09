@@ -142,7 +142,7 @@ Pill {
             bold: btn.isActive
             font.pixelSize: btn.compact ? Theme.fontCompact : Theme.fontSize
             color: btn.isUrgent ? Theme.crit : btn.isActive ? Theme.strong
-                 : btn.occupied || mouse.containsMouse ? Theme.text : Theme.faint
+                 : btn.occupied || mouse.containsMouse ? Theme.text : Theme.dim
         }
 
         MouseArea {

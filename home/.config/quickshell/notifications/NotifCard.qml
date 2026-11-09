@@ -85,6 +85,11 @@ Rectangle {
                 card.popup ? Notifs.hidePopup(card.nid) : Notifs.dismiss(card.nid);
         }
     }
+    FocusRing {
+        inset: true
+        visible: card.clickable
+        onActivated: Notifs.activate(card.nid)
+    }
 
     Row {
         id: content
@@ -181,7 +186,7 @@ Rectangle {
                     anchors.leftMargin: card.showApp ? 6 : 0
                     anchors.verticalCenter: parent.verticalCenter
                     small: true
-                    color: Theme.faint
+                    color: Theme.dim
                     text: (card.showApp ? "·  " : "") + Notifs.ago(card.time)
                 }
             }
@@ -278,7 +283,7 @@ Rectangle {
                             visible: answer.text === ""
                             anchors.verticalCenter: parent.verticalCenter
                             text: card.reply
-                            color: Theme.faint
+                            color: Theme.dim
                         }
                     }
                     // a click into the field: typing, not the card's action
@@ -338,6 +343,9 @@ Rectangle {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: Notifs.dismiss(card.nid)
+        }
+        FocusRing {
+            onActivated: Notifs.dismiss(card.nid)
         }
     }
 

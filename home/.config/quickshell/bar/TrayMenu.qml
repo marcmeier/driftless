@@ -55,6 +55,10 @@ Item {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.stack = root.stack.slice(0, -1)
             }
+            FocusRing {
+                inset: true
+                onActivated: back.clicked(null)
+            }
         }
 
         Repeater {
@@ -138,6 +142,11 @@ Item {
                                 root.popup.close();
                             }
                         }
+                    }
+                    FocusRing {
+                        inset: true
+                        enabled: entry.modelData.enabled
+                        onActivated: mouse.clicked(null)
                     }
                 }
             }

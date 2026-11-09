@@ -98,7 +98,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                         text: modelData.rain + "%"
                         small: true
-                        color: modelData.rain >= 50 ? Theme.accent2 : Theme.faint
+                        color: modelData.rain >= 50 ? Theme.accent2 : Theme.dim
                     }
                 }
             }
@@ -138,7 +138,7 @@ Item {
                         anchors.verticalCenter: parent.verticalCenter
                         text: "\u{F058C} " + modelData.rain + "%"
                         small: true
-                        color: modelData.rain >= 50 ? Theme.accent2 : Theme.faint
+                        color: modelData.rain >= 50 ? Theme.accent2 : Theme.dim
                     }
                     Label {
                         anchors.right: parent.right

@@ -49,4 +49,7 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor
         onClicked: btn.clicked()
     }
+    FocusRing {
+        onActivated: btn.clicked()
+    }
 }

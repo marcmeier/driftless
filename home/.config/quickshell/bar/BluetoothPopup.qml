@@ -16,8 +16,10 @@ Item {
     readonly property var all: adapter ? adapter.devices.values : []
     readonly property var mine: all.filter(d => d.paired || d.bonded)
                                    .sort((a, b) => (b.connected - a.connected) || name(a).localeCompare(name(b)))
-    // nearby: only the ones that say who they are
-    readonly property var nearby: all.filter(d => !d.paired && !d.bonded && d.name && d.name !== d.address).slice(0, 8)
+    // nearby: only the ones that say who they are (BlueZ names the others after their address, with
+    // dashes or colons)
+    readonly property var nearby: all.filter(d => !d.paired && !d.bonded && d.name
+                                                  && !/^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.test(d.name)).slice(0, 8)
 
     function name(d) {
         return d.name || d.deviceName || d.address;
@@ -169,28 +171,45 @@ Item {
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
             small: true
-            color: row.dev.connected ? Theme.accent2 : Theme.faint
+            color: row.dev.connected ? Theme.accent2 : Theme.dim
+            visible: row.mine || row.busy
             text: row.busy ? "…"
                 : row.dev.connected ? (row.dev.batteryAvailable ? Math.round(row.dev.battery * 100) + "%  ·  " : "") + "connected"
-                : row.mine ? "" : "pair"
+                : ""
+        }
+        function act() {
+            if (row.busy)
+                return;
+            if (row.dev.connected)
+                row.dev.disconnect();
+            else if (row.mine)
+                row.dev.connect();
+            else {
+                row.connectWhenPaired = true;
+                row.dev.pair();
+            }
         }
         MouseArea {
             id: mouse
             anchors.fill: parent
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                if (row.busy)
-                    return;
-                if (row.dev.connected)
-                    row.dev.disconnect();
-                else if (row.mine)
-                    row.dev.connect();
-                else {
-                    row.connectWhenPaired = true;
-                    row.dev.pair();
-                }
-            }
+            onClicked: row.act()
+        }
+        FocusRing {
+            visible: row.mine
+            inset: true
+            onActivated: row.act()
+        }
+        // a device nearby says what a click does
+        PButton {
+            visible: !row.mine && !row.busy
+            anchors.right: parent.right
+            anchors.rightMargin: 4
+            anchors.verticalCenter: parent.verticalCenter
+            implicitHeight: 28
+            text: "Pair"
+            onClicked: row.act()
         }
     }
 }

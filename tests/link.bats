@@ -99,6 +99,16 @@ setup() {
   [ ! -e "$(home A)/.config/emoji" ]
 }
 
+@test "a link inside a linked folder is refused, nothing lands in the repository" {
+  dl A link
+  echo "x" > "$(repo A)/home/extra.service"
+  echo "link .config/systemd/user/extra.service home/extra.service" >> "$(repo A)/manifest"
+  run dl A link
+  [ "$status" -ne 0 ]
+  [[ $output == *"not linked: ~/.config/systemd/user/extra.service"* ]]
+  [ ! -e "$(repo A)/home/.config/systemd/user/extra.service" ]
+}
+
 @test "--dry-run changes nothing" {
   run dl A link --dry-run
   [ "$status" -eq 0 ]

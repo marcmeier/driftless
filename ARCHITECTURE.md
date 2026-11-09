@@ -211,7 +211,10 @@ controls on the right of their line, the buttons at the foot on the right too (`
 the one that confirms last and only that one in the accent; a button that opens something else (a
 window, a terminal) ends in "…"; what waits for you sits in a frame in the orange of the icon that
 announced it (`bar/SyncFold.qml`), above the dimmed switches. Popups that are their content
-(calendar, weather, media) start with it. The password dialog follows the same rules.
+(calendar, weather, media) start with it. The password dialog follows the same rules. Text you read
+is never `faint` (under 4.5:1 in every palette), that is for what is off; every control takes the
+keyboard through `bar/FocusRing.qml`, a 1 px line in the accent a little outside, apart from the
+frame of a checked button.
 
 *Considered:* keeping the wallpaper as an option next to the plain look. Two looks in every QML file
 double what has to be kept in step; the point was less.

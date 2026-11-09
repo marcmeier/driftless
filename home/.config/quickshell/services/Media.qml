@@ -25,22 +25,38 @@ Singleton {
 
     // What the pill shows. Switching tracks in a browser (YouTube Shorts) drops the player or its
     // metadata for a moment: keep the pill and the last title, state and artist through such gaps
-    // instead of hiding it and building it anew.
+    // instead of hiding it and building it anew. The kept title stands in only for such a gap and only
+    // for the player it came from: past that, a player without a title shows its name, not the song
+    // before.
     readonly property bool shown: active || linger.running
     property string title: ""
+    property string titleOf: ""
     property string artist: ""
     property bool playing: false
+    readonly property string rawTitle: active ? line(player.trackTitle) : ""
+    onRawTitleChanged: if (rawTitle === "") gap.restart()
+    Timer {
+        id: gap
+        interval: 3000
+    }
     readonly property var live: active ? {
-        title: player.trackTitle || title || player.identity,
-        artist: player.trackArtist || "",
-        playing: player.isPlaying
+        title: rawTitle || (gap.running && titleOf === player.dbusName ? title : "") || player.identity,
+        artist: line(player.trackArtist),
+        playing: player.isPlaying,
+        owner: player.dbusName
     } : null
     onLiveChanged: {
         if (!live)
             return;
         title = live.title;
+        titleOf = live.owner;
         artist = live.artist;
         playing = live.playing;
+    }
+
+    // metadata on one line: a stream's title may carry line breaks
+    function line(s) {
+        return String(s || "").replace(/\s*[\r\n]+\s*/g, " ").trim();
     }
     onActiveChanged: if (!active) linger.restart()
     Timer {

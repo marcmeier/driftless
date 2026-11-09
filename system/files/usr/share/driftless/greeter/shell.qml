@@ -328,7 +328,7 @@ ShellRoot {
                             visible: root.users.length > 1
                             font.family: look.font
                             font.pixelSize: 13
-                            color: look.faint
+                            color: look.dim
                             text: "\u{F0140}"
                         }
                     }

@@ -80,14 +80,14 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             text: row.busy ? "…" : modelData.connected ? "connected" : modelData.known ? "known" : ""
                             small: true
-                            color: modelData.connected ? Theme.accent2 : Theme.faint
+                            color: modelData.connected ? Theme.accent2 : Theme.dim
                         }
                         Icon {
                             visible: modelData.security !== WifiSecurityType.Open
                             anchors.verticalCenter: parent.verticalCenter
                             text: "\u{F033E}"
                             size: 12
-                            color: Theme.faint
+                            color: Theme.dim
                         }
                     }
                     MouseArea {
@@ -106,6 +106,10 @@ Item {
                                 root.popup.close();
                             }
                         }
+                    }
+                    FocusRing {
+                        inset: true
+                        onActivated: mouse.clicked(null)
                     }
                 }
             }

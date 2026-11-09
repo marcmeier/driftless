@@ -74,7 +74,7 @@ Rectangle {
     Line {
         visible: field.text === "" && !field.checking
         text: field.placeholder
-        color: field.theme.faint
+        color: field.theme.dim
     }
 
     // what you typed, shown (not a password)

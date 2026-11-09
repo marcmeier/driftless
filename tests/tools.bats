@@ -84,3 +84,20 @@ print(" ".join(cmd[cmd.index("--allowedTools") + 1 :]))
   [ "${lines[0]}" = "Bash,Read,WebSearch,WebFetch" ]
   [[ ${lines[1]} == *WebFetch* ]]
 }
+
+@test "the bar counts Claude sessions, forgets dead ones and lets done ones expire" {
+  state=$BATS_TEST_TMPDIR/claude-status
+  mkdir -p "$state"
+  now=$(date +%s)
+  echo "{\"status\": \"running\", \"seit\": $now, \"pid\": $$}" > "$state/a.json"
+  echo "{\"status\": \"waiting\", \"seit\": $now, \"pid\": $$}" > "$state/b.json"
+  echo "{\"status\": \"done\", \"seit\": $now, \"pid\": $$}" > "$state/c.json"
+  echo "{\"status\": \"done\", \"seit\": $((now - 3600)), \"pid\": $$}" > "$state/old.json"
+  echo "{\"status\": \"running\", \"seit\": $now, \"pid\": 4194304}" > "$state/dead.json"
+  echo "not json" > "$state/broken.json"
+  run env XDG_STATE_HOME="$BATS_TEST_TMPDIR" home/.config/quickshell/scripts/claude-sessions.py
+  [ "$status" -eq 0 ]
+  [ "$output" = '{"running": 1, "waiting": 1, "done": 1}' ]
+  [ ! -e "$state/dead.json" ]
+  [ -e "$state/old.json" ]
+}

@@ -50,6 +50,10 @@ Rectangle {
             cursorShape: Qt.PointingHandCursor
             onClicked: fold.toggled()
         }
+        FocusRing {
+            inset: true
+            onActivated: mouse.clicked(null)
+        }
     }
 
     Column {

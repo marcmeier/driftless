@@ -123,7 +123,7 @@ Item {
                             id: size
                             anchors.right: parent.right
                             small: true
-                            color: Theme.faint
+                            color: Theme.dim
                             text: pkg.modelData.size || ""
                         }
                     }
@@ -132,7 +132,7 @@ Item {
                         width: parent.width
                         elide: Text.ElideRight
                         small: true
-                        color: Theme.faint
+                        color: Theme.dim
                         text: pkg.note
                     }
                 }
@@ -155,12 +155,16 @@ Item {
             topPadding: 4
             elide: Text.ElideRight
             small: true
-            color: Theme.faint
+            color: Theme.dim
             text: root.d ? "Not on this machine: " + root.d.skipped.join(", ") + "  (click to offer again)" : ""
             MouseArea {
+                id: unskip
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.skip("unskip", root.d.skipped)
+            }
+            FocusRing {
+                onActivated: unskip.clicked(null)
             }
         }
 
@@ -171,7 +175,7 @@ Item {
             Label {
                 anchors.verticalCenter: parent.verticalCenter
                 small: true
-                color: root.d && !root.d.helper ? Theme.warn : Theme.faint
+                color: root.d && !root.d.helper ? Theme.warn : Theme.dim
                 text: !root.d ? "" : !root.d.helper ? "Needs driftless-system first: driftless system"
                     : root.d.download ? root.d.download + " to download" : ""
             }

@@ -68,4 +68,12 @@ Rectangle {
             }
         }
     }
+    // one stop for the whole choice: the arrows pick the one before or after
+    FocusRing {
+        onStepped: by => {
+            const i = seg.options.findIndex(o => o[0] === seg.current) + by;
+            if (i >= 0 && i < seg.options.length)
+                seg.picked(seg.options[i][0]);
+        }
+    }
 }

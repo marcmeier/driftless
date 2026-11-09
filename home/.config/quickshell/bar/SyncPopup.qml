@@ -57,7 +57,7 @@ Item {
         PopupHeader {
             title: "driftless"
             status: root.summary
-            statusColor: root.trouble ? Theme.crit : Theme.faint
+            statusColor: root.trouble ? Theme.crit : Theme.dim
         }
 
         // trouble: one line, the log says the rest
@@ -143,7 +143,7 @@ Item {
                 Label {
                     anchors.verticalCenter: parent.verticalCenter
                     small: true
-                    color: Theme.faint
+                    color: Theme.dim
                     text: root.inc && root.inc.more ? "and " + root.inc.more + " more" : ""
                 }
                 Row {
@@ -180,7 +180,7 @@ Item {
                 }
                 Label {
                     small: true
-                    color: Theme.faint
+                    color: Theme.dim
                     text: "Send this machine's changes, fetch theirs"
                 }
             }
@@ -216,7 +216,7 @@ Item {
                 width: parent.width
                 horizontalAlignment: Text.AlignRight
                 small: true
-                color: Theme.faint
+                color: Theme.dim
                 text: !root.d ? "" : root.d.mode === "auto" ? "They come in by themselves, every hour"
                     : root.d.mode === "off" ? "This machine does not sync" : "They wait here until you take them over"
             }

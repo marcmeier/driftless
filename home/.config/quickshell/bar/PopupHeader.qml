@@ -10,7 +10,7 @@ Item {
     property string icon: ""            // a glyph; none: the driftless mark
     property string title: ""
     property string status: ""
-    property color statusColor: Theme.faint
+    property color statusColor: Theme.dim
     default property alias control: slot.data
 
     width: parent ? parent.width : 0

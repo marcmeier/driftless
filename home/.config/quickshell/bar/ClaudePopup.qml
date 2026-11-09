@@ -117,7 +117,7 @@ Item {
                             horizontalAlignment: Text.AlignRight
                             text: parent.head ? modelData[0] : Usage.count(parent.modelData[modelData[1]])
                             small: true
-                            color: parent.head ? Theme.faint : Theme.text
+                            color: parent.head ? Theme.dim : Theme.text
                         }
                     }
                 }

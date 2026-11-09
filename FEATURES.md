@@ -45,6 +45,13 @@ the GPU (Vulkan: AMD, Intel and NVIDIA):
 <img src="docs/img/dictation-pill.png" alt="The dictation icon in the bar: ready, recording, transcribing" width="600"><br>
 <sub>The dictation icon in the bar: ready, recording, transcribing. Click: start/stop, right click: without the LLM, middle: cancel.</sub>
 
+## Claude Code sessions in the bar
+
+Next to the usage figures the bar counts your Claude Code sessions: `wait` (orange, a session needs an
+answer), `run`, and `done` for 15 minutes after one finishes. It reads `~/.local/state/claude-status/*.json`,
+which a Claude Code hook of your own writes (`status`, `pid`, `seit`) and announces with `scripts/poke sessions`.
+Without such a hook the bar shows nothing extra.
+
 ## Asking Claude
 
 `SUPER + A`, a question, and the answer appears in a bubble at the top of the screen while a voice
@@ -131,7 +138,9 @@ without a restart. Groups from left to right:
   right: do not disturb; middle: clear all), keep awake, the settings (cog), power (click: the power
   menu; right: lock)
 
-Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Popups also open from a key
+Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Inside a popup `Tab` walks
+its controls (a line in the accent shows where), `Enter` or `Space` clicks, the arrows move a slider
+or a choice. Popups also open from a key
 binding or a script: `quickshell ipc -p ~/.config/quickshell call bar popup calendar` (`weather`,
 `media`, `claude`, `audio`, `network`, `bluetooth`, `battery`, `notifications`, `settings`, `sync`,
 `tray`, `about`). They are built alike: a first line with the sign, the name and how it stands, the

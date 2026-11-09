@@ -89,33 +89,49 @@ Item {
             Caption { text: "Apps" }
             Repeater {
                 model: root.apps
+                // laid out like a device's level: mute button, name and slider, percent
                 delegate: Item {
+                    id: app
                     required property var modelData
                     readonly property var props: modelData.properties || {}
+                    readonly property bool muted: !!(modelData.audio && modelData.audio.muted)
                     width: column.width
-                    height: 40
-                    Label {
-                        width: parent.width - 50
-                        elide: Text.ElideRight
-                        // an app id like io.github.celluloid_player.Celluloid: its last part
-                        text: (props["application.name"] || modelData.description || modelData.nickname
-                               || modelData.name).replace(/^(\w+\.)+(?=\w+$)/, "")
-                        small: true
-                        dim: true
-                    }
-                    PSlider {
-                        y: 18
-                        width: parent.width - 50
-                        value: modelData.audio.volume
-                        dim: modelData.audio.muted
-                        onMoved: v => modelData.audio.volume = v
-                    }
+                    height: 34
                     PButton {
+                        id: appMute
+                        anchors.verticalCenter: parent.verticalCenter
+                        icon: app.muted ? "\u{F075F}" : "\u{F057E}"
+                        iconSize: 17
+                        implicitWidth: 36
+                        onClicked: app.modelData.audio.muted = !app.muted
+                    }
+                    Column {
+                        x: appMute.width + 10
+                        width: parent.width - x - 48
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+                        Label {
+                            width: parent.width
+                            elide: Text.ElideRight
+                            // an app id like io.github.celluloid_player.Celluloid: its last part
+                            text: (app.props["application.name"] || app.modelData.description || app.modelData.nickname
+                                   || app.modelData.name).replace(/^(\w+\.)+(?=\w+$)/, "")
+                            small: true
+                            dim: app.muted
+                        }
+                        PSlider {
+                            width: parent.width
+                            value: app.modelData.audio ? app.modelData.audio.volume : 0
+                            dim: app.muted
+                            onMoved: v => app.modelData.audio.volume = v
+                        }
+                    }
+                    Label {
                         anchors.right: parent.right
-                        y: 6
-                        icon: modelData.audio.muted ? "\u{F075F}" : "\u{F057E}"
-                        flat: true
-                        onClicked: modelData.audio.muted = !modelData.audio.muted
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: app.muted ? "muted" : Math.round((app.modelData.audio ? app.modelData.audio.volume : 0) * 100) + "%"
+                        small: true
+                        dim: app.muted
                     }
                 }
             }
@@ -226,6 +242,10 @@ Item {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: devices.picked(modelData)
+                }
+                FocusRing {
+                    inset: true
+                    onActivated: hover.clicked(null)
                 }
             }
         }

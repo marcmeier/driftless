@@ -131,7 +131,7 @@ Scope {
                         text: root.flow ? root.flow.actionId : ""
                         elide: Text.ElideMiddle
                         small: true
-                        color: Theme.faint
+                        color: Theme.dim
                     }
 
                     PasswordField {
