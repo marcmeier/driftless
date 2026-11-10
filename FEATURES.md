@@ -136,8 +136,8 @@ without a restart. Groups from left to right:
   power draw, health, power profile)
 - **Session**, always at the edge: updates while some wait (click: update in a terminal), the sync
   (the driftless mark in the colour of its state; click: its menu), notifications (click: the list;
-  right: do not disturb; middle: clear all), keep awake, the settings (cog), power (click: the power
-  menu; right: lock)
+  right: do not disturb; middle: clear all), keep awake while it is on (turned on in
+  the settings; click: off), the settings (cog), power (click: the power menu; right: lock)
 
 Hover anything for a tooltip; a click elsewhere or `Esc` closes a popup. Inside a popup `Tab` walks
 its controls (a line in the accent shows where), `Enter` or `Space` clicks, the arrows move a slider

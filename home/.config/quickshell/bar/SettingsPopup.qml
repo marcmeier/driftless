@@ -875,7 +875,7 @@ Item {
                 }
                 SettingRow {
                     title: "Keep awake"
-                    detail: KeepAwake.on ? "On: no lock, the screen stays on (the cup in the bar)"
+                    detail: KeepAwake.on ? "On: no lock, the screen stays on (the cup in the bar turns it off)"
                                          : "For a presentation or a long download, until you turn it off"
                     PSwitch {
                         checked: KeepAwake.on

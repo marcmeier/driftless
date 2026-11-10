@@ -2,7 +2,8 @@ import QtQuick
 import Quickshell.Hyprland
 import qs.services
 
-// The focused window: the app's glyph and the window title (compact: the app's name), from Hyprland.
+// The focused window: the app's glyph and the window title, from Hyprland (the compact bar too: the left
+// half is otherwise empty there; it gives way to the centre all the same).
 // Hidden on an empty workspace.
 Pill {
     id: pill
@@ -45,11 +46,11 @@ Pill {
         }
         Label {
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.min(implicitWidth, pill.compact ? 160 : 340, Math.max(60, pill.titleRoom))
+            width: Math.min(implicitWidth, pill.compact ? 300 : 340, Math.max(60, pill.titleRoom))
             elide: Text.ElideRight
             color: Theme.dim
             font.pixelSize: pill.compact ? Theme.fontCompact : Theme.fontSize
-            text: pill.compact || !pill.shortTitle || pill.shortTitle.toLowerCase() === pill.app.name.toLowerCase()
+            text: !pill.shortTitle || pill.shortTitle.toLowerCase() === pill.app.name.toLowerCase()
                   ? pill.app.name : pill.shortTitle
         }
     }

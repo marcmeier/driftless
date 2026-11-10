@@ -91,6 +91,40 @@ PanelWindow {
             height: 1
             color: Theme.border
         }
+
+        // the screen's corners: a mouse pushed against them lands in the bar's margin, beside the
+        // outermost part; there a click does what a click on that part does (Fitts: an edge is a
+        // target you cannot miss)
+        EdgeReach {
+            anchors.left: parent.left
+        }
+        EdgeReach {
+            anchors.right: parent.right
+            last: true
+        }
+    }
+
+    component EdgeReach: MouseArea {
+        property bool last: false
+        // the bar's margin and the pill's padding before the part begins
+        width: Theme.barSide + (bar.compact ? 3 : 4)
+        y: Theme.barGap
+        height: Theme.barHeight
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+        onClicked: mouse => bar.clickEdge(last, mouse.button)
+    }
+    // a click on the outermost part, as its own MouseArea does it (Seg.qml)
+    function clickEdge(last, button) {
+        const list = reachable();
+        const s = last ? list[list.length - 1] : list[0];
+        if (!s)
+            return;
+        hideTip(s);
+        if (!s.popupComponent)
+            closePopup();
+        s.clicked(button);
     }
 
     Item {

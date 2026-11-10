@@ -84,7 +84,7 @@ Singleton {
     readonly property int fontSmall: 15
     readonly property int fontCaption: 14
     readonly property int fontClock: 19
-    readonly property int fontCompact: 14
+    readonly property int fontCompact: 15
     readonly property int fontTitle: 18     // a title of its own: a settings page, the machine in "About"
     readonly property int fontFigure: 22    // the one big number of a popup (the temperature)
     readonly property real letterSpacing: 0

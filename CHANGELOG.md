@@ -4,6 +4,21 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.30.0 (2026-11-10): a calmer bar
+
+### Changed
+- **The window title in the compact bar too**: it showed only the app's name there, so the left half
+  stayed nearly empty while the right side is full. It still gives way to the centre.
+- **The dictation icon is dim while it waits**, like its neighbours: the accent only while it
+  transcribes, red while it records.
+- **Keep awake shows in the bar only while it is on**, like the updates: turn it on in the settings
+  under "When you are away", a click on the cup turns it off.
+- **15 px in the compact bar** instead of 14 px; it fits, also with music and a long window title.
+
+### Fixed
+- **The screen's corners are targets**: a mouse pushed into the top left or right corner landed in
+  the bar's margin and hit nothing; a click there now opens what the name or the power button opens.
+
 ## v2.29.0 (2026-11-09): the wallpaper palette
 
 ### Added

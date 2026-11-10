@@ -23,7 +23,8 @@ Seg {
         anchors.verticalCenter: parent.verticalCenter
         text: seg.mode === "recording" ? "\u{F0EC2}" : seg.mode === "busy" ? "\u{F01D8}" : "\u{F147D}"
         size: 16
-        color: seg.mode === "recording" ? Theme.crit : Theme.accent
-
+        // the accent only while it works, red while it records, otherwise as quiet as its neighbours
+        color: seg.mode === "recording" ? Theme.crit : seg.mode === "busy" ? Theme.accent
+             : seg.hovered ? Theme.text : Theme.dim
     }
 }
