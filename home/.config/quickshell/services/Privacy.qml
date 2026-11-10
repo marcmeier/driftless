@@ -20,12 +20,9 @@ Singleton {
     readonly property bool micMuted: !!(source && source.audio && source.audio.muted)
     readonly property real micLevel: source && source.audio ? source.audio.volume : 0
 
-    readonly property var micApps: linked((s, t) => device(s, PwNodeType.Audio) && t.type === PwNodeType.AudioInStream && !meter(t))
-    readonly property var cameraApps: merge(linked((s, t) => device(s, PwNodeType.Video) && isCamera(s) && t.isStream), directCamera)
-    readonly property var screenApps: {
-        const apps = linked((s, t) => !!(s.type & PwNodeType.Video) && !isCamera(s) && t.isStream);
-        return apps.length ? apps : hyprCast ? ["an app"] : [];
-    }
+    readonly property var micApps: micSteady.apps
+    readonly property var cameraApps: cameraSteady.apps
+    readonly property var screenApps: screenSteady.apps
     readonly property bool mic: micApps.length > 0
     readonly property bool camera: cameraApps.length > 0
     readonly property bool screen: screenApps.length > 0
@@ -33,6 +30,44 @@ Singleton {
 
     property var directCamera: []
     property bool hyprCast: false
+
+    // Programs often open a device for a moment while they start (Wine looks at every microphone
+    // and camera, a new stream counts before its properties say it is a level meter): only show
+    // what lasts, and keep it a moment after it ends, so the bar does not flicker and jump
+    Steady {
+        id: micSteady
+        now: privacy.linked((s, t) => privacy.device(s, PwNodeType.Audio) && t.type === PwNodeType.AudioInStream && !privacy.meter(t))
+    }
+    Steady {
+        id: cameraSteady
+        now: privacy.merge(privacy.linked((s, t) => privacy.device(s, PwNodeType.Video) && privacy.isCamera(s) && t.isStream), privacy.directCamera)
+    }
+    Steady {
+        id: screenSteady
+        now: {
+            const apps = privacy.linked((s, t) => !!(s.type & PwNodeType.Video) && !privacy.isCamera(s) && t.isStream);
+            return apps.length ? apps : privacy.hyprCast ? ["an app"] : [];
+        }
+    }
+
+    // apps follows now, but only once it has had apps for a second (or none for two)
+    component Steady: Timer {
+        property var now: []
+        property var apps: []
+        interval: now.length ? 1000 : 2000
+        onNowChanged: {
+            if (now.length && apps.length) {
+                stop();
+                apps = now;
+            } else if (!now.length && !apps.length) {
+                stop();
+            } else if (!running) {
+                start();
+            }
+        }
+        onTriggered: apps = now
+        Component.onCompleted: nowChanged()
+    }
 
     function toggleMute() {
         if (source && source.audio)

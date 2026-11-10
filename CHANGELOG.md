@@ -4,6 +4,14 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.31.1 (2026-11-10): a steady privacy indicator
+
+### Fixed
+- **The privacy indicator no longer flickers while programs start**: many open the microphone or
+  camera for a moment (Wine looks at every device), and a new level meter counted as a recording
+  until its properties arrived. The indicator now shows what lasts a second and stays two seconds
+  after it ends, so the bar no longer jumps.
+
 ## v2.31.0 (2026-11-10): signed releases
 
 ### Added
