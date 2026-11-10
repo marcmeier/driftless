@@ -210,6 +210,14 @@ new machine), and its popup has it unfolded, with *Sync now* and the mode (*Ask 
 `hosts/*` (but `hosts/example`). As a last guard, every exported file is searched for the terms in
 `personal/forbidden`; one hit aborts the export.
 
+The public history is signed too: the commit carries this machine's SSH signature, and
+`--tag v2.31.0` adds a signed tag for a release. `docs/release-signers` lists the public keys from
+`signers/` (without the machines' names), so anyone can check a release:
+
+```bash
+git -c gpg.ssh.allowedSignersFile=docs/release-signers verify-tag v2.31.0
+```
+
 ## Checks
 
 ```bash

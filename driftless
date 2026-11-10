@@ -16,7 +16,7 @@
 #   driftless dconf load|capture    GNOME/GTK settings from / into dconf.ini
 #   driftless verify                read-only check, exit code = number of failures
 #   driftless facts | manifest KIND  this machine's facts / manifest lines of one kind
-#   driftless publish OUT [--push]  the public template: everything but personal/, hosts/, signers/
+#   driftless publish OUT [--push [--tag vX.Y.Z]]  the public template, signed: everything but personal/, hosts/, signers/
 set -euo pipefail
 export LC_ALL=C
 

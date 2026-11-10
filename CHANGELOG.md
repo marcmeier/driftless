@@ -4,6 +4,18 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.31.0 (2026-11-10): signed releases
+
+### Added
+- **Releases you can check**: the public template's commits and its release tags are now signed
+  with the SSH keys of the machines that publish them. `docs/release-signers` lists those keys, so
+  `git -c gpg.ssh.allowedSignersFile=docs/release-signers verify-tag v2.31.0` shows whether a release
+  is the real one. In your own copy, `driftless publish OUT --push --tag vX.Y.Z` does the same with
+  your machines' keys.
+
+### Fixed
+- **The licence names driftless**: its copyright line still named the project's old name.
+
 ## v2.30.1 (2026-11-10): new screenshots
 
 ### Changed

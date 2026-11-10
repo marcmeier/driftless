@@ -48,3 +48,32 @@ setup() {
   run grep -rnIE -f <(grep -v '^\s*\(#\|$\)' "$(repo A)/personal/forbidden") "$T/public" --exclude-dir=.git
   [ "$status" -eq 1 ]
 }
+
+@test "--push signs the commit and --tag a tag; release-signers lists the keys without host names" {
+  dl A signing setup > /dev/null
+  git init -q --bare -b main "$T/public.git"
+  git clone -q "$T/public.git" "$T/pub" 2> /dev/null
+  git -C "$T/pub" config user.name t
+  git -C "$T/pub" config user.email t@t
+  run dl A publish "$T/pub" --push --tag v9.9.9
+  [ "$status" -eq 0 ]
+  [[ $output == *"signed tag v9.9.9"* ]]
+  signers=$T/pub/docs/release-signers
+  grep -q "^driftless-release namespaces=\"git\" ssh-ed25519 " "$signers"
+  ! grep -q " A$\|driftless A" "$signers"
+  git -C "$T/pub" -c gpg.ssh.allowedSignersFile="$signers" verify-commit HEAD
+  git -C "$T/pub" -c gpg.ssh.allowedSignersFile="$signers" verify-tag v9.9.9
+  [ "$(git -C "$T/public.git" rev-parse v9.9.9^{commit})" = "$(git -C "$T/pub" rev-parse HEAD)" ]
+}
+
+@test "a tag needs --push, and an existing tag is not replaced" {
+  run dl A publish "$T/public" --tag v9.9.9
+  [ "$status" -ne 0 ]
+  [[ $output == *"--tag needs --push"* ]]
+  dl A signing setup > /dev/null
+  git -C "$T/public" -c user.name=t -c user.email=t@t commit -q --allow-empty -m init
+  git -C "$T/public" tag v9.9.9
+  run dl A publish "$T/public" --push --tag v9.9.9
+  [ "$status" -ne 0 ]
+  [[ $output == *"already has a tag v9.9.9"* ]]
+}
