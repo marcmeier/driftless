@@ -4,6 +4,13 @@
 
 Versions follow the [releases](../../releases), which have the full notes.
 
+## v2.30.1 (2026-11-10): new screenshots
+
+### Changed
+- **Every picture in the README and FEATURES shows the current look**: Inter, the 36 px bar without
+  pills, the shadows, the plain palette (and the light look where it is about the light look). New: the
+  palette "Wallpaper" in the settings, with the previews of the wallpaper folder.
+
 ## v2.30.0 (2026-11-10): a calmer bar
 
 ### Changed

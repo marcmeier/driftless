@@ -209,7 +209,7 @@ the desktop looks borrowed from another program.
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/theme-notifications.jpg" alt="Three notifications at the top right: a sync, a download with progress, a mail with buttons"><br><sub>Notifications below the bar.</sub></td>
+<td width="50%"><img src="docs/img/theme-notifications.jpg" alt="Three notifications at the top right: a message with buttons, a download with progress, a sync"><br><sub>Notifications below the bar.</sub></td>
 <td width="50%"><img src="docs/img/notifications-list.jpg" alt="The list of notifications grouped by app, with do not disturb and clear" width="300"><br><sub>The bell's list, grouped by app.</sub></td>
 </tr>
 <tr>
@@ -307,6 +307,9 @@ accent). The calendar, fastfetch, bat and fzf use the terminal's accent slots, s
 <tr>
 <td width="50%"><img src="docs/img/theme-tiled.jpg" alt="Tiled windows in the dark look: btop, Nautilus and Ghostty"><br><sub>Dark.</sub></td>
 <td width="50%"><img src="docs/img/theme-light.jpg" alt="The same windows in the light look"><br><sub>Light.</sub></td>
+</tr>
+<tr>
+<td colspan="2"><img src="docs/img/settings-wallpaper.jpg" alt="The settings with the palette Wallpaper: the desktop in the image's blue, the bar and settings tinted to match, previews of the wallpaper folder below"><br><sub>The palette "Wallpaper": the colours come from the image, a preview below puts another one up.</sub></td>
 </tr>
 </table>
 

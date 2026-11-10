@@ -88,6 +88,10 @@ A new machine gets everything from two scripts.
 <td><img src="docs/img/theme-light.jpg" alt="The light look: btop, Ghostty and Nautilus"><br><sub>The light look.</sub></td>
 <td><img src="docs/img/settings.jpg" alt="The settings popup: pages on the left, dark, light or auto and the palettes on the right"><br><sub>Dark, light or with the sun, and the palette, chosen in the settings.</sub></td>
 </tr>
+<tr>
+<td><img src="docs/img/settings-wallpaper.jpg" alt="The palette Wallpaper: desktop, bar and settings in the colours of the image"><br><sub>The palette "Wallpaper": the colours come from the image.</sub></td>
+<td><img src="docs/img/keybinds.jpg" alt="walker listing every keybinding with its description"><br><sub>Every key, searchable (<code>SUPER + SHIFT + K</code>).</sub></td>
+</tr>
 </table>
 
 ## How it compares
